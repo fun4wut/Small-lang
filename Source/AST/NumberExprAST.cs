@@ -5,6 +5,7 @@ using System.Text;
 namespace Kumiko_lang.AST
 {
     [ToString]
+    [Equals(DoNotAddEqualityOperators =true)]
     public sealed class NumberExprAST : ExprAST
     {
 
@@ -15,14 +16,6 @@ namespace Kumiko_lang.AST
 
         public int Value { get; private set; }
         public override ExprType NodeType { get; protected set; } = ExprType.NumberExpr;
-
-        public override bool Equals(object? obj)
-        {
-            return obj is NumberExprAST aST &&
-                   NodeType == aST.NodeType &&
-                   Value == aST.Value &&
-                   NodeType == aST.NodeType;
-        }
 
         protected internal override ExprAST? Accept(ExprVisitor visitor)
         {

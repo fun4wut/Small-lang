@@ -62,10 +62,10 @@ namespace Kumiko_lang
                 ),
                 new[]
                 {
-                    Operator.InfixL(Mul)
-                        .And(Operator.InfixL(Div)),
-                    Operator.InfixL(Add)
-                        .And(Operator.InfixL(Sub)),
+                    Pidgin.Expression.Operator.InfixL(Mul)
+                        .And(Pidgin.Expression.Operator.InfixL(Div)),
+                    Pidgin.Expression.Operator.InfixL(Add)
+                        .And(Pidgin.Expression.Operator.InfixL(Sub)),
                 }
             )
         ).Labelled("expression");
