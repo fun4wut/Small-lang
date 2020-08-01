@@ -15,6 +15,14 @@ namespace Kumiko_lang.AST
         public string Name { get; }
         public override ExprType NodeType { get; protected set; } = ExprType.VariableExpr;
 
+        public override bool Equals(object? obj)
+        {
+            return obj is VariableExprAST aST &&
+                   NodeType == aST.NodeType &&
+                   Name == aST.Name &&
+                   NodeType == aST.NodeType;
+        }
+
         protected internal override ExprAST? Accept(ExprVisitor visitor)
         {
             return base.Accept(visitor);
