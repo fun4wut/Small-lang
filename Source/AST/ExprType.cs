@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Kumiko_lang.AST
+﻿namespace Kumiko_lang.AST
 {
     public enum ExprType
     {
@@ -15,6 +11,7 @@ namespace Kumiko_lang.AST
         VariableExpr,
         PrototypeExpr,
         FunctionExpr,
-        NumberExpr
+        IntExpr,
+        FloatExpr
     }
 }

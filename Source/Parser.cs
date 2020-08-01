@@ -7,10 +7,10 @@ using Kumiko_lang.AST;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ExpOperator = Pidgin.Expression.Operator;
 
 namespace Kumiko_lang
 {
-
     public sealed partial class LangParser
     {
         #region Helper methods
@@ -49,12 +49,15 @@ namespace Kumiko_lang
                 .Labelled("identifier");
 
         static Parser<char, ExprAST> Lit =
-            Tok(Num)
-                .Select<ExprAST>(elm => new NumberExprAST(elm))
-                .Labelled("Literial");
+            Tok(Real)
+                .Select(elm => elm.ToString().Contains('.')
+                    ? new FloatExprAST(elm) as ExprAST 
+                    : new IntExprAST((int)elm) as ExprAST 
+                )
+                .Labelled("literial");
 
         static Parser<char, ExprAST> Expr = ExpressionParser.Build<char, ExprAST>(
-            expr => (
+            expr => ( 
                 OneOf(
                     Lit,
                     Ident,
@@ -62,10 +65,10 @@ namespace Kumiko_lang
                 ),
                 new[]
                 {
-                    Pidgin.Expression.Operator.InfixL(Mul)
-                        .And(Pidgin.Expression.Operator.InfixL(Div)),
-                    Pidgin.Expression.Operator.InfixL(Add)
-                        .And(Pidgin.Expression.Operator.InfixL(Sub)),
+                    ExpOperator.InfixL(Mul)
+                        .And(ExpOperator.InfixL(Div)),
+                    ExpOperator.InfixL(Add)
+                        .And(ExpOperator.InfixL(Sub)),
                 }
             )
         ).Labelled("expression");

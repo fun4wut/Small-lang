@@ -6,16 +6,16 @@ namespace Kumiko_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators =true)]
-    public sealed class NumberExprAST : ExprAST
+    public sealed class IntExprAST : ExprAST
     {
 
-        public NumberExprAST(int val)
+        public IntExprAST(int val)
         {
             this.Value = val;
         }
 
         public int Value { get; private set; }
-        public override ExprType NodeType { get; protected set; } = ExprType.NumberExpr;
+        public override ExprType NodeType { get; protected set; } = ExprType.IntExpr;
 
         protected internal override ExprAST? Accept(ExprVisitor visitor)
         {
