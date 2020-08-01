@@ -2,10 +2,11 @@ using NUnit.Framework;
 using Kumiko_lang;
 using Kumiko_lang.AST;
 using System.Collections.Generic;
+using System;
 
 namespace Test
 {
-    public class Tests
+    public class ParserTests
     {
 
         [SetUp]
@@ -14,10 +15,10 @@ namespace Test
         }
 
         [Test]
-        public void TestSingle()
+        public void SingleLine()
         {
-            var s = "a2a*(133+2.3);";
-            var expectecd = new List<ExprAST>
+            var s = "a2a*(133+2.3);12;";
+            var expected = new List<ExprAST>
             {
                 new BinaryExprAST(
                     ExprType.MultiplyExpr,
@@ -27,17 +28,44 @@ namespace Test
                         new IntExprAST(133),
                         new FloatExprAST(2.3)
                     )
-                )
+                ),
+                new IntExprAST(12)
             };
-            Assert.AreEqual(expectecd, LangParser.ParseOrThrow(s));
+            Assert.AreEqual(expected, LangParser.ParseOrThrow(s));
         }
 
         [Test]
-        public void TestDemo()
+        public void MultiLine()
         {
-            Assert.IsTrue(2.3 / 1 - 2.3 == 0);
+            var s = @"
+a;;;
+
+
+12;";
+            var expected = new List<ExprAST>
+            {
+                new VariableExprAST("a"),
+                new IntExprAST(12)
+            };
+            Assert.AreEqual(expected, LangParser.ParseOrThrow(s));
         }
 
-
+        [Test]
+        public void Assignment()
+        {
+            var s = "let a12 = a*31;";
+            var expected = new List<ExprAST>
+            {
+                new AssignExprAST(
+                    "a12",
+                    new BinaryExprAST(
+                        ExprType.MultiplyExpr,
+                        new VariableExprAST("a"),
+                        new IntExprAST(31)
+                    )
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseOrThrow(s));
+        }
     }
 }

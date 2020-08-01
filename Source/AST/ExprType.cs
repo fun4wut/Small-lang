@@ -12,6 +12,7 @@
         PrototypeExpr,
         FunctionExpr,
         IntExpr,
-        FloatExpr
+        FloatExpr,
+        AssignExpr,
     }
 }

@@ -22,7 +22,7 @@ namespace Kumiko_lang
             => op.Select<Func<ExprAST, ExprAST, ExprAST>>(op => (l, r) => new BinaryExprAST(op, l, r));
         #endregion
 
-        #region Char tokens
+        #region tokens
         static Parser<char, char>
             SemiColon = Tok(';'),
             LBracket = Tok('('),
@@ -32,6 +32,13 @@ namespace Kumiko_lang
             Times = Tok('*'),
             Divide = Tok('/'),
             Assign = Tok('=');
+
+        static Parser<char, string>
+            Let = Tok("let"),
+            Ident = Tok(Letter.Then(LetterOrDigit.ManyString(), (h, t) => h + t));
+
+        static Parser<char, Unit> Delimiter = SemiColon.SkipAtLeastOnce().Then(EndOfLine.SkipMany());
+
         #endregion
 
         #region Binary operations
@@ -43,12 +50,12 @@ namespace Kumiko_lang
         #endregion
 
         #region Parsers
-        static Parser<char, ExprAST> Ident =
-            Tok(Letter.Then(LetterOrDigit.ManyString(), (h, t) => h + t))
+        static Parser<char, ExprAST> PIdent =
+            Ident
                 .Select<ExprAST>(s => new VariableExprAST(s))
                 .Labelled("identifier");
 
-        static Parser<char, ExprAST> Lit =
+        static Parser<char, ExprAST> PLit =
             Tok(Real)
                 .Select(elm => elm.ToString().Contains('.')
                     ? new FloatExprAST(elm) as ExprAST 
@@ -56,11 +63,18 @@ namespace Kumiko_lang
                 )
                 .Labelled("literial");
 
-        static Parser<char, ExprAST> Expr = ExpressionParser.Build<char, ExprAST>(
+        static Parser<char, ExprAST> PAssign = 
+            from _0 in Let
+            from ident in Ident
+            from _1 in Assign
+            from val in PNormalExpr
+            select new AssignExprAST(ident, val) as ExprAST;
+
+        static Parser<char, ExprAST> PNormalExpr = ExpressionParser.Build<char, ExprAST>(
             expr => ( 
                 OneOf(
-                    Lit,
-                    Ident,
+                    PLit,
+                    PIdent,
                     Parenthesised(expr).Labelled("parenthesised expression")
                 ),
                 new[]
@@ -73,12 +87,16 @@ namespace Kumiko_lang
             )
         ).Labelled("expression");
 
-        static Parser<char, IEnumerable<ExprAST>> Program = Expr.Before(SemiColon).Many();
+        static Parser<char, IEnumerable<ExprAST>> Program = 
+            PAssign
+                .Or(PNormalExpr)
+                .Before(Delimiter).Many();
 
         #endregion
 
         #region Entry
-        public static List<ExprAST> ParseOrThrow(string input) => Program.ParseOrThrow(input).ToList();
+        public static List<ExprAST> 
+            ParseOrThrow(string input) => Program.ParseOrThrow(input.Trim()).ToList();
         #endregion
 
     }
