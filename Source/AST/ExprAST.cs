@@ -8,8 +8,6 @@ namespace Kumiko_lang.AST
     {
         public abstract ExprType NodeType { get; protected set; }
 
-        protected internal virtual ExprAST? VisitChildren(ExprVisitor visitor) => visitor.Visit(this);
-
-        protected internal virtual ExprAST? Accept(ExprVisitor visitor) => visitor.VisitExtension(this);
+        protected internal abstract ExprAST? Accept(ExprVisitor visitor);
     }
 }

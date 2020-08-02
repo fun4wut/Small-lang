@@ -31,7 +31,7 @@ namespace Test
                 ),
                 new IntExprAST(12)
             };
-            Assert.AreEqual(expected, LangParser.ParseOrThrow(s));
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
 
         [Test]
@@ -47,7 +47,7 @@ a;;;
                 new VariableExprAST("a"),
                 new IntExprAST(12)
             };
-            Assert.AreEqual(expected, LangParser.ParseOrThrow(s));
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
 
         [Test]
@@ -65,7 +65,7 @@ a;;;
                     )
                 )
             };
-            Assert.AreEqual(expected, LangParser.ParseOrThrow(s));
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
     }
 }

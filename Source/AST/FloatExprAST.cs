@@ -15,10 +15,6 @@ namespace Kumiko_lang.AST
 
         public double Value { get; }
         public override ExprType NodeType { get; protected set; } = ExprType.FloatExpr;
-
-        protected internal override ExprAST? Accept(ExprVisitor visitor)
-        {
-            return base.Accept(visitor);
-        }
+        protected internal override ExprAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
     }
 }

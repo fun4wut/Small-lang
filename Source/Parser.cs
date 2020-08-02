@@ -22,7 +22,7 @@ namespace Kumiko_lang
             => op.Select<Func<ExprAST, ExprAST, ExprAST>>(op => (l, r) => new BinaryExprAST(op, l, r));
         #endregion
 
-        #region tokens
+        #region Tokens
         static Parser<char, char>
             SemiColon = Tok(';'),
             LBracket = Tok('('),
@@ -87,16 +87,16 @@ namespace Kumiko_lang
             )
         ).Labelled("expression");
 
-        static Parser<char, IEnumerable<ExprAST>> Program = 
-            PAssign
-                .Or(PNormalExpr)
-                .Before(Delimiter).Many();
+        static Parser<char, ExprAST> Stmt = PAssign.Or(PNormalExpr);
+
+        static Parser<char, IEnumerable<ExprAST>> Program = Stmt.Before(Delimiter).Many();
 
         #endregion
 
         #region Entry
-        public static List<ExprAST> 
-            ParseOrThrow(string input) => Program.ParseOrThrow(input.Trim()).ToList();
+        public static List<ExprAST> ParseAll(string input) => Program.ParseOrThrow(input.Trim()).ToList();
+
+        public static ExprAST ParseSingle(string input) => Stmt.ParseOrThrow(input.Trim());
         #endregion
 
     }

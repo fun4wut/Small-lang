@@ -1,13 +1,40 @@
 ﻿using System;
-using System.Linq;
+using System.Runtime.InteropServices;
+using Kumiko_lang.Codegen;
+using LLVMSharp;
 
 namespace Kumiko_lang
 {
     class Program
     {
-        static void Main(string[] args)
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int Add(int a, int b);
+
+        private static void Main(string[] args)
         {
-            var s = "ab*(1+2);1+33;";
+            // Make the module, which holds all the code.
+            LLVMModuleRef module = LLVM.ModuleCreateWithName("my cool jit");
+            LLVMBuilderRef builder = LLVM.CreateBuilder();
+            var visitor = new CodeGenVisitor(module, builder);
+            string s;
+            while ((s = Console.ReadLine()) != null)
+            {
+                if (s == "") continue;
+                var stmt = LangParser.ParseSingle(s);
+                visitor.Visit(stmt);
+
+                Console.Write("Output: ");
+                if (visitor.ResultStack.TryPop(out var v))
+                {
+                    LLVM.DumpValue(v);
+                    Console.WriteLine();
+                }
+                else
+                {
+                    Console.WriteLine("void");
+                }
+            }
+            LLVM.DumpModule(module);
         }
     }
 }

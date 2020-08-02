@@ -20,8 +20,7 @@ namespace Kumiko_lang.AST
         public ExprAST Lhs { get; private set; }
         public ExprAST Rhs { get; private set; }
 
+        protected internal override ExprAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
 
-        protected internal override ExprAST? Accept(ExprVisitor visitor) => visitor.VisitBinaryExprAST(this);
-        
     }
 }
