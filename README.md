@@ -1,6 +1,10 @@
 # [WIP] Kumiko-lang Intro
 
-![](https://gofun4-pic.oss-cn-hangzhou.aliyuncs.com/422a92f0434f1a69.gif)
+<img 
+	src="https://gofun4-pic.oss-cn-hangzhou.aliyuncs.com/1580649737338.jpeg"
+	width="40%"
+/>
+
 
 一个玩具语言，编译到LLVM
 

@@ -6,7 +6,7 @@ using Kumiko_lang.AST;
 
 namespace Kumiko_lang.Codegen
 {
-    class CodeGenVisitor : ExprVisitor
+    public class CodeGenVisitor : ExprVisitor
     {
         private readonly LLVMModuleRef module;
 
