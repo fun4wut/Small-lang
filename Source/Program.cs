@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Kumiko_lang.AST;
 using Kumiko_lang.Codegen;
 using LLVMSharp;
 
@@ -7,9 +8,6 @@ namespace Kumiko_lang
 {
     class Program
     {
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int Add(int a, int b);
-
         private static void Main(string[] args)
         {
             // Make the module, which holds all the code.
@@ -20,8 +18,7 @@ namespace Kumiko_lang
             while ((s = Console.ReadLine()) != null)
             {
                 if (s == "") continue;
-                var stmt = LangParser.ParseSingle(s);
-                visitor.Visit(stmt);
+                LangParser.ParseSingle(s).Compile(visitor);
 
                 Console.Write("Output: ");
                 if (visitor.ResultStack.TryPop(out var v))

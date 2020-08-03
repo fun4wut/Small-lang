@@ -27,8 +27,7 @@ namespace Test
         public void Arithmetic()
         {
             var s = "1+2;";
-            var ast = LangParser.ParseAll(s);
-            ast.ForEach(expr => visitor.Visit(expr));
+            LangParser.ParseAll(s).Compile(visitor);
             Assert.AreEqual("i64 3", visitor.ResultStack.Pop().ToString());
         }
 
@@ -36,9 +35,22 @@ namespace Test
         public void Assignment()
         {
             var s = "let a = -5; a * 2 + 2;";
-            var ast = LangParser.ParseAll(s);
-            ast.ForEach(expr => visitor.Visit(expr));
+            LangParser.ParseAll(s).Compile(visitor);
             Assert.AreEqual("i64 -8", visitor.ResultStack.Pop().ToString());
+        }
+
+        [Test]
+        public void DupDecl()
+        {
+            var s = "let a = -5; let a = 10;";
+            Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
+        }
+
+        [Test]
+        public void UndefinedVar()
+        {
+            var s = "a+1;";
+            Assert.Throws<UndefinedVarException>(() => LangParser.ParseAll(s).Compile(visitor));
         }
     }
 }

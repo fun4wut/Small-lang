@@ -15,4 +15,11 @@
         FloatExpr,
         AssignExpr,
     }
+
+    public enum TypeEnum
+    {
+        Int, // i64
+        Float, // double
+        Bool
+    }
 }

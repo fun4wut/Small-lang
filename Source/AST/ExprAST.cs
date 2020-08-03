@@ -10,4 +10,26 @@ namespace Kumiko_lang.AST
 
         protected internal abstract ExprAST? Accept(ExprVisitor visitor);
     }
+
+    public static class ASTExtensions
+    {
+        public static void Compile(this List<ExprAST> exprASTs, ExprVisitor visitor) =>
+             exprASTs.ForEach(expr => visitor.Visit(expr));
+
+        public static void Compile(this ExprAST exprAST, ExprVisitor visitor) => visitor.Visit(exprAST);
+    }
+
+    [ToString]
+    [Equals(DoNotAddEqualityOperators = true)]
+    public struct TypedArg
+    {
+        public TypedArg(string name, TypeEnum type)
+        {
+            Name = name;
+            Type = type;
+        }
+
+        public string Name { get; }
+        public TypeEnum Type { get; }
+    }
 }

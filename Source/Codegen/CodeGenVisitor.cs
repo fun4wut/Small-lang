@@ -50,7 +50,7 @@ namespace Kumiko_lang.Codegen
         {
             if (this.symTbl.ContainsKey(node.Name))
             {
-                throw new Exception("Duplicate Variable name");
+                throw new DupDeclException();
             }
             this.Visit(node.Value);
             var top = this.ResultStack.Pop();
@@ -79,9 +79,11 @@ namespace Kumiko_lang.Codegen
             }
             else
             {
-                throw new Exception("Unknown variable name");
+                throw new UndefinedVarException();
             }
             return node;
         }
+
     }
+
 }

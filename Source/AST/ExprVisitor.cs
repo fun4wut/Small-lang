@@ -10,15 +10,19 @@ namespace Kumiko_lang.AST
 
         public virtual ExprAST? Visit(ExprAST? node) => node?.Accept(this);
 
-        protected internal abstract ExprAST VisitAST(BinaryExprAST node);
+        protected internal virtual ExprAST VisitAST(BinaryExprAST node) => node;
 
-        protected internal abstract ExprAST VisitAST(AssignExprAST node);
+        protected internal virtual ExprAST VisitAST(AssignExprAST node) => node;
 
-        protected internal abstract ExprAST VisitAST(FloatExprAST node);
+        protected internal virtual ExprAST VisitAST(FloatExprAST node) => node;
 
-        protected internal abstract ExprAST VisitAST(IntExprAST node);
+        protected internal virtual ExprAST VisitAST(IntExprAST node) => node;
 
-        protected internal abstract ExprAST VisitAST(VariableExprAST node);
+        protected internal virtual ExprAST VisitAST(VariableExprAST node) => node;
+
+        protected internal virtual ExprAST VisitAST(ProtoExprAST node) => node;
+
+        protected internal virtual ExprAST VisitAST(FuncExprAST node) => node;
 
     }
 }

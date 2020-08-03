@@ -18,6 +18,7 @@ namespace Kumiko_lang
         static Parser<char, char> Tok(char value) => Tok(Char(value));
         static Parser<char, string> Tok(string value) => Tok(String(value));
         static Parser<char, T> Parenthesised<T>(Parser<char, T> parser) => parser.Between(LBracket, RBracket);
+        static Parser<char, T> Body<T>(Parser<char, T> parser) => parser.Between(LBrace, RBrace);
         private static Parser<char, Func<ExprAST, ExprAST, ExprAST>> Binary(Parser<char, ExprType> op)
             => op.Select<Func<ExprAST, ExprAST, ExprAST>>(op => (l, r) => new BinaryExprAST(op, l, r));
         #endregion
@@ -25,8 +26,12 @@ namespace Kumiko_lang
         #region Tokens
         static Parser<char, char>
             SemiColon = Tok(';'),
+            Comma = Tok(','),
+            Colon = Tok(':'),
             LBracket = Tok('('),
             RBracket = Tok(')'),
+            LBrace = Tok('{'),
+            RBrace = Tok('}'),
             Plus = Tok('+'),
             Minus = Tok('-'),
             Times = Tok('*'),
@@ -35,7 +40,13 @@ namespace Kumiko_lang
 
         static Parser<char, string>
             Let = Tok("let"),
+            Fn = Tok("func"),
             Ident = Tok(Letter.Then(LetterOrDigit.ManyString(), (h, t) => h + t));
+
+        static Parser<char, TypeEnum>
+            Int = Tok("Int").ThenReturn(TypeEnum.Int),
+            Float = Tok("Float").ThenReturn(TypeEnum.Float),
+            Bool = Tok("Bool").ThenReturn(TypeEnum.Bool);
 
         static Parser<char, Unit> Delimiter = SemiColon.SkipAtLeastOnce().Then(EndOfLine.SkipMany());
 
@@ -50,44 +61,75 @@ namespace Kumiko_lang
         #endregion
 
         #region Parsers
-        static Parser<char, ExprAST> PIdent =
-            Ident
-                .Select<ExprAST>(s => new VariableExprAST(s))
-                .Labelled("identifier");
 
-        static Parser<char, ExprAST> PLit =
-            Tok(Real)
-                .Select(elm => elm.ToString().Contains('.')
-                    ? new FloatExprAST(elm) as ExprAST 
-                    : new IntExprAST((int)elm) as ExprAST 
-                )
-                .Labelled("literial");
-
-        static Parser<char, ExprAST> PAssign = 
-            from _0 in Let
+        static Parser<char, TypedArg> PTypedArg =
             from ident in Ident
-            from _1 in Assign
-            from val in PNormalExpr
-            select new AssignExprAST(ident, val) as ExprAST;
+            from _ in Colon
+            from ty in Int.Or(Float).Or(Bool)
+            select new TypedArg(ident, ty);
 
-        static Parser<char, ExprAST> PNormalExpr = ExpressionParser.Build<char, ExprAST>(
-            expr => ( 
-                OneOf(
-                    PLit,
-                    PIdent,
-                    Parenthesised(expr).Labelled("parenthesised expression")
-                ),
-                new[]
-                {
-                    ExpOperator.InfixL(Mul)
-                        .And(ExpOperator.InfixL(Div)),
-                    ExpOperator.InfixL(Add)
-                        .And(ExpOperator.InfixL(Sub)),
-                }
-            )
-        ).Labelled("expression");
+        static Parser<char, ExprAST>
+            PIdent = Ident
+                .Select<ExprAST>(s => new VariableExprAST(s))
+                .Labelled("identifier"),
 
-        static Parser<char, ExprAST> Stmt = PAssign.Or(PNormalExpr);
+            PLit = Tok(Real)
+                .Select(elm => elm.ToString().Contains('.')
+                    ? new FloatExprAST(elm) as ExprAST
+                    : new IntExprAST((int)elm) as ExprAST
+                )
+                .Labelled("literial"),
+
+            PAssign =
+                from _0 in Let
+                from ident in Ident
+                from _1 in Assign
+                from val in PNormalExpr
+                select new AssignExprAST(ident, val) as ExprAST,
+
+            Proto =
+                from _0 in Fn
+                from ident in Ident
+                from args in Parenthesised(PTypedArg.Separated(Comma))
+                select new ProtoExprAST(ident, args) as ExprAST,
+
+            PFunc = Proto.Then(
+                Body(Rec(() => NormalStmt).Before(Delimiter).Many()),
+                (proto, exprs) =>
+                    {
+                        var _proto = proto as ProtoExprAST;
+                        return new FuncExprAST(_proto!, exprs) as ExprAST;
+                    }
+            ),
+
+            PNormalExpr = ExpressionParser.Build<char, ExprAST>(
+                expr => (
+                    OneOf(
+                        PLit,
+                        PIdent,
+                        Parenthesised(expr).Labelled("parenthesised expression")
+                    ),
+                    new[]
+                    {
+                        ExpOperator.InfixL(Mul)
+                            .And(ExpOperator.InfixL(Div)),
+                        ExpOperator.InfixL(Add)
+                            .And(ExpOperator.InfixL(Sub)),
+                    }
+                )
+            ).Labelled("expression"),
+
+            TopFieldOnlyStmt = OneOf(
+                Try(PFunc),
+                Proto
+            ),
+
+            NormalStmt = OneOf(
+                PAssign,
+                PNormalExpr
+            ),
+        
+            Stmt = TopFieldOnlyStmt.Or(NormalStmt);
 
         static Parser<char, IEnumerable<ExprAST>> Program = Stmt.Before(Delimiter).Many();
 

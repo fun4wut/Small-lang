@@ -3,7 +3,9 @@ using Kumiko_lang;
 using Kumiko_lang.AST;
 using System.Collections.Generic;
 using System;
-
+using Pidgin;
+using static Pidgin.Parser;
+using static Pidgin.Parser<char>;
 namespace Test
 {
     public class ParserTests
@@ -63,6 +65,49 @@ a;;;
                         new VariableExprAST("a"),
                         new IntExprAST(31)
                     )
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
+
+        [Test]
+        public void Prototype()
+        {
+            var s = "func xyz(a: Int, b: Float);";
+            var expected = new List<ExprAST>
+            {
+                new ProtoExprAST(
+                    "xyz",
+                    new List<TypedArg>
+                    {
+                        new TypedArg ("a", TypeEnum.Int),
+                        new TypedArg ("b", TypeEnum.Float)
+                    }
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
+
+        [Test]
+        public void FuncDef()
+        {
+            var s = "func xyz(a: Int, b: Float) { 1; };";
+            var proto = new ProtoExprAST(
+                "xyz",
+                new List<TypedArg>
+                {
+                    new TypedArg ("a", TypeEnum.Int),
+                    new TypedArg ("b", TypeEnum.Float)
+                }
+            );
+            var expected = new List<ExprAST>
+            {
+                new FuncExprAST(
+                    proto,
+                    new List<ExprAST>
+                    {
+                        new IntExprAST(1)
+                    }
                 )
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));

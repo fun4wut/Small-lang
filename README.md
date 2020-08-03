@@ -6,23 +6,24 @@
 />
 
 
-一个玩具语言，编译到LLVM
+A toy compiler which targets to LLVM
 
 ## Requirements
 
 - Dotnet core 3.1
 - LLVM 9+
 
-## 所使用的库
+## Libraries
 
-- Pidgin：Parser Combinator
-- Fody：dotnet代码的codegen
-- LLVMSharp：LLVM的C# binding
+- Pidgin: Parser Combinator
+- Fody: codegen for dotnet
+- LLVMSharp: LLVM binding of C#
 
 ## Progress
 
-- [x] 简易的REPL计算器
-- [ ] 函数支持
-- [ ] 控制流
+- [x] REPL Calculator
+- [ ] Type System
+- [ ] Function
+- [ ] Control Statment
 - [ ] JIT
 - [ ] ???
