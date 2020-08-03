@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
@@ -28,7 +28,7 @@ namespace Test
         {
             var s = "1+2;";
             LangParser.ParseAll(s).Compile(visitor);
-            Assert.AreEqual("i64 3", visitor.ResultStack.Pop().ToString());
+            Assert.AreEqual("i64 3", visitor.PrintTop());
         }
 
         [Test]
@@ -36,11 +36,11 @@ namespace Test
         {
             var s = "let a = -5; a * 2 + 2;";
             LangParser.ParseAll(s).Compile(visitor);
-            Assert.AreEqual("i64 -8", visitor.ResultStack.Pop().ToString());
+            Assert.AreEqual("i64 -8", visitor.PrintTop());
         }
 
         [Test]
-        public void DupDecl()
+        public void Var_Var_Same_Name()
         {
             var s = "let a = -5; let a = 10;";
             Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
@@ -58,7 +58,46 @@ namespace Test
         {
             var s = "func ab(a: Int, b: Float) -> Float;";
             LangParser.ParseAll(s).Compile(visitor);
-            Assert.AreEqual("declare double @ab(i64, double)", visitor.ResultStack.Pop().ToString().Trim());
+            Assert.AreEqual("declare double @ab(i64, double)", visitor.PrintTop().Trim());
+        }
+
+        [Test]
+        public void Proto_NoParam()
+        {
+            var s = "func ab() -> Int;";
+            LangParser.ParseAll(s).Compile(visitor);
+            Assert.AreEqual("declare i64 @ab()", visitor.PrintTop());
+        }
+
+        [Test]
+        public void Func()
+        {
+            var s = "func ab(a: Int) -> Int {let b = a*10; b-a;};";
+            LangParser.ParseAll(s).Compile(visitor);
+            Assert.AreEqual(@"define i64 @ab(i64 %a) {
+entry:
+  %b = mul i64 %a, 10
+  %subtmp = sub i64 %b, %a
+  ret i64 %subtmp
+}", visitor.PrintTop());
+        }
+
+        [Test]
+        public void Var_Func_Same_Name()
+        {
+            var s = "func ab() -> Int; let ab = 1;";
+            Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
+            s = "let ab = 1;func ab() -> Int;";
+            Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
+        }
+
+        [Test]
+        public void Func_Func_Same_Name()
+        {
+            var s = "func ab() -> Int; func ab() -> Float;";
+            Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
+            s = "func ab() -> Int; func ab() -> Int {4;};";
+            Assert.DoesNotThrow(() => LangParser.ParseAll(s).Compile(visitor));
         }
     }
 }

@@ -16,7 +16,11 @@ namespace Kumiko_lang.Codegen
 
         private readonly LLVMBuilderRef builder;
 
-        private readonly Dictionary<string, LLVMValueRef> symTbl = new Dictionary<string, LLVMValueRef>();
+        private Dictionary<string, LLVMValueRef> symTbl = new Dictionary<string, LLVMValueRef>();
+
+        private HashSet<string> fnSet = new HashSet<string>();
+
+        private Dictionary<string, LLVMValueRef>? tmpTbl = null;
 
         public CodeGenVisitor(LLVMModuleRef module, LLVMBuilderRef builder)
         {
@@ -31,13 +35,31 @@ namespace Kumiko_lang.Codegen
             this.ResultStack.Clear();
         }
 
+        public string PrintTop() => this.ResultStack.Pop().PrintValueToString().Trim();
+
+        void CheckNoDup(AssignExprAST node)
+        {
+            if (this.symTbl.ContainsKey(node.Name) || this.fnSet.Contains(node.Name))
+            {
+                throw new DupDeclException();
+            }
+        }
+
+        void CheckNoDup(ProtoExprAST node)
+        {
+            if (this.symTbl.ContainsKey(node.Name))
+            {
+                throw new DupDeclException();
+            }
+        }
+
         protected internal override ExprAST VisitAST(BinaryExprAST node)
         {
             this.Visit(node.Lhs);
             this.Visit(node.Rhs);
 
             LLVMValueRef r = this.ResultStack.Pop(), l = this.ResultStack.Pop();
-
+            
             var n = node.NodeType switch
             {
                 ExprType.AddExpr => LLVM.BuildAdd(this.builder, l, r, "addtmp"),
@@ -52,10 +74,7 @@ namespace Kumiko_lang.Codegen
 
         protected internal override ExprAST VisitAST(AssignExprAST node)
         {
-            if (this.symTbl.ContainsKey(node.Name))
-            {
-                throw new DupDeclException();
-            }
+            this.CheckNoDup(node);
             this.Visit(node.Value);
             var top = this.ResultStack.Pop();
             top.SetValueName(node.Name);
@@ -90,8 +109,9 @@ namespace Kumiko_lang.Codegen
 
         protected internal override ExprAST VisitAST(ProtoExprAST node)
         {
+            this.CheckNoDup(node);
             var argCnt = (uint)node.Arguments.Count;
-            var args = new LLVMTypeRef[Math.Max(argCnt, 1)];
+            var args = new LLVMTypeRef[argCnt];
             var function = LLVM.GetNamedFunction(this.module, node.Name);
 
             // If F conflicted, there was already something named 'Name'.  If it has a
@@ -109,6 +129,12 @@ namespace Kumiko_lang.Codegen
                 {
                     throw new Exception("redefinition of function with different # args");
                 }
+
+                // If F return different type, reject.
+                if (function.TypeOf().GetReturnType().GetReturnType().TypeKind != node.RetType.ToLLVM().TypeKind)
+                {
+                    throw new DupDeclException();
+                }
             }
             else
             {
@@ -118,7 +144,7 @@ namespace Kumiko_lang.Codegen
                 }
 
                 function = LLVM.AddFunction(
-                    this.module, node.Name, LLVM.FunctionType(LLVM.DoubleType(), args, false)
+                    this.module, node.Name, LLVM.FunctionType(node.RetType.ToLLVM(), args, false)
                 );
 
                 LLVM.SetLinkage(function, LLVMLinkage.LLVMExternalLinkage);
@@ -136,13 +162,40 @@ namespace Kumiko_lang.Codegen
             }
 
             this.ResultStack.Push(function);
-
+            this.fnSet.Add(node.Name);
             return node;
         }
 
         protected internal override ExprAST VisitAST(FuncExprAST node)
         {
-            return base.VisitAST(node);
+            this.tmpTbl = this.symTbl;
+            this.symTbl = new Dictionary<string, LLVMValueRef>();
+            this.Visit(node.Proto);
+            LLVMValueRef function = this.ResultStack.Pop();
+            
+            // Create a new basic block to start insertion into.
+            LLVM.PositionBuilderAtEnd(this.builder, LLVM.AppendBasicBlock(function, "entry"));
+            
+            try
+            {
+                // node.Body.Compile(this);
+                node.Body.ForEach(exp => this.Visit(exp));
+            }
+            catch (Exception)
+            {
+                LLVM.DeleteFunction(function);
+                throw;
+            }
+
+            // Finish off the function.
+            LLVM.BuildRet(this.builder, this.ResultStack.Pop());
+
+            // Validate the generated code, checking for consistency.
+            LLVM.VerifyFunction(function, LLVMVerifierFailureAction.LLVMPrintMessageAction);
+
+            this.ResultStack.Push(function);
+            this.symTbl = this.tmpTbl;
+            return node;
         }
     }
 

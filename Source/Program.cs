@@ -23,8 +23,7 @@ namespace Kumiko_lang
                 Console.Write("Output: ");
                 if (visitor.ResultStack.TryPop(out var v))
                 {
-                    LLVM.DumpValue(v);
-                    Console.WriteLine();
+                    Console.WriteLine(v.PrintValueToString());
                 }
                 else
                 {
