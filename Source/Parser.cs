@@ -41,12 +41,19 @@ namespace Kumiko_lang
         static Parser<char, string>
             Let = Tok("let"),
             Fn = Tok("func"),
+            Arrow = Tok("->"),
             Ident = Tok(Letter.Then(LetterOrDigit.ManyString(), (h, t) => h + t));
 
         static Parser<char, TypeEnum>
             Int = Tok("Int").ThenReturn(TypeEnum.Int),
             Float = Tok("Float").ThenReturn(TypeEnum.Float),
-            Bool = Tok("Bool").ThenReturn(TypeEnum.Bool);
+            Bool = Tok("Bool").ThenReturn(TypeEnum.Bool),
+            
+            Type = OneOf(
+                Int,
+                Float,
+                Bool
+            );
 
         static Parser<char, Unit> Delimiter = SemiColon.SkipAtLeastOnce().Then(EndOfLine.SkipMany());
 
@@ -65,7 +72,7 @@ namespace Kumiko_lang
         static Parser<char, TypedArg> PTypedArg =
             from ident in Ident
             from _ in Colon
-            from ty in Int.Or(Float).Or(Bool)
+            from ty in Type
             select new TypedArg(ident, ty);
 
         static Parser<char, ExprAST>
@@ -91,7 +98,9 @@ namespace Kumiko_lang
                 from _0 in Fn
                 from ident in Ident
                 from args in Parenthesised(PTypedArg.Separated(Comma))
-                select new ProtoExprAST(ident, args) as ExprAST,
+                from _1 in Arrow
+                from ty in Type
+                select new ProtoExprAST(ident, args, ty) as ExprAST,
 
             PFunc = Proto.Then(
                 Body(Rec(() => NormalStmt).Before(Delimiter).Many()),

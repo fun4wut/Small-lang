@@ -52,5 +52,13 @@ namespace Test
             var s = "a+1;";
             Assert.Throws<UndefinedVarException>(() => LangParser.ParseAll(s).Compile(visitor));
         }
+
+        [Test]
+        public void Proto()
+        {
+            var s = "func ab(a: Int, b: Float) -> Float;";
+            LangParser.ParseAll(s).Compile(visitor);
+            Assert.AreEqual("declare double @ab(i64, double)", visitor.ResultStack.Pop().ToString().Trim());
+        }
     }
 }

@@ -6,8 +6,12 @@ using Kumiko_lang.AST;
 
 namespace Kumiko_lang.Codegen
 {
-    public class CodeGenVisitor : ExprVisitor
+    public partial class CodeGenVisitor : ExprVisitor
     {
+        private static readonly LLVMBool LLVMBoolFalse = new LLVMBool(0);
+
+        private static readonly LLVMValueRef NullValue = new LLVMValueRef(IntPtr.Zero);
+
         private readonly LLVMModuleRef module;
 
         private readonly LLVMBuilderRef builder;
@@ -84,6 +88,62 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
+        protected internal override ExprAST VisitAST(ProtoExprAST node)
+        {
+            var argCnt = (uint)node.Arguments.Count;
+            var args = new LLVMTypeRef[Math.Max(argCnt, 1)];
+            var function = LLVM.GetNamedFunction(this.module, node.Name);
+
+            // If F conflicted, there was already something named 'Name'.  If it has a
+            // body, don't allow redefinition
+            if (function.Pointer != IntPtr.Zero)
+            {
+                // If F already has a body, reject this.
+                if (LLVM.CountBasicBlocks(function) != 0)
+                {
+                    throw new Exception("redefinition of function.");
+                }
+
+                // If F took a different number of args, reject.
+                if (LLVM.CountParams(function) != argCnt)
+                {
+                    throw new Exception("redefinition of function with different # args");
+                }
+            }
+            else
+            {
+                for (int i = 0; i < argCnt; ++i)
+                {
+                    args[i] = node.Arguments[i].Type.ToLLVM();
+                }
+
+                function = LLVM.AddFunction(
+                    this.module, node.Name, LLVM.FunctionType(LLVM.DoubleType(), args, false)
+                );
+
+                LLVM.SetLinkage(function, LLVMLinkage.LLVMExternalLinkage);
+            }
+
+
+            for (int i = 0; i < argCnt; ++i)
+            {
+                string argName = node.Arguments[i].Name;
+
+                LLVMValueRef param = LLVM.GetParam(function, (uint)i);
+                LLVM.SetValueName(param, argName);
+
+                this.symTbl[argName] = param;
+            }
+
+            this.ResultStack.Push(function);
+
+            return node;
+        }
+
+        protected internal override ExprAST VisitAST(FuncExprAST node)
+        {
+            return base.VisitAST(node);
+        }
     }
 
 }

@@ -73,7 +73,7 @@ a;;;
         [Test]
         public void Prototype()
         {
-            var s = "func xyz(a: Int, b: Float);";
+            var s = "func xyz(a: Int, b: Float) -> Float;";
             var expected = new List<ExprAST>
             {
                 new ProtoExprAST(
@@ -82,7 +82,8 @@ a;;;
                     {
                         new TypedArg ("a", TypeEnum.Int),
                         new TypedArg ("b", TypeEnum.Float)
-                    }
+                    },
+                    TypeEnum.Float
                 )
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
@@ -91,14 +92,15 @@ a;;;
         [Test]
         public void FuncDef()
         {
-            var s = "func xyz(a: Int, b: Float) { 1; };";
+            var s = "func xyz(a: Int, b: Float) -> Int { 1; };";
             var proto = new ProtoExprAST(
                 "xyz",
                 new List<TypedArg>
                 {
                     new TypedArg ("a", TypeEnum.Int),
                     new TypedArg ("b", TypeEnum.Float)
-                }
+                },
+                TypeEnum.Int
             );
             var expected = new List<ExprAST>
             {
