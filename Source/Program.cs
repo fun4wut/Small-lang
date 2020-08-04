@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using Kumiko_lang.AST;
 using Kumiko_lang.Codegen;

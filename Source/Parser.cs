@@ -1,4 +1,4 @@
-﻿using Pidgin;
+using Pidgin;
 using System;
 using Pidgin.Expression;
 using static Pidgin.Parser;

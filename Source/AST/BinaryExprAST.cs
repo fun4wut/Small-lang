@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Pidgin.Expression;
 using System.Collections.Generic;
 using System.Text;

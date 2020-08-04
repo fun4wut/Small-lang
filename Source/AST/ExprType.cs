@@ -1,4 +1,4 @@
-﻿namespace Kumiko_lang.AST
+namespace Kumiko_lang.AST
 {
     public enum ExprType
     {
