@@ -99,5 +99,19 @@ entry:
             s = "func ab() -> Int; func ab() -> Int {4;};";
             Assert.DoesNotThrow(() => LangParser.ParseAll(s).Compile(visitor));
         }
+
+        [Test]
+        public void Arg_Var_Same_Name()
+        {
+            var s = "func ab(a: Int) -> Int; let a = 233;";
+            Assert.DoesNotThrow(() => LangParser.ParseAll(s).Compile(visitor));
+        }
+
+        [Test]
+        public void Arg_Func_Same_Name()
+        {
+            var s = "func a(a: Int) -> Int;";
+            Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
+        }
     }
 }

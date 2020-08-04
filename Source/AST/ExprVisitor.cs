@@ -20,9 +20,11 @@ namespace Kumiko_lang.AST
 
         protected internal virtual ExprAST VisitAST(VariableExprAST node) => node;
 
-        protected internal virtual ExprAST VisitAST(ProtoExprAST node) => node;
+        protected internal virtual ExprAST VisitAST(ProtoExprAST node, bool singleUse = false) => node;
 
         protected internal virtual ExprAST VisitAST(FuncExprAST node) => node;
+
+        protected internal virtual ExprAST VisitAST(CallExprAST node) => node;
 
     }
 }

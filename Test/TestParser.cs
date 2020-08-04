@@ -114,5 +114,30 @@ a;;;
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
+
+        [Test]
+        public void Call()
+        {
+            var s = "ab(2, 3);";
+            var expected = new List<ExprAST>
+            {
+                new CallExprAST(
+                    "ab",
+                    new List<ExprAST>
+                    {
+                        new IntExprAST(2),
+                        new IntExprAST(3)
+                    }
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
+
+        [Test]
+        public void Call_Throw()
+        {
+            var s = "1(2, 3);";
+            Assert.Throws<Exception>(() => LangParser.ParseAll(s));
+        }
     }
 }

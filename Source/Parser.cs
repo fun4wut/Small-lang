@@ -19,6 +19,17 @@ namespace Kumiko_lang
         static Parser<char, string> Tok(string value) => Tok(String(value));
         static Parser<char, T> Parenthesised<T>(Parser<char, T> parser) => parser.Between(LBracket, RBracket);
         static Parser<char, T> Body<T>(Parser<char, T> parser) => parser.Between(LBrace, RBrace);
+
+        static Parser<char, Func<ExprAST, ExprAST>> Call(Parser<char, ExprAST> subExpr)
+            => Parenthesised(subExpr.Separated(Comma))
+                .Select<Func<ExprAST, ExprAST>>(args => exp => exp switch
+                    {
+                        VariableExprAST ident => new CallExprAST(ident.Name, args),
+                        _ => throw new Exception("callee must be ident"),
+                    }
+                )
+                .Labelled("function call");
+
         private static Parser<char, Func<ExprAST, ExprAST, ExprAST>> Binary(Parser<char, ExprType> op)
             => op.Select<Func<ExprAST, ExprAST, ExprAST>>(op => (l, r) => new BinaryExprAST(op, l, r));
         #endregion
@@ -120,6 +131,7 @@ namespace Kumiko_lang
                     ),
                     new[]
                     {
+                        ExpOperator.Postfix(Call(expr)),
                         ExpOperator.InfixL(Mul)
                             .And(ExpOperator.InfixL(Div)),
                         ExpOperator.InfixL(Add)

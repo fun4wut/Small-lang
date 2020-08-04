@@ -22,6 +22,15 @@ namespace Kumiko_lang.Codegen
 
         private Dictionary<string, LLVMValueRef>? tmpTbl = null;
 
+
+        private void RestoreTbl() => this.symTbl = this.tmpTbl ?? this.symTbl;
+
+        private void ReplaceTbl()
+        {
+            this.tmpTbl = this.symTbl;
+            this.symTbl = new Dictionary<string, LLVMValueRef>();
+        }
+
         public CodeGenVisitor(LLVMModuleRef module, LLVMBuilderRef builder)
         {
             this.module = module;
@@ -37,20 +46,17 @@ namespace Kumiko_lang.Codegen
 
         public string PrintTop() => this.ResultStack.Pop().PrintValueToString().Trim();
 
-        void CheckNoDup(AssignExprAST node)
+        void CheckNoDup(string name, bool isFn = false)
         {
-            if (this.symTbl.ContainsKey(node.Name) || this.fnSet.Contains(node.Name))
+            if (isFn && this.symTbl.ContainsKey(name))
             {
                 throw new DupDeclException();
             }
-        }
+            if (!isFn && (this.symTbl.ContainsKey(name) || this.fnSet.Contains(name)))
+            {
+                throw new DupDeclException();
+            }
 
-        void CheckNoDup(ProtoExprAST node)
-        {
-            if (this.symTbl.ContainsKey(node.Name))
-            {
-                throw new DupDeclException();
-            }
         }
 
         protected internal override ExprAST VisitAST(BinaryExprAST node)
@@ -74,7 +80,7 @@ namespace Kumiko_lang.Codegen
 
         protected internal override ExprAST VisitAST(AssignExprAST node)
         {
-            this.CheckNoDup(node);
+            this.CheckNoDup(node.Name);
             this.Visit(node.Value);
             var top = this.ResultStack.Pop();
             top.SetValueName(node.Name);
@@ -107,9 +113,15 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override ExprAST VisitAST(ProtoExprAST node)
+        protected internal override ExprAST VisitAST(ProtoExprAST node, bool combineUse = false)
         {
-            this.CheckNoDup(node);
+            this.CheckNoDup(node.Name, isFn: true);
+
+            if (!combineUse)
+            {
+                this.ReplaceTbl();
+            }
+
             var argCnt = (uint)node.Arguments.Count;
             var args = new LLVMTypeRef[argCnt];
             var function = LLVM.GetNamedFunction(this.module, node.Name);
@@ -150,6 +162,7 @@ namespace Kumiko_lang.Codegen
                 LLVM.SetLinkage(function, LLVMLinkage.LLVMExternalLinkage);
             }
 
+            this.fnSet.Add(node.Name);
 
             for (int i = 0; i < argCnt; ++i)
             {
@@ -158,19 +171,25 @@ namespace Kumiko_lang.Codegen
                 LLVMValueRef param = LLVM.GetParam(function, (uint)i);
                 LLVM.SetValueName(param, argName);
 
+                this.CheckNoDup(argName);
                 this.symTbl[argName] = param;
             }
 
             this.ResultStack.Push(function);
-            this.fnSet.Add(node.Name);
+
+            if (!combineUse)
+            {
+                this.RestoreTbl();
+            }
+
             return node;
         }
 
         protected internal override ExprAST VisitAST(FuncExprAST node)
         {
-            this.tmpTbl = this.symTbl;
-            this.symTbl = new Dictionary<string, LLVMValueRef>();
-            this.Visit(node.Proto);
+            this.ReplaceTbl();
+            this.VisitAST(node.Proto, combineUse: true);
+
             LLVMValueRef function = this.ResultStack.Pop();
             
             // Create a new basic block to start insertion into.
@@ -194,7 +213,36 @@ namespace Kumiko_lang.Codegen
             LLVM.VerifyFunction(function, LLVMVerifierFailureAction.LLVMPrintMessageAction);
 
             this.ResultStack.Push(function);
-            this.symTbl = this.tmpTbl;
+
+            this.RestoreTbl();
+
+
+            return node;
+        }
+
+        protected internal override ExprAST VisitAST(CallExprAST node)
+        {
+            var calleeF = LLVM.GetNamedFunction(this.module, node.Callee);
+            if (calleeF.Pointer == IntPtr.Zero)
+            {
+                throw new Exception("Unknown function referenced");
+            }
+
+            if (LLVM.CountParams(calleeF) != node.Arguments.Count)
+            {
+                throw new Exception("Incorrect # arguments passed");
+            }
+
+            var argsCnt = (uint)node.Arguments.Count;
+            var argsV = new LLVMValueRef[argsCnt];
+            for (int i = 0; i < argsCnt; ++i)
+            {
+                this.Visit(node.Arguments[i]);
+                argsV[i] = this.ResultStack.Pop();
+            }
+
+            this.ResultStack.Push(LLVM.BuildCall(this.builder, calleeF, argsV, "calltmp"));
+
             return node;
         }
     }
