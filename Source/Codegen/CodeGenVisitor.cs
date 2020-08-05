@@ -37,6 +37,8 @@ namespace Kumiko_lang.Codegen
             this.builder = builder;
         }
 
+        public LLVMValueRef? MainFn { get; private set; } = null;
+
         public Stack<LLVMValueRef> ResultStack { get; } = new Stack<LLVMValueRef>();
 
         public void ClearResultStack()
@@ -211,6 +213,13 @@ namespace Kumiko_lang.Codegen
 
             // Validate the generated code, checking for consistency.
             LLVM.VerifyFunction(function, LLVMVerifierFailureAction.LLVMPrintMessageAction);
+
+
+            if (node.Proto.Name == "main")
+            {
+                this.MainFn = function;
+            }
+
 
             this.ResultStack.Push(function);
 

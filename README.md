@@ -21,9 +21,9 @@ A toy compiler which targets to LLVM
 
 ## Progress
 
-- [x] REPL Calculator
-- [ ] Type System
-- [ ] Function
+- [x] Simply Run
+- [x] Type System
+- [x] Function
 - [ ] Control Statment
-- [ ] JIT
+- [x] JIT
 - [ ] ???

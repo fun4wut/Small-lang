@@ -16,4 +16,11 @@ namespace Kumiko_lang.Codegen
                 TypeEnum.Bool => LLVM.Int1Type()
             };
     }
+
+    public static class ASTExtensions
+    {
+        public static void Compile(this List<ExprAST> exprASTs, CodeGenVisitor visitor) => exprASTs.ForEach(e => visitor.Visit(e));
+
+        public static void Compile(this ExprAST exprAST, ExprVisitor visitor) => visitor.Visit(exprAST);
+    }
 }
