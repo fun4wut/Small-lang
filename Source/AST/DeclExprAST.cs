@@ -6,17 +6,18 @@ namespace Kumiko_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators = true)]
-    public sealed class AssignExprAST : ExprAST
+    public sealed class DeclExprAST : ExprAST
     {
-        public AssignExprAST(string name, ExprAST value)
+        public DeclExprAST(ExprType ty, string name, ExprAST value)
         {
+            NodeType = ty;
             Name = name;
             Value = value;
         }
 
         public string Name { get; }
         public ExprAST Value { get; }
-        public override ExprType NodeType { get; protected set; } = ExprType.AssignExpr;
+        public override ExprType NodeType { get; protected set; }
 
         protected internal override ExprAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
     }

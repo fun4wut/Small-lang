@@ -51,10 +51,13 @@ namespace Kumiko_lang
             Assign = Tok('=');
 
         static Parser<char, string>
-            Let = Tok("let"),
             Fn = Tok("func"),
             Arrow = Tok("->"),
             Ident = Tok(Letter.Then(LetterOrDigit.Or(Lodash).ManyString(), (h, t) => h + t));
+
+        static Parser<char, ExprType>
+            Let = Tok("let").ThenReturn(ExprType.LetExpr),
+            Mut = Tok("mut").ThenReturn(ExprType.MutExpr);
 
         static Parser<char, TypeEnum>
             Int = Tok("Int").ThenReturn(TypeEnum.Int),
@@ -100,12 +103,12 @@ namespace Kumiko_lang
                 )
                 .Labelled("literial"),
 
-            PAssign =
-                from _0 in Let
+            PDecl =
+                from mutability in Let.Or(Mut)
                 from ident in Ident
                 from _1 in Assign
                 from val in PNormalExpr
-                select new AssignExprAST(ident, val) as ExprAST,
+                select new DeclExprAST(mutability, ident, val) as ExprAST,
 
             Proto =
                 from _0 in Fn
@@ -148,7 +151,7 @@ namespace Kumiko_lang
             ),
 
             NormalStmt = OneOf(
-                PAssign,
+                PDecl,
                 PNormalExpr
             ),
         

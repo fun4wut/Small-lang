@@ -58,7 +58,8 @@ a;;;
             var s = "let a12 = a*31;";
             var expected = new List<ExprAST>
             {
-                new AssignExprAST(
+                new DeclExprAST(
+                    ExprType.LetExpr,
                     "a12",
                     new BinaryExprAST(
                         ExprType.MultiplyExpr,

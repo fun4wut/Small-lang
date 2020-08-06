@@ -12,7 +12,7 @@ namespace Kumiko_lang.AST
 
         protected internal virtual ExprAST VisitAST(BinaryExprAST node) => node;
 
-        protected internal virtual ExprAST VisitAST(AssignExprAST node) => node;
+        protected internal virtual ExprAST VisitAST(DeclExprAST node) => node;
 
         protected internal virtual ExprAST VisitAST(FloatExprAST node) => node;
 

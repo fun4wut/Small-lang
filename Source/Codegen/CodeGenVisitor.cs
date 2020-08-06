@@ -34,6 +34,14 @@ namespace Kumiko_lang.Codegen
             this.symTbl = new Dictionary<string, LLVMValueRef>();
         }
 
+        private LLVMValueRef LatestValue()
+        {
+            var top = this.ResultStack.Pop();
+            return top.IsPtr() 
+                ? LLVM.BuildLoad(this.builder, top, "ptrtmp")
+                : top;
+        }
+
         public CodeGenVisitor(LLVMModuleRef module, LLVMBuilderRef builder)
         {
             this.module = module;
@@ -67,17 +75,12 @@ namespace Kumiko_lang.Codegen
 
         }
 
-        void Insert2Main()
-        {
-
-        }
-
         protected internal override ExprAST VisitAST(BinaryExprAST node)
         {
             this.Visit(node.Lhs);
             this.Visit(node.Rhs);
 
-            LLVMValueRef r = this.ResultStack.Pop(), l = this.ResultStack.Pop();
+            LLVMValueRef r = this.LatestValue(), l = this.LatestValue();
             
             var n = node.NodeType switch
             {
@@ -91,13 +94,24 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override ExprAST VisitAST(AssignExprAST node)
+        protected internal override ExprAST VisitAST(DeclExprAST node)
         {
             this.CheckNoDup(node.Name);
             this.Visit(node.Value);
-            var top = this.ResultStack.Pop();
-            top.SetValueName(node.Name);
-            this.symTbl.Add(node.Name, top);
+            var top = this.LatestValue();
+            // let immutable
+            if (node.NodeType == ExprType.LetExpr)
+            {
+                top.SetValueName(node.Name);
+                this.symTbl.Add(node.Name, top);
+            }
+            // mutable
+            else
+            {
+                var alloca = LLVM.BuildAlloca(this.builder, top.TypeOf(), node.Name);
+                LLVM.BuildStore(this.builder, top, alloca);
+                this.symTbl.Add(node.Name, alloca);
+            }
             return node;
         }
 
@@ -223,7 +237,7 @@ namespace Kumiko_lang.Codegen
             LLVM.BuildRet(this.builder, 
                 isMain
                     ? LLVM.ConstInt(LLVM.Int64Type(), 0, true) 
-                    : this.ResultStack.Pop()
+                    : this.LatestValue()
             );
             
 
@@ -255,7 +269,7 @@ namespace Kumiko_lang.Codegen
             for (int i = 0; i < argsCnt; ++i)
             {
                 this.Visit(node.Arguments[i]);
-                argsV[i] = this.ResultStack.Pop();
+                argsV[i] = this.LatestValue();
             }
 
             var fnRet = calleeF.TypeOf().GetReturnType().GetReturnType().TypeKind

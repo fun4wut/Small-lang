@@ -32,4 +32,9 @@ namespace Kumiko_lang.Codegen
             _ => 0
         };
     }
+
+    public static class LLVMExtensions
+    {
+        public static bool IsPtr(this LLVMValueRef val) => val.TypeOf().TypeKind == LLVMTypeKind.LLVMPointerTypeKind;
+    }
 }

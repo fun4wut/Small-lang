@@ -13,7 +13,8 @@ namespace Kumiko_lang.AST
         VariableExpr,
         IntExpr,
         FloatExpr,
-        AssignExpr,
+        LetExpr,
+        MutExpr
     }
 
     public enum TypeEnum

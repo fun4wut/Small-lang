@@ -1,8 +1,1 @@
-let a = 3 + 4;
-let b = 4 + a;
-let c = bar(b);
-print_int(c);
-func print_int(x:Int) -> Unit
-func bar(x: Int) -> Int {
-    x + 2; 
-}
+func ab(a: Int) -> Int {let b = a*10; b-a;}
