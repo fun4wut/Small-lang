@@ -9,6 +9,8 @@
 .rustc_info.json
 *.dll
 *.lib
+/.vscode
+/tmp
 
 # User-specific files
 *.rsuser

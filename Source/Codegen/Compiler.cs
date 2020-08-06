@@ -41,7 +41,6 @@ namespace Kumiko_lang.Codegen
                 visitor.Visit(expr);
             }
             visitor.InsertMain(main);
-            LLVM.DumpModule(module);
         }
 
         public void Run()
@@ -56,6 +55,10 @@ namespace Kumiko_lang.Codegen
             };
             Console.WriteLine(dotRes);
         }
+
+        public void Dump2File(string file) => LLVM.PrintModuleToFile(this.module, file, out _);
+
+        public void Dump2Stdout() => LLVM.DumpModule(this.module);
 
     }
 }
