@@ -22,8 +22,11 @@ namespace Kumiko_lang.Codegen
 
         private Dictionary<string, LLVMValueRef>? tmpTbl = null;
 
-
-        private void RestoreTbl() => this.symTbl = this.tmpTbl ?? this.symTbl;
+        private void RestoreTbl()
+        {
+            this.symTbl = this.tmpTbl ?? this.symTbl;
+            this.tmpTbl = null;
+        }
 
         private void ReplaceTbl()
         {
@@ -35,9 +38,12 @@ namespace Kumiko_lang.Codegen
         {
             this.module = module;
             this.builder = builder;
+
+            // func main is reserved
+            this.fnSet.Add("main");
         }
 
-        public LLVMValueRef? MainFn { get; private set; } = null;
+        public LLVMValueRef MainFn { get; private set; }
 
         public Stack<LLVMValueRef> ResultStack { get; } = new Stack<LLVMValueRef>();
 
@@ -58,6 +64,11 @@ namespace Kumiko_lang.Codegen
             {
                 throw new DupDeclException();
             }
+
+        }
+
+        void Insert2Main()
+        {
 
         }
 
@@ -187,7 +198,7 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override ExprAST VisitAST(FuncExprAST node)
+        protected internal override ExprAST VisitAST(FuncExprAST node, bool isMain = false)
         {
             this.ReplaceTbl();
             this.VisitAST(node.Proto, combineUse: true);
@@ -209,22 +220,19 @@ namespace Kumiko_lang.Codegen
             }
 
             // Finish off the function.
-            LLVM.BuildRet(this.builder, this.ResultStack.Pop());
+            LLVM.BuildRet(this.builder, 
+                isMain
+                    ? LLVM.ConstInt(LLVM.Int64Type(), 0, true) 
+                    : this.ResultStack.Pop()
+            );
+            
 
             // Validate the generated code, checking for consistency.
             LLVM.VerifyFunction(function, LLVMVerifierFailureAction.LLVMPrintMessageAction);
 
-
-            if (node.Proto.Name == "main")
-            {
-                this.MainFn = function;
-            }
-
-
             this.ResultStack.Push(function);
 
             this.RestoreTbl();
-
 
             return node;
         }
@@ -250,10 +258,31 @@ namespace Kumiko_lang.Codegen
                 argsV[i] = this.ResultStack.Pop();
             }
 
-            this.ResultStack.Push(LLVM.BuildCall(this.builder, calleeF, argsV, "calltmp"));
+            var fnRet = calleeF.TypeOf().GetReturnType().GetReturnType().TypeKind
+                == LLVMTypeKind.LLVMVoidTypeKind ? string.Empty : "calltmp";
+
+            this.ResultStack.Push(LLVM.BuildCall(this.builder, calleeF, argsV, fnRet));
 
             return node;
         }
+
+        public void InsertMain(IEnumerable<ExprAST> exprs)
+        {
+            // init main function
+            this.VisitAST(
+                new FuncExprAST(
+                    new ProtoExprAST(
+                        "main",
+                        new List<TypedArg>(),
+                        TypeEnum.Int
+                    ),
+                    exprs
+                ),
+                isMain: true
+            );
+            this.MainFn = this.ResultStack.Pop();
+        }
+
     }
 
 }

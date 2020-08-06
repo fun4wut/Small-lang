@@ -2,6 +2,8 @@ namespace Kumiko_lang.AST
 {
     public enum ExprType
     {
+        PrototypeExpr,
+        FunctionExpr,
         AddExpr,
         SubtractExpr,
         MultiplyExpr,
@@ -9,8 +11,6 @@ namespace Kumiko_lang.AST
         LessThanExpr,
         CallExpr,
         VariableExpr,
-        PrototypeExpr,
-        FunctionExpr,
         IntExpr,
         FloatExpr,
         AssignExpr,
@@ -20,6 +20,7 @@ namespace Kumiko_lang.AST
     {
         Int, // i64
         Float, // double
-        Bool
+        Bool,
+        Unit
     }
 }

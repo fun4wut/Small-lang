@@ -11,9 +11,9 @@ namespace Test
 {
     class TestCompiler
     {
-        LLVMModuleRef module;
-        LLVMBuilderRef builder;
-        CodeGenVisitor visitor;
+            LLVMModuleRef module;
+            LLVMBuilderRef builder;
+            CodeGenVisitor visitor;
 
         [SetUp]
         public void Setup()
@@ -26,8 +26,8 @@ namespace Test
         [Test]
         public void Arithmetic()
         {
-            var s = "1+2;";
-            LangParser.ParseAll(s).Compile(visitor);
+            var s = "1+2";
+            LangParser.ParseSingle(s).Compile(visitor);
             Assert.AreEqual("i64 3", visitor.PrintTop());
         }
 
@@ -49,14 +49,14 @@ namespace Test
         [Test]
         public void UndefinedVar()
         {
-            var s = "a+1;";
-            Assert.Throws<UndefinedVarException>(() => LangParser.ParseAll(s).Compile(visitor));
+            var s = "a+1";
+            Assert.Throws<UndefinedVarException>(() => LangParser.ParseSingle(s).Compile(visitor));
         }
 
         [Test]
         public void Proto()
         {
-            var s = "func ab(a: Int, b: Float) -> Float;";
+            var s = "func ab(a: Int, b: Float) -> Float";
             LangParser.ParseAll(s).Compile(visitor);
             Assert.AreEqual("declare double @ab(i64, double)", visitor.PrintTop().Trim());
         }
@@ -64,7 +64,7 @@ namespace Test
         [Test]
         public void Proto_NoParam()
         {
-            var s = "func ab() -> Int;";
+            var s = "func ab() -> Int";
             LangParser.ParseAll(s).Compile(visitor);
             Assert.AreEqual("declare i64 @ab()", visitor.PrintTop());
         }
@@ -72,7 +72,7 @@ namespace Test
         [Test]
         public void Func()
         {
-            var s = "func ab(a: Int) -> Int {let b = a*10; b-a;};";
+            var s = "func ab(a: Int) -> Int {let b = a*10; b-a;}";
             LangParser.ParseAll(s).Compile(visitor);
             Assert.AreEqual(@"define i64 @ab(i64 %a) {
 entry:
@@ -85,32 +85,32 @@ entry:
         [Test]
         public void Var_Func_Same_Name()
         {
-            var s = "func ab() -> Int; let ab = 1;";
+            var s = "func ab() -> Int\n let ab = 1;";
             Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
-            s = "let ab = 1;func ab() -> Int;";
+            s = "let ab = 1;func ab() -> Int";
             Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
         }
 
         [Test]
         public void Func_Func_Same_Name()
         {
-            var s = "func ab() -> Int; func ab() -> Float;";
+            var s = "func ab() -> Int\n func ab() -> Float;";
             Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
-            s = "func ab() -> Int; func ab() -> Int {4;};";
+            s = "func ab() -> Int\n func ab() -> Int {4;}\n";
             Assert.DoesNotThrow(() => LangParser.ParseAll(s).Compile(visitor));
         }
 
         [Test]
         public void Arg_Var_Same_Name()
         {
-            var s = "func ab(a: Int) -> Int; let a = 233;";
+            var s = "func ab(a: Int) -> Int\n let a = 233;";
             Assert.DoesNotThrow(() => LangParser.ParseAll(s).Compile(visitor));
         }
 
         [Test]
         public void Arg_Func_Same_Name()
         {
-            var s = "func a(a: Int) -> Int;";
+            var s = "func a(a: Int) -> Int";
             Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
         }
     }

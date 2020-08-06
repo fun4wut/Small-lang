@@ -24,6 +24,7 @@ A toy compiler which targets to LLVM
 - [x] Simply Run
 - [x] Type System
 - [x] Function
+- [x] Extern function
 - [ ] Control Statment
-- [x] JIT
+- [ ] JIT
 - [ ] ???

@@ -38,6 +38,7 @@ namespace Kumiko_lang
         static Parser<char, char>
             SemiColon = Tok(';'),
             Comma = Tok(','),
+            Lodash = Tok('_'),
             Colon = Tok(':'),
             LBracket = Tok('('),
             RBracket = Tok(')'),
@@ -53,17 +54,18 @@ namespace Kumiko_lang
             Let = Tok("let"),
             Fn = Tok("func"),
             Arrow = Tok("->"),
-            Ident = Tok(Letter.Then(LetterOrDigit.ManyString(), (h, t) => h + t));
+            Ident = Tok(Letter.Then(LetterOrDigit.Or(Lodash).ManyString(), (h, t) => h + t));
 
         static Parser<char, TypeEnum>
             Int = Tok("Int").ThenReturn(TypeEnum.Int),
             Float = Tok("Float").ThenReturn(TypeEnum.Float),
             Bool = Tok("Bool").ThenReturn(TypeEnum.Bool),
-            
+            Unit = Tok("Unit").ThenReturn(TypeEnum.Unit),
             Type = OneOf(
                 Int,
                 Float,
-                Bool
+                Bool,
+                Unit
             );
 
         static Parser<char, Unit> Delimiter = SemiColon.SkipAtLeastOnce().Then(EndOfLine.SkipMany());
@@ -152,7 +154,8 @@ namespace Kumiko_lang
         
             Stmt = TopFieldOnlyStmt.Or(NormalStmt);
 
-        static Parser<char, IEnumerable<ExprAST>> Program = Stmt.Before(Delimiter).Many();
+        static Parser<char, IEnumerable<ExprAST>> Program =
+            TopFieldOnlyStmt.Or(NormalStmt.Before(Delimiter)).Many();
 
         #endregion
 

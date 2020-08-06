@@ -13,14 +13,23 @@ namespace Kumiko_lang.Codegen
             {
                 TypeEnum.Int => LLVM.Int64Type(),
                 TypeEnum.Float => LLVM.DoubleType(),
-                TypeEnum.Bool => LLVM.Int1Type()
+                TypeEnum.Bool => LLVM.Int1Type(),
+                TypeEnum.Unit => LLVM.VoidType()
             };
     }
 
     public static class ASTExtensions
     {
-        public static void Compile(this List<ExprAST> exprASTs, CodeGenVisitor visitor) => exprASTs.ForEach(e => visitor.Visit(e));
+        public static void Compile(this List<ExprAST> exprASTs, CodeGenVisitor visitor) => 
+            exprASTs.ForEach(e => visitor.Visit(e));
 
         public static void Compile(this ExprAST exprAST, ExprVisitor visitor) => visitor.Visit(exprAST);
+
+        public static int ASTValue(this ExprType ty) => ty switch
+        {
+            ExprType.PrototypeExpr => -2,
+            ExprType.FunctionExpr => -1,
+            _ => 0
+        };
     }
 }
