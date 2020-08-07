@@ -26,5 +26,7 @@ namespace Kumiko_lang.AST
 
         protected internal virtual ExprAST VisitAST(CallExprAST node) => node;
 
+        protected internal virtual ExprAST VisitAST(AssignExprAST node) => node;
+
     }
 }

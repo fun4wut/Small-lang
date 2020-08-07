@@ -25,6 +25,7 @@ A toy compiler which targets to LLVM
 - [x] Type System
 - [x] Function
 - [x] Extern function
+- [x] Mutable variable
 - [ ] Control Statment
 - [ ] JIT
 - [ ] ???

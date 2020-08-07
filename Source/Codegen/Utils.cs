@@ -14,7 +14,8 @@ namespace Kumiko_lang.Codegen
                 TypeEnum.Int => LLVM.Int64Type(),
                 TypeEnum.Float => LLVM.DoubleType(),
                 TypeEnum.Bool => LLVM.Int1Type(),
-                TypeEnum.Unit => LLVM.VoidType()
+                TypeEnum.Unit => LLVM.VoidType(),
+                _ => throw new NotImplementedException()
             };
     }
 
@@ -33,7 +34,7 @@ namespace Kumiko_lang.Codegen
         };
     }
 
-    public static class LLVMExtensions
+    static class LLVMExtensions
     {
         public static bool IsPtr(this LLVMValueRef val) => val.TypeOf().TypeKind == LLVMTypeKind.LLVMPointerTypeKind;
     }

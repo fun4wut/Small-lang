@@ -103,6 +103,12 @@ namespace Kumiko_lang
                 )
                 .Labelled("literial"),
 
+            PAssign = 
+                from ident in Ident
+                from _0 in Assign
+                from val in PNormalExpr
+                select new AssignExprAST(ident, val) as ExprAST,
+
             PDecl =
                 from mutability in Let.Or(Mut)
                 from ident in Ident
@@ -152,6 +158,7 @@ namespace Kumiko_lang
 
             NormalStmt = OneOf(
                 PDecl,
+                Try(PAssign),
                 PNormalExpr
             ),
         

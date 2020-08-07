@@ -53,7 +53,7 @@ a;;;
         }
 
         [Test]
-        public void Assignment()
+        public void ImmutVar()
         {
             var s = "let a12 = a*31;";
             var expected = new List<ExprAST>
@@ -139,6 +139,35 @@ a;;;
         {
             var s = "1(2, 3);";
             Assert.Throws<Exception>(() => LangParser.ParseAll(s));
+        }
+
+        [Test]
+        public void MutVar()
+        {
+            var s = "mut a = 3;";
+            var expected = new List<ExprAST>
+            {
+                new DeclExprAST(
+                    ExprType.MutExpr,
+                    "a",
+                    new IntExprAST(3)
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
+
+        [Test]
+        public void Assign()
+        {
+            var s = "a = 3;";
+            var expected = new List<ExprAST>
+            {
+                new AssignExprAST(
+                    "a",
+                    new IntExprAST(3)
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
     }
 }

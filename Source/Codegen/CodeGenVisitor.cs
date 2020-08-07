@@ -72,7 +72,6 @@ namespace Kumiko_lang.Codegen
             {
                 throw new DupDeclException();
             }
-
         }
 
         protected internal override ExprAST VisitAST(BinaryExprAST node)
@@ -277,6 +276,28 @@ namespace Kumiko_lang.Codegen
 
             this.ResultStack.Push(LLVM.BuildCall(this.builder, calleeF, argsV, fnRet));
 
+            return node;
+        }
+
+        protected internal override ExprAST VisitAST(AssignExprAST node)
+        {
+            if (this.symTbl.TryGetValue(node.Name, out var ptr))
+            {
+                if (ptr.IsPtr())
+                {
+                    this.Visit(node.Value);
+                    var val = this.LatestValue();
+                    LLVM.BuildStore(this.builder, val, ptr);
+                }
+                else
+                {
+                    throw new Exception("cannot mutate the immut");
+                }
+            }
+            else
+            {
+                throw new UndefinedVarException();
+            }
             return node;
         }
 

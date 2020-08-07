@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Kumiko-lang": {
+      "commandName": "Project",
+      "commandLineArgs": "./Source/TextFile1.txt ./test.ll",
+      "workingDirectory": "C:\\Users\\t-hni\\source\\repos\\fun4wut\\Kumiko-lang"
+    }
+  }
+}
