@@ -48,11 +48,19 @@ namespace Kumiko_lang
             Minus = Tok('-'),
             Times = Tok('*'),
             Divide = Tok('/'),
+            LessThan = Tok('<'),
+            GreaterThan = Tok('>'),
             Assign = Tok('=');
 
         static Parser<char, string>
             Fn = Tok("func"),
             Arrow = Tok("->"),
+            LessEqual = Tok("<="),
+            GreaterEqual = Tok(">="),
+            Equal = Tok("=="),
+            If = Tok("if"),
+            Else = Tok("else"),
+            Elif = Tok("elif"),
             Ident = Tok(Letter.Then(LetterOrDigit.Or(Lodash).ManyString(), (h, t) => h + t));
 
         static Parser<char, ExprType>
@@ -80,7 +88,12 @@ namespace Kumiko_lang
             Add = Binary(Plus.ThenReturn(ExprType.AddExpr)),
             Sub = Binary(Minus.ThenReturn(ExprType.SubtractExpr)),
             Mul = Binary(Times.ThenReturn(ExprType.MultiplyExpr)),
-            Div = Binary(Divide.ThenReturn(ExprType.DivideExpr));
+            Div = Binary(Divide.ThenReturn(ExprType.DivideExpr)),
+            LT = Binary(LessThan.ThenReturn(ExprType.LessThanExpr)),
+            LE = Binary(LessEqual.ThenReturn(ExprType.LessEqualExpr)),
+            GT = Binary(GreaterThan.ThenReturn(ExprType.GreaterThanExpr)),
+            GE = Binary(GreaterEqual.ThenReturn(ExprType.GreatEqualExpr)),
+            Eq = Binary(Equal.ThenReturn(ExprType.EqualExpr));
         #endregion
 
         #region Parsers
@@ -147,6 +160,11 @@ namespace Kumiko_lang
                             .And(ExpOperator.InfixL(Div)),
                         ExpOperator.InfixL(Add)
                             .And(ExpOperator.InfixL(Sub)),
+                        ExpOperator.InfixN(Eq)
+                            .And(ExpOperator.InfixN(GE))
+                            .And(ExpOperator.InfixN(GT))
+                            .And(ExpOperator.InfixN(LE))
+                            .And(ExpOperator.InfixN(LT))
                     }
                 )
             ).Labelled("expression"),

@@ -74,21 +74,16 @@ namespace Kumiko_lang.Codegen
             }
         }
 
+
+
         protected internal override ExprAST VisitAST(BinaryExprAST node)
         {
             this.Visit(node.Lhs);
             this.Visit(node.Rhs);
 
             LLVMValueRef r = this.LatestValue(), l = this.LatestValue();
-            
-            var n = node.NodeType switch
-            {
-                ExprType.AddExpr => LLVM.BuildAdd(this.builder, l, r, "addtmp"),
-                ExprType.SubtractExpr => LLVM.BuildSub(this.builder, l, r, "subtmp"),
-                ExprType.MultiplyExpr => LLVM.BuildMul(this.builder, l, r, "multmp"),
-                ExprType.DivideExpr => LLVM.BuildSDiv(this.builder, l, r, "divtmp"),
-                _ => throw new NotImplementedException()
-            };
+
+            var n = this.builder.DoBinaryOps(node.NodeType, l, r);
             this.ResultStack.Push(n);
             return node;
         }

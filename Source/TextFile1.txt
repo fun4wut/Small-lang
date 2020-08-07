@@ -1,7 +1,8 @@
 mut a = 3 + 4;
 a = 4 + a;
-let c = bar(a);
-print_int(c);
+let c = 1 < a;
+let d = c * 2;
+print_int(d);
 func print_int(x:Int) -> Unit
 func bar(x: Int) -> Int {
     x + 2; 
