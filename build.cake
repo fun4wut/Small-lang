@@ -8,8 +8,6 @@ Task("dll")
     {
         Arguments = "build --release --manifest-path ./DLLs/Cargo.toml --target-dir tmp"
     });
-    CopyFileToDirectory("tmp/release/libkumiko.dll", ".");
-    CopyFile("tmp/release/libkumiko.dll.lib", "./libkumiko.lib");
 });
 
 Task("compile")
@@ -25,9 +23,9 @@ Task("run")
 {
     StartProcess("clang", new ProcessSettings 
     {
-        Arguments = $"{output} -L . -l libkumiko -o kumiko.exe"
+        Arguments = $"{output} -L ./tmp/release -l libkumiko -o ./tmp/kumiko.exe"
     });
-    StartProcess("kumiko");
+    StartProcess("./tmp/kumiko");
 });
 
 
