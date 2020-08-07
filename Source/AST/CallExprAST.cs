@@ -7,9 +7,9 @@ namespace Kumiko_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators = true)]
-    public class CallExprAST : ExprAST
+    public class CallExprAST : BaseAST, IExpr
     {
-        public CallExprAST(string callee, IEnumerable<ExprAST> args)
+        public CallExprAST(string callee, IEnumerable<BaseAST> args)
         {
             this.Callee = callee;
             this.Arguments = args.ToList();
@@ -17,10 +17,10 @@ namespace Kumiko_lang.AST
 
         public string Callee { get; private set; }
 
-        public List<ExprAST> Arguments { get; private set; }
+        public List<BaseAST> Arguments { get; private set; }
 
-        public override ExprType NodeType { get; protected set; } = ExprType.CallExpr;
+        public override ASTType NodeType { get; protected set; } = ASTType.Call;
 
-        protected internal override ExprAST Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override BaseAST Accept(ExprVisitor visitor) => visitor.VisitAST(this);
     }
 }

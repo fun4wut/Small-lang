@@ -7,9 +7,9 @@ namespace Kumiko_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators = true)]
-    public sealed class ProtoExprAST : ExprAST
+    public sealed class ProtoStmtAST : BaseAST
     {
-        public ProtoExprAST(string name, IEnumerable<TypedArg> arguments, TypeEnum ty)
+        public ProtoStmtAST(string name, IEnumerable<TypedArg> arguments, TypeKind ty)
         {
             Name = name;
             Arguments = arguments.ToList();
@@ -18,10 +18,10 @@ namespace Kumiko_lang.AST
 
         public string Name { get; private set; }
         public List<TypedArg> Arguments { get; private set; }
-        public TypeEnum RetType { get; private set; }
+        public TypeKind RetType { get; private set; }
 
-        public override ExprType NodeType { get; protected set; } = ExprType.PrototypeExpr;
+        public override ASTType NodeType { get; protected set; } = ASTType.Prototype;
 
-        protected internal override ExprAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
     }
 }

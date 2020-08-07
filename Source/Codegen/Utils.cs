@@ -8,28 +8,28 @@ namespace Kumiko_lang.Codegen
 {
     static class Utils
     {
-        public static LLVMTypeRef ToLLVM(this TypeEnum ty) =>
+        public static LLVMTypeRef ToLLVM(this TypeKind ty) =>
             ty switch
             {
-                TypeEnum.Int => LLVM.Int64Type(),
-                TypeEnum.Float => LLVM.DoubleType(),
-                TypeEnum.Bool => LLVM.Int1Type(),
-                TypeEnum.Unit => LLVM.VoidType(),
+                TypeKind.Int => LLVM.Int64Type(),
+                TypeKind.Float => LLVM.DoubleType(),
+                TypeKind.Bool => LLVM.Int1Type(),
+                TypeKind.Unit => LLVM.VoidType(),
                 _ => throw new NotImplementedException()
             };
     }
 
     public static class ASTExtensions
     {
-        public static void Compile(this List<ExprAST> exprASTs, CodeGenVisitor visitor) => 
+        public static void Compile(this List<BaseAST> exprASTs, CodeGenVisitor visitor) => 
             exprASTs.ForEach(e => visitor.Visit(e));
 
-        public static void Compile(this ExprAST exprAST, ExprVisitor visitor) => visitor.Visit(exprAST);
+        public static void Compile(this BaseAST exprAST, ExprVisitor visitor) => visitor.Visit(exprAST);
 
-        public static int ASTValue(this ExprType ty) => ty switch
+        public static int ASTValue(this ASTType ty) => ty switch
         {
-            ExprType.PrototypeExpr => -2,
-            ExprType.FunctionExpr => -1,
+            ASTType.Prototype => -2,
+            ASTType.Function => -1,
             _ => 0
         };
     }
@@ -65,35 +65,35 @@ namespace Kumiko_lang.Codegen
         }
 
         public static LLVMValueRef
-            DoBinaryOps(this LLVMBuilderRef builder, ExprType ty, LLVMValueRef l, LLVMValueRef r)
+            DoBinaryOps(this LLVMBuilderRef builder, ASTType ty, LLVMValueRef l, LLVMValueRef r)
         {
             builder.AutoConvertType(ref l, ref r);
             return l.TypeOf().TypeKind switch
             {
                 LLVMTypeKind.LLVMIntegerTypeKind => ty switch
                 {
-                    ExprType.AddExpr => LLVM.BuildAdd(builder, l, r, "addtmp"),
-                    ExprType.SubtractExpr => LLVM.BuildSub(builder, l, r, "subtmp"),
-                    ExprType.MultiplyExpr => LLVM.BuildMul(builder, l, r, "multmp"),
-                    ExprType.DivideExpr => LLVM.BuildSDiv(builder, l, r, "divtmp"),
-                    ExprType.EqualExpr => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntEQ, l, r, "eqtmp"),
-                    ExprType.LessThanExpr => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSLT, l, r, "lttmp"),
-                    ExprType.LessEqualExpr => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSLE, l, r, "letmp"),
-                    ExprType.GreaterThanExpr => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSGT, l, r, "gttmp"),
-                    ExprType.GreatEqualExpr => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSGE, l, r, "getmp"),
+                    ASTType.Add => LLVM.BuildAdd(builder, l, r, "addtmp"),
+                    ASTType.Subtract => LLVM.BuildSub(builder, l, r, "subtmp"),
+                    ASTType.Multiply => LLVM.BuildMul(builder, l, r, "multmp"),
+                    ASTType.Divide => LLVM.BuildSDiv(builder, l, r, "divtmp"),
+                    ASTType.Equal => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntEQ, l, r, "eqtmp"),
+                    ASTType.LessThan => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSLT, l, r, "lttmp"),
+                    ASTType.LessEqual => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSLE, l, r, "letmp"),
+                    ASTType.GreaterThan => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSGT, l, r, "gttmp"),
+                    ASTType.GreatEqual => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSGE, l, r, "getmp"),
                     _ => throw new NotImplementedException()
                 },
                 LLVMTypeKind.LLVMDoubleTypeKind => ty switch
                 {
-                    ExprType.AddExpr => LLVM.BuildFAdd(builder, l, r, "addtmp"),
-                    ExprType.SubtractExpr => LLVM.BuildFSub(builder, l, r, "subtmp"),
-                    ExprType.MultiplyExpr => LLVM.BuildFMul(builder, l, r, "multmp"),
-                    ExprType.DivideExpr => LLVM.BuildFDiv(builder, l, r, "divtmp"),
-                    ExprType.EqualExpr => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealUEQ, l, r, "eqtmp"),
-                    ExprType.LessThanExpr => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealULT, l, r, "lttmp"),
-                    ExprType.LessEqualExpr => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealULE, l, r, "letmp"),
-                    ExprType.GreaterThanExpr => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealUGT, l, r, "gttmp"),
-                    ExprType.GreatEqualExpr => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealUGE, l, r, "getmp"),
+                    ASTType.Add => LLVM.BuildFAdd(builder, l, r, "addtmp"),
+                    ASTType.Subtract => LLVM.BuildFSub(builder, l, r, "subtmp"),
+                    ASTType.Multiply => LLVM.BuildFMul(builder, l, r, "multmp"),
+                    ASTType.Divide => LLVM.BuildFDiv(builder, l, r, "divtmp"),
+                    ASTType.Equal => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealUEQ, l, r, "eqtmp"),
+                    ASTType.LessThan => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealULT, l, r, "lttmp"),
+                    ASTType.LessEqual => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealULE, l, r, "letmp"),
+                    ASTType.GreaterThan => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealUGT, l, r, "gttmp"),
+                    ASTType.GreatEqual => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealUGE, l, r, "getmp"),
                     _ => throw new NotImplementedException()
                 },
             };

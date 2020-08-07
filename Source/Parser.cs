@@ -22,9 +22,9 @@ namespace Kumiko_lang
         static Parser<char, Branch> Branch(Parser<char, string> parser) =>
             parser.Then(Rec(() => PNormalExpr)).Then(PBody, (cond, actions) => new Branch(cond, actions));
 
-        static Parser<char, Func<ExprAST, ExprAST>> Call(Parser<char, ExprAST> subExpr)
+        static Parser<char, Func<BaseAST, BaseAST>> Call(Parser<char, BaseAST> subExpr)
             => Parenthesised(subExpr.Separated(Comma))
-                .Select<Func<ExprAST, ExprAST>>(args => exp => exp switch
+                .Select<Func<BaseAST, BaseAST>>(args => exp => exp switch
                     {
                         VariableExprAST ident => new CallExprAST(ident.Name, args),
                         _ => throw new Exception("callee must be ident"),
@@ -32,8 +32,8 @@ namespace Kumiko_lang
                 )
                 .Labelled("function call");
 
-        private static Parser<char, Func<ExprAST, ExprAST, ExprAST>> Binary(Parser<char, ExprType> op)
-            => op.Select<Func<ExprAST, ExprAST, ExprAST>>(op => (l, r) => new BinaryExprAST(op, l, r));
+        private static Parser<char, Func<BaseAST, BaseAST, BaseAST>> Binary(Parser<char, ASTType> op)
+            => op.Select<Func<BaseAST, BaseAST, BaseAST>>(op => (l, r) => new BinaryExprAST(op, l, r));
         #endregion
 
         #region Tokens
@@ -65,15 +65,15 @@ namespace Kumiko_lang
             Elif = Tok("elif"),
             Ident = Tok(Letter.Then(LetterOrDigit.Or(Lodash).ManyString(), (h, t) => h + t));
 
-        static Parser<char, ExprType>
-            Let = Tok("let").ThenReturn(ExprType.LetExpr),
-            Mut = Tok("mut").ThenReturn(ExprType.MutExpr);
+        static Parser<char, ASTType>
+            Let = Tok("let").ThenReturn(ASTType.Let),
+            Mut = Tok("mut").ThenReturn(ASTType.Mut);
 
-        static Parser<char, TypeEnum>
-            Int = Tok("Int").ThenReturn(TypeEnum.Int),
-            Float = Tok("Float").ThenReturn(TypeEnum.Float),
-            Bool = Tok("Bool").ThenReturn(TypeEnum.Bool),
-            Unit = Tok("Unit").ThenReturn(TypeEnum.Unit),
+        static Parser<char, TypeKind>
+            Int = Tok("Int").ThenReturn(TypeKind.Int),
+            Float = Tok("Float").ThenReturn(TypeKind.Float),
+            Bool = Tok("Bool").ThenReturn(TypeKind.Bool),
+            Unit = Tok("Unit").ThenReturn(TypeKind.Unit),
             Type = OneOf(
                 Int,
                 Float,
@@ -86,16 +86,16 @@ namespace Kumiko_lang
         #endregion
 
         #region Binary operations
-        static readonly Parser<char, Func<ExprAST, ExprAST, ExprAST>>
-            Add = Binary(Plus.ThenReturn(ExprType.AddExpr)),
-            Sub = Binary(Minus.ThenReturn(ExprType.SubtractExpr)),
-            Mul = Binary(Times.ThenReturn(ExprType.MultiplyExpr)),
-            Div = Binary(Divide.ThenReturn(ExprType.DivideExpr)),
-            LT = Binary(LessThan.ThenReturn(ExprType.LessThanExpr)),
-            LE = Binary(LessEqual.ThenReturn(ExprType.LessEqualExpr)),
-            GT = Binary(GreaterThan.ThenReturn(ExprType.GreaterThanExpr)),
-            GE = Binary(GreaterEqual.ThenReturn(ExprType.GreatEqualExpr)),
-            Eq = Binary(Equal.ThenReturn(ExprType.EqualExpr));
+        static readonly Parser<char, Func<BaseAST, BaseAST, BaseAST>>
+            Add = Binary(Plus.ThenReturn(ASTType.Add)),
+            Sub = Binary(Minus.ThenReturn(ASTType.Subtract)),
+            Mul = Binary(Times.ThenReturn(ASTType.Multiply)),
+            Div = Binary(Divide.ThenReturn(ASTType.Divide)),
+            LT = Binary(LessThan.ThenReturn(ASTType.LessThan)),
+            LE = Binary(LessEqual.ThenReturn(ASTType.LessEqual)),
+            GT = Binary(GreaterThan.ThenReturn(ASTType.GreaterThan)),
+            GE = Binary(GreaterEqual.ThenReturn(ASTType.GreatEqual)),
+            Eq = Binary(Equal.ThenReturn(ASTType.Equal));
         #endregion
 
         #region Parsers
@@ -106,10 +106,10 @@ namespace Kumiko_lang
             from ty in Type
             select new TypedArg(ident, ty);
 
-        static Parser<char, IEnumerable<ExprAST>> PBody =
+        static Parser<char, IEnumerable<BaseAST>> PBody =
             Body(Rec(() => NormalStmt).Before(Delimiter).Many());
 
-        static Parser<char, ExprAST>
+        static Parser<char, BaseAST>
             PIf = 
                 from @if in Branch(If)
                 from elif in Branch(Elif).Many()
@@ -119,19 +119,19 @@ namespace Kumiko_lang
                         just: elm => elif.Prepend(@if).Append(elm),
                         nothing: () => elif.Prepend(@if)
                     )
-                ) as ExprAST,
+                ) as BaseAST,
 
             PIdent = Ident
-                .Select<ExprAST>(s => new VariableExprAST(s))
+                .Select<BaseAST>(s => new VariableExprAST(s))
                 .Labelled("identifier"),
 
-            PInt = Tok(Num).Select<ExprAST>(elm => new IntExprAST(elm)),
+            PInt = Tok(Num).Select<BaseAST>(elm => new IntExprAST(elm)),
 
             PFloat =
                 from num in Num
                 from _0 in Char('.')
                 from rest in Digit.ManyString().Before(SkipWhitespaces)
-                select new FloatExprAST(double.Parse($"{num}.{rest}")) as ExprAST ,
+                select new FloatExprAST(double.Parse($"{num}.{rest}")) as BaseAST ,
 
             PLit = Try(PFloat).Or(PInt)
                 .Labelled("literial"),
@@ -140,14 +140,14 @@ namespace Kumiko_lang
                 from ident in Ident
                 from _0 in Assign
                 from val in PNormalExpr
-                select new AssignExprAST(ident, val) as ExprAST,
+                select new AssignStmtAST(ident, val) as BaseAST,
 
             PDecl =
                 from mutability in Let.Or(Mut)
                 from ident in Ident
                 from _1 in Assign
                 from val in PNormalExpr
-                select new DeclExprAST(mutability, ident, val) as ExprAST,
+                select new DeclStmtAST(mutability, ident, val) as BaseAST,
 
             Proto =
                 from _0 in Fn
@@ -155,18 +155,18 @@ namespace Kumiko_lang
                 from args in Parenthesised(PTypedArg.Separated(Comma))
                 from _1 in Arrow
                 from ty in Type
-                select new ProtoExprAST(ident, args, ty) as ExprAST,
+                select new ProtoStmtAST(ident, args, ty) as BaseAST,
 
             PFunc = Proto.Then(
                 PBody,
                 (proto, exprs) =>
                     {
-                        var _proto = proto as ProtoExprAST;
-                        return new FuncExprAST(_proto!, exprs) as ExprAST;
+                        var _proto = proto as ProtoStmtAST;
+                        return new FuncStmtAST(_proto!, exprs) as BaseAST;
                     }
             ),
 
-            PNormalExpr = ExpressionParser.Build<char, ExprAST>(
+            PNormalExpr = ExpressionParser.Build<char, BaseAST>(
                 expr => (
                     OneOf(
                         PLit,
@@ -203,15 +203,15 @@ namespace Kumiko_lang
         
             Stmt = TopFieldOnlyStmt.Or(NormalStmt);
 
-        static Parser<char, IEnumerable<ExprAST>> Program =
+        static Parser<char, IEnumerable<BaseAST>> Program =
             TopFieldOnlyStmt.Or(NormalStmt.Before(Delimiter)).Many();
 
         #endregion
 
         #region Entry
-        public static List<ExprAST> ParseAll(string input) => Program.ParseOrThrow(input.Trim()).ToList();
+        public static List<BaseAST> ParseAll(string input) => Program.ParseOrThrow(input.Trim()).ToList();
 
-        public static ExprAST ParseSingle(string input) => Stmt.ParseOrThrow(input.Trim());
+        public static BaseAST ParseSingle(string input) => Stmt.ParseOrThrow(input.Trim());
         #endregion
 
     }

@@ -7,20 +7,20 @@ namespace Kumiko_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators = true)]
-    public sealed class BinaryExprAST : ExprAST
+    public sealed class BinaryExprAST : BaseAST, IExpr
     {
-        public BinaryExprAST(ExprType nodeType, ExprAST lhs, ExprAST rhs)
+        public BinaryExprAST(ASTType nodeType, BaseAST lhs, BaseAST rhs)
         {
             NodeType = nodeType;
             Lhs = lhs;
             Rhs = rhs;
         }
 
-        public override ExprType NodeType { get; protected set; }
-        public ExprAST Lhs { get; private set; }
-        public ExprAST Rhs { get; private set; }
+        public override ASTType NodeType { get; protected set; }
+        public BaseAST Lhs { get; private set; }
+        public BaseAST Rhs { get; private set; }
 
-        protected internal override ExprAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
 
     }
 }

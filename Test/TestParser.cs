@@ -20,13 +20,13 @@ namespace Test
         public void SingleLine()
         {
             var s = "a2a*(133+2.3);12;";
-            var expected = new List<ExprAST>
+            var expected = new List<BaseAST>
             {
                 new BinaryExprAST(
-                    ExprType.MultiplyExpr,
+                    ASTType.Multiply,
                     new VariableExprAST("a2a"),
                     new BinaryExprAST(
-                        ExprType.AddExpr,
+                        ASTType.Add,
                         new IntExprAST(133),
                         new FloatExprAST(2.3)
                     )
@@ -44,7 +44,7 @@ a;;;
 
 
 12;";
-            var expected = new List<ExprAST>
+            var expected = new List<BaseAST>
             {
                 new VariableExprAST("a"),
                 new IntExprAST(12)
@@ -56,13 +56,13 @@ a;;;
         public void ImmutVar()
         {
             var s = "let a12 = a*31;";
-            var expected = new List<ExprAST>
+            var expected = new List<BaseAST>
             {
-                new DeclExprAST(
-                    ExprType.LetExpr,
+                new DeclStmtAST(
+                    ASTType.Let,
                     "a12",
                     new BinaryExprAST(
-                        ExprType.MultiplyExpr,
+                        ASTType.Multiply,
                         new VariableExprAST("a"),
                         new IntExprAST(31)
                     )
@@ -75,16 +75,16 @@ a;;;
         public void Prototype()
         {
             var s = "func xyz(a: Int, b: Float) -> Float;";
-            var expected = new List<ExprAST>
+            var expected = new List<BaseAST>
             {
-                new ProtoExprAST(
+                new ProtoStmtAST(
                     "xyz",
                     new List<TypedArg>
                     {
-                        new TypedArg ("a", TypeEnum.Int),
-                        new TypedArg ("b", TypeEnum.Float)
+                        new TypedArg ("a", TypeKind.Int),
+                        new TypedArg ("b", TypeKind.Float)
                     },
-                    TypeEnum.Float
+                    TypeKind.Float
                 )
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
@@ -94,20 +94,20 @@ a;;;
         public void FuncDef()
         {
             var s = "func xyz(a: Int, b: Float) -> Int { 1; };";
-            var proto = new ProtoExprAST(
+            var proto = new ProtoStmtAST(
                 "xyz",
                 new List<TypedArg>
                 {
-                    new TypedArg ("a", TypeEnum.Int),
-                    new TypedArg ("b", TypeEnum.Float)
+                    new TypedArg ("a", TypeKind.Int),
+                    new TypedArg ("b", TypeKind.Float)
                 },
-                TypeEnum.Int
+                TypeKind.Int
             );
-            var expected = new List<ExprAST>
+            var expected = new List<BaseAST>
             {
-                new FuncExprAST(
+                new FuncStmtAST(
                     proto,
-                    new List<ExprAST>
+                    new List<BaseAST>
                     {
                         new IntExprAST(1)
                     }
@@ -120,11 +120,11 @@ a;;;
         public void Call()
         {
             var s = "ab(2.0, 3);";
-            var expected = new List<ExprAST>
+            var expected = new List<BaseAST>
             {
                 new CallExprAST(
                     "ab",
-                    new List<ExprAST>
+                    new List<BaseAST>
                     {
                         new FloatExprAST(2.0),
                         new IntExprAST(3)
@@ -145,10 +145,10 @@ a;;;
         public void MutVar()
         {
             var s = "mut a = 3;";
-            var expected = new List<ExprAST>
+            var expected = new List<BaseAST>
             {
-                new DeclExprAST(
-                    ExprType.MutExpr,
+                new DeclStmtAST(
+                    ASTType.Mut,
                     "a",
                     new IntExprAST(3)
                 )
@@ -160,9 +160,9 @@ a;;;
         public void Assign()
         {
             var s = "a = 3;";
-            var expected = new List<ExprAST>
+            var expected = new List<BaseAST>
             {
-                new AssignExprAST(
+                new AssignStmtAST(
                     "a",
                     new IntExprAST(3)
                 )
@@ -174,10 +174,10 @@ a;;;
         public void Compare()
         {
             var s = "a >= 3;";
-            var expected = new List<ExprAST>
+            var expected = new List<BaseAST>
             {
                 new BinaryExprAST(
-                    ExprType.GreatEqualExpr,
+                    ASTType.GreatEqual,
                     new VariableExprAST("a"),
                     new IntExprAST(3)
                 )
@@ -189,12 +189,20 @@ a;;;
         public void If()
         {
             var s = "if 2<3 {};";
-            var expected = new List<ExprAST>
+            var expected = new List<BaseAST>
             {
-                new BinaryExprAST(
-                    ExprType.GreatEqualExpr,
-                    new VariableExprAST("a"),
-                    new IntExprAST(3)
+                new IfExprAST(
+                    new List<Branch>
+                    {
+                        new Branch(
+                            new BinaryExprAST(
+                                ASTType.LessThan,
+                                new IntExprAST(2),
+                                new IntExprAST(3)
+                            ),
+                            new List<BaseAST>()
+                        )
+                    }
                 )
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));

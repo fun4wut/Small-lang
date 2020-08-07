@@ -7,7 +7,7 @@ namespace Kumiko_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators = true)]
-    public sealed class IfExprAST : ExprAST
+    public sealed class IfExprAST : BaseAST, IExpr
     {
         public IfExprAST(IEnumerable<Branch> branches)
         {
@@ -16,9 +16,9 @@ namespace Kumiko_lang.AST
 
         public List<Branch> Branches { get; }
 
-        public override ExprType NodeType { get; protected set; } = ExprType.IfExpr;
+        public override ASTType NodeType { get; protected set; } = ASTType.If;
 
-        protected internal override ExprAST? Accept(ExprVisitor visitor)
+        protected internal override BaseAST? Accept(ExprVisitor visitor)
         {
             throw new NotImplementedException();
         }
@@ -29,10 +29,10 @@ namespace Kumiko_lang.AST
     public class Branch
     {
 
-        public ExprAST Cond;
-        public List<ExprAST> Actions;
+        public BaseAST Cond;
+        public List<BaseAST> Actions;
 
-        public Branch(ExprAST cond, IEnumerable<ExprAST> actions)
+        public Branch(BaseAST cond, IEnumerable<BaseAST> actions)
         {
             Cond = cond;
             Actions = actions.ToList();

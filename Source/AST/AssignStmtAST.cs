@@ -6,15 +6,18 @@ namespace Kumiko_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators = true)]
-    public sealed class FloatExprAST : BaseAST, IExpr
+    public sealed class AssignStmtAST : BaseAST
     {
-        public FloatExprAST(double value)
+        public AssignStmtAST(string name, BaseAST value)
         {
+            Name = name;
             Value = value;
         }
 
-        public double Value { get; }
-        public override ASTType NodeType { get; protected set; } = ASTType.Float;
+        public string Name { get; }
+        public BaseAST Value { get; }
+        public override ASTType NodeType { get; protected set; } = ASTType.Assign;
+
         protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
     }
 }

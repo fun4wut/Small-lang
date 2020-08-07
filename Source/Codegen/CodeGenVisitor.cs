@@ -76,7 +76,7 @@ namespace Kumiko_lang.Codegen
 
 
 
-        protected internal override ExprAST VisitAST(BinaryExprAST node)
+        protected internal override BaseAST VisitAST(BinaryExprAST node)
         {
             this.Visit(node.Lhs);
             this.Visit(node.Rhs);
@@ -88,13 +88,13 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override ExprAST VisitAST(DeclExprAST node)
+        protected internal override BaseAST VisitAST(DeclStmtAST node)
         {
             this.CheckNoDup(node.Name);
             this.Visit(node.Value);
             var top = this.LatestValue();
             // let immutable
-            if (node.NodeType == ExprType.LetExpr)
+            if (node.NodeType == ASTType.Let)
             {
                 top.SetValueName(node.Name);
                 this.symTbl.Add(node.Name, top);
@@ -109,19 +109,19 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override ExprAST VisitAST(FloatExprAST node)
+        protected internal override BaseAST VisitAST(FloatExprAST node)
         {
             this.ResultStack.Push(LLVM.ConstReal(LLVM.DoubleType(), node.Value));
             return node;
         }
 
-        protected internal override ExprAST VisitAST(IntExprAST node)
+        protected internal override BaseAST VisitAST(IntExprAST node)
         {
             this.ResultStack.Push(LLVM.ConstInt(LLVM.Int64Type(), (ulong)node.Value, true));
             return node;
         }
 
-        protected internal override ExprAST VisitAST(VariableExprAST node)
+        protected internal override BaseAST VisitAST(VariableExprAST node)
         {
             if (this.symTbl.TryGetValue(node.Name, out LLVMValueRef value))
             {
@@ -134,7 +134,7 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override ExprAST VisitAST(ProtoExprAST node, bool combineUse = false)
+        protected internal override BaseAST VisitAST(ProtoStmtAST node, bool combineUse = false)
         {
             this.CheckNoDup(node.Name, isFn: true);
 
@@ -206,7 +206,7 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override ExprAST VisitAST(FuncExprAST node, bool isMain = false)
+        protected internal override BaseAST VisitAST(FuncStmtAST node, bool isMain = false)
         {
             this.ReplaceTbl();
             this.VisitAST(node.Proto, combineUse: true);
@@ -245,7 +245,7 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override ExprAST VisitAST(CallExprAST node)
+        protected internal override BaseAST VisitAST(CallExprAST node)
         {
             var calleeF = LLVM.GetNamedFunction(this.module, node.Callee);
             if (calleeF.Pointer == IntPtr.Zero)
@@ -274,7 +274,7 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override ExprAST VisitAST(AssignExprAST node)
+        protected internal override BaseAST VisitAST(AssignStmtAST node)
         {
             if (this.symTbl.TryGetValue(node.Name, out var ptr))
             {
@@ -296,15 +296,15 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        public void InsertMain(IEnumerable<ExprAST> exprs)
+        public void InsertMain(IEnumerable<BaseAST> exprs)
         {
             // init main function
             this.VisitAST(
-                new FuncExprAST(
-                    new ProtoExprAST(
+                new FuncStmtAST(
+                    new ProtoStmtAST(
                         "main",
                         new List<TypedArg>(),
-                        TypeEnum.Int
+                        TypeKind.Int
                     ),
                     exprs
                 ),
