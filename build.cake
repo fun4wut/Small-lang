@@ -1,4 +1,4 @@
-var target = Argument("target", "dll");
+var target = Argument("target", "run");
 var input = Argument("input", "./Source/TextFile1.txt");
 var output = Argument("output", "./test.ll");
 Task("dll")
@@ -28,6 +28,16 @@ Task("run")
     StartProcess("./tmp/kumiko");
 });
 
+Task("clean")
+    .Does(() =>
+{
+    CleanDirectory("tmp");
+    DotNetCoreClean("");
+    StartProcess("cargo", new ProcessSettings 
+    {
+        Arguments = "clean --manifest-path ./DLLs/Cargo.toml"
+    });
+});
 
 
 RunTarget(target);
