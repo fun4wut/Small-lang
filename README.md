@@ -12,12 +12,14 @@ A toy compiler which targets to LLVM
 
 - Dotnet core 3.1
 - LLVM 9+
+- Rust edition 2018
 
 ## Libraries
 
 - Pidgin: Parser Combinator
 - Fody: codegen for dotnet
 - LLVMSharp: LLVM binding of C#
+- Cake: Makefile for C#
 
 ## Progress
 

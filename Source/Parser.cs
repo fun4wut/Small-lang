@@ -19,6 +19,8 @@ namespace Kumiko_lang
         static Parser<char, string> Tok(string value) => Tok(String(value));
         static Parser<char, T> Parenthesised<T>(Parser<char, T> parser) => parser.Between(LBracket, RBracket);
         static Parser<char, T> Body<T>(Parser<char, T> parser) => parser.Between(LBrace, RBrace);
+        static Parser<char, Branch> Branch(Parser<char, string> parser) =>
+            parser.Then(Rec(() => PNormalExpr)).Then(PBody, (cond, actions) => new Branch(cond, actions));
 
         static Parser<char, Func<ExprAST, ExprAST>> Call(Parser<char, ExprAST> subExpr)
             => Parenthesised(subExpr.Separated(Comma))
@@ -104,16 +106,34 @@ namespace Kumiko_lang
             from ty in Type
             select new TypedArg(ident, ty);
 
+        static Parser<char, IEnumerable<ExprAST>> PBody =
+            Body(Rec(() => NormalStmt).Before(Delimiter).Many());
+
         static Parser<char, ExprAST>
+            PIf = 
+                from @if in Branch(If)
+                from elif in Branch(Elif).Many()
+                from @else in Branch(Else).Optional()
+                select new IfExprAST(
+                    @else.Match(
+                        just: elm => elif.Prepend(@if).Append(elm),
+                        nothing: () => elif.Prepend(@if)
+                    )
+                ) as ExprAST,
+
             PIdent = Ident
                 .Select<ExprAST>(s => new VariableExprAST(s))
                 .Labelled("identifier"),
 
-            PLit = Tok(Real)
-                .Select(elm => elm.ToString().Contains('.')
-                    ? new FloatExprAST(elm) as ExprAST
-                    : new IntExprAST((int)elm) as ExprAST
-                )
+            PInt = Tok(Num).Select<ExprAST>(elm => new IntExprAST(elm)),
+
+            PFloat =
+                from num in Num
+                from _0 in Char('.')
+                from rest in Digit.ManyString().Before(SkipWhitespaces)
+                select new FloatExprAST(double.Parse($"{num}.{rest}")) as ExprAST ,
+
+            PLit = Try(PFloat).Or(PInt)
                 .Labelled("literial"),
 
             PAssign = 
@@ -138,7 +158,7 @@ namespace Kumiko_lang
                 select new ProtoExprAST(ident, args, ty) as ExprAST,
 
             PFunc = Proto.Then(
-                Body(Rec(() => NormalStmt).Before(Delimiter).Many()),
+                PBody,
                 (proto, exprs) =>
                     {
                         var _proto = proto as ProtoExprAST;
@@ -176,6 +196,7 @@ namespace Kumiko_lang
 
             NormalStmt = OneOf(
                 PDecl,
+                PIf,
                 Try(PAssign),
                 PNormalExpr
             ),

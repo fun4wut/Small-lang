@@ -119,14 +119,14 @@ a;;;
         [Test]
         public void Call()
         {
-            var s = "ab(2, 3);";
+            var s = "ab(2.0, 3);";
             var expected = new List<ExprAST>
             {
                 new CallExprAST(
                     "ab",
                     new List<ExprAST>
                     {
-                        new IntExprAST(2),
+                        new FloatExprAST(2.0),
                         new IntExprAST(3)
                     }
                 )
@@ -164,6 +164,36 @@ a;;;
             {
                 new AssignExprAST(
                     "a",
+                    new IntExprAST(3)
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
+
+        [Test]
+        public void Compare()
+        {
+            var s = "a >= 3;";
+            var expected = new List<ExprAST>
+            {
+                new BinaryExprAST(
+                    ExprType.GreatEqualExpr,
+                    new VariableExprAST("a"),
+                    new IntExprAST(3)
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
+
+        [Test]
+        public void If()
+        {
+            var s = "if 2<3 {};";
+            var expected = new List<ExprAST>
+            {
+                new BinaryExprAST(
+                    ExprType.GreatEqualExpr,
+                    new VariableExprAST("a"),
                     new IntExprAST(3)
                 )
             };

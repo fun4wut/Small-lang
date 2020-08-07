@@ -1,9 +1,13 @@
 mut a = 3 + 4;
 a = 4 + a;
-let c = 1 < a;
-let d = c * 2;
-print_int(d);
+let d = a * 4.2;
+let c = d < a;
+print_int(a);
+print_float(d);
+print_bool(c);
 func print_int(x:Int) -> Unit
+func print_bool(x:Bool) -> Unit
+func print_float(x:Float) -> Unit
 func bar(x: Int) -> Int {
     x + 2; 
 }

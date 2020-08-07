@@ -8,6 +8,8 @@ Task("dll")
     {
         Arguments = "build --release --manifest-path ./DLLs/Cargo.toml --target-dir tmp"
     });
+    CopyFile("tmp/release/libkumiko.dll.lib", "tmp/libkumiko.lib");
+    CopyFile("tmp/release/libkumiko.dll", "tmp/libkumiko.dll");
 });
 
 Task("compile")
@@ -23,7 +25,7 @@ Task("run")
 {
     StartProcess("clang", new ProcessSettings 
     {
-        Arguments = $"{output} -L ./tmp/release -l libkumiko -o ./tmp/kumiko.exe"
+        Arguments = $"{output} -L ./tmp -l libkumiko -o ./tmp/kumiko.exe"
     });
     StartProcess("./tmp/kumiko");
 });
@@ -33,10 +35,6 @@ Task("clean")
 {
     CleanDirectory("tmp");
     DotNetCoreClean("");
-    StartProcess("cargo", new ProcessSettings 
-    {
-        Arguments = "clean --manifest-path ./DLLs/Cargo.toml"
-    });
 });
 
 
