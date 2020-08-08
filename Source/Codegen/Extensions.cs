@@ -52,7 +52,7 @@ namespace Kumiko_lang.Codegen
                     ASTType.LessThan => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSLT, l, r, "lttmp"),
                     ASTType.LessEqual => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSLE, l, r, "letmp"),
                     ASTType.GreaterThan => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSGT, l, r, "gttmp"),
-                    ASTType.GreatEqual => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSGE, l, r, "getmp"),
+                    ASTType.GreaterEqual => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSGE, l, r, "getmp"),
                     _ => throw new NotImplementedException()
                 },
                 LLVMTypeKind.LLVMDoubleTypeKind => ty switch
@@ -65,7 +65,7 @@ namespace Kumiko_lang.Codegen
                     ASTType.LessThan => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealULT, l, r, "lttmp"),
                     ASTType.LessEqual => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealULE, l, r, "letmp"),
                     ASTType.GreaterThan => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealUGT, l, r, "gttmp"),
-                    ASTType.GreatEqual => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealUGE, l, r, "getmp"),
+                    ASTType.GreaterEqual => LLVM.BuildFCmp(builder, LLVMRealPredicate.LLVMRealUGE, l, r, "getmp"),
                     _ => throw new NotImplementedException()
                 },
             };

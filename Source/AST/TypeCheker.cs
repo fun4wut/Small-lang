@@ -10,7 +10,8 @@ namespace Kumiko_lang.AST
 
         Dictionary<string, (ASTType, TypeKind)> typeTbl = new Dictionary<string, (ASTType, TypeKind)>();
 
-        Dictionary<string, (ASTType, List<TypedArg>, TypeKind)> fnTbl = new Dictionary<string, (ASTType, List<TypedArg>, TypeKind)>();
+        Dictionary<string, (ASTType, List<TypedArg>, TypeKind)> fnTbl = 
+            new Dictionary<string, (ASTType, List<TypedArg>, TypeKind)>();
 
         private void ThrowsUnless<T>(Func<bool> action) where T: Exception, new()
         {
@@ -36,9 +37,18 @@ namespace Kumiko_lang.AST
             this.Check(expr.Lhs);
             this.Check(expr.Rhs);
             if (!expr.Lhs.IsExpr || !expr.Rhs.IsExpr) return false;
-            expr.RetType = expr.NodeType.IsBoolOp()
-                ? TypeKind.Bool
-                : (TypeKind)Math.Max((int)expr.Lhs.RetType, (int)expr.Rhs.RetType);
+            if (expr.NodeType.IsBoolOp())
+            {
+                expr.RetType = TypeKind.Bool;
+                if (expr.Lhs.RetType != TypeKind.Bool || expr.Rhs.RetType != TypeKind.Bool)
+                {
+                    if (expr.NodeType != ASTType.Equal) return false;
+                }
+            }
+            else
+            {
+                expr.RetType = (TypeKind)Math.Max((int)expr.Lhs.RetType, (int)expr.Rhs.RetType);
+            }
             return true;
         });
 
@@ -46,6 +56,12 @@ namespace Kumiko_lang.AST
         {
             this.Check(expr.Stmts);
             expr.RetType = expr.Stmts.Last().RetType;
+            return true;
+        });
+
+        public void CheckAST(BoolExprAST expr) => ThrowsUnless<TypeCheckException>(() =>
+        {
+            expr.RetType = TypeKind.Bool;
             return true;
         });
 

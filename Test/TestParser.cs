@@ -3,6 +3,8 @@ using Kumiko_lang;
 using Kumiko_lang.AST;
 using System.Collections.Generic;
 using System;
+using Pidgin;
+
 namespace Test
 {
     public class ParserTests
@@ -174,7 +176,7 @@ a;;;
             var expected = new List<BaseAST>
             {
                 new BinaryExprAST(
-                    ASTType.GreatEqual,
+                    ASTType.GreaterEqual,
                     new VariableExprAST("a"),
                     new IntExprAST(3)
                 )
@@ -255,5 +257,6 @@ a;;;
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
+
     }
 }

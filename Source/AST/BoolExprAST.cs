@@ -4,20 +4,18 @@ using System.Text;
 
 namespace Kumiko_lang.AST
 {
-    [ToString]
-    [Equals(DoNotAddEqualityOperators =true)]
-    public sealed class IntExprAST : BaseAST
+    public sealed class BoolExprAST : BaseAST
     {
-
-        public IntExprAST(int val)
+        public BoolExprAST(bool value)
         {
-            this.Value = val;
+            Value = value;
         }
 
-        public int Value { get; private set; }
-        public override ASTType NodeType { get; protected set; } = ASTType.IntIdent;
+        public bool Value { get; }
+        public override ASTType NodeType { get; protected set; } = ASTType.BoolIdent;
 
         protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+
         protected internal override void CheckWith(TypeChecker checker) => checker.CheckAST(this);
     }
 }

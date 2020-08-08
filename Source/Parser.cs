@@ -61,24 +61,41 @@ namespace Kumiko_lang
             GreaterEqual = Tok(">="),
             Equal = Tok("=="),
             If = Tok("if"),
-            Else = Tok("else"),
             Elif = Tok("elif"),
-            Ident = Tok(Letter.Then(LetterOrDigit.Or(Lodash).ManyString(), (h, t) => h + t));
+            Else = Tok("else"),
+            True = Tok("true"),
+            False = Tok("false"),
+            Let = Tok("let"),
+            Mut = Tok("mut"),
+            Int = Tok("Int"),
+            Float = Tok("Float"),
+            Bool = Tok("Bool"),
+            Unit = Tok("Unit");
+
+        static Parser<char, Unit> NonKeyWords = Not(OneOf(
+                Try(Fn), If, Try(Elif), Else, True, False, Let, Mut, Int, Bool, Float, Unit
+            ));
+
+
+        static Parser<char, string> Ident = Lookahead(NonKeyWords)
+                .Then(
+                    Tok(Letter.Then(LetterOrDigit.Or(Lodash).ManyString(), (h, t) => h + t))
+                );
 
         static Parser<char, ASTType>
-            Let = Tok("let").ThenReturn(ASTType.Let),
-            Mut = Tok("mut").ThenReturn(ASTType.Mut);
+            LetTy = Let.ThenReturn(ASTType.Let),
+            MutTy = Mut.ThenReturn(ASTType.Mut);
 
         static Parser<char, TypeKind>
-            Int = Tok("Int").ThenReturn(TypeKind.Int),
-            Float = Tok("Float").ThenReturn(TypeKind.Float),
-            Bool = Tok("Bool").ThenReturn(TypeKind.Bool),
-            Unit = Tok("Unit").ThenReturn(TypeKind.Unit),
+            IntTy = Int.ThenReturn(TypeKind.Int),
+            FloatTy = Float.ThenReturn(TypeKind.Float),
+            BoolTy = Bool.ThenReturn(TypeKind.Bool),
+            UnitTy = Unit.ThenReturn(TypeKind.Unit),
             Type = OneOf(
-                Int,
-                Float,
-                Bool,
-                Unit
+                IntTy,
+                FloatTy,
+                BoolTy,
+                UnitTy
             );
 
         static Parser<char, Unit> Delimiter = SemiColon.SkipAtLeastOnce().Then(EndOfLine.SkipMany());
@@ -94,7 +111,7 @@ namespace Kumiko_lang
             LT = Binary(LessThan.ThenReturn(ASTType.LessThan)),
             LE = Binary(LessEqual.ThenReturn(ASTType.LessEqual)),
             GT = Binary(GreaterThan.ThenReturn(ASTType.GreaterThan)),
-            GE = Binary(GreaterEqual.ThenReturn(ASTType.GreatEqual)),
+            GE = Binary(GreaterEqual.ThenReturn(ASTType.GreaterEqual)),
             Eq = Binary(Equal.ThenReturn(ASTType.Equal));
         #endregion
 
@@ -135,7 +152,15 @@ namespace Kumiko_lang
                 from rest in Digit.ManyString().Before(SkipWhitespaces)
                 select new FloatExprAST(double.Parse($"{num}.{rest}")) as BaseAST ,
 
-            PLit = Try(PFloat).Or(PInt)
+            PTrue = True.ThenReturn(new BoolExprAST(true) as BaseAST),
+            PFalse = False.ThenReturn(new BoolExprAST(false) as BaseAST),
+
+            PLit = OneOf(
+                    Try(PFloat),
+                    PInt,
+                    PTrue,
+                    PFalse
+                )
                 .Labelled("literial"),
 
             PAssign = 
@@ -145,7 +170,7 @@ namespace Kumiko_lang
                 select new AssignStmtAST(ident, val) as BaseAST,
 
             PDecl =
-                from mutability in Let.Or(Mut)
+                from mutability in LetTy.Or(MutTy)
                 from ident in Ident
                 from _1 in Assign
                 from val in PExpr
@@ -182,11 +207,11 @@ namespace Kumiko_lang
                             .And(ExpOperator.InfixL(Div)),
                         ExpOperator.InfixL(Add)
                             .And(ExpOperator.InfixL(Sub)),
-                        ExpOperator.InfixN(Eq)
-                            .And(ExpOperator.InfixN(GE))
+                        ExpOperator.InfixN(GE)
                             .And(ExpOperator.InfixN(GT))
                             .And(ExpOperator.InfixN(LE))
-                            .And(ExpOperator.InfixN(LT))
+                            .And(ExpOperator.InfixN(LT)),
+                        ExpOperator.InfixL(Eq)
                     }
                 )
             ).Labelled("expression"),

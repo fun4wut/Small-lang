@@ -1,10 +1,10 @@
-mut a = 3 + 4;
-a = 4.5 + a;
-let d = a * 4.2;
-let c = d < a;
-print_int(a);
+mut ab = 3 + 4;
+ab = 4 + ab;
+let d = ab * 4.2;
+let true = d < ab;
+print_int(ab);
 print_float(d);
-print_bool(c);
+print_bool(true);
 func print_int(x:Int) -> Unit
 func print_bool(x:Bool) -> Unit
 func print_float(x:Float) -> Unit
