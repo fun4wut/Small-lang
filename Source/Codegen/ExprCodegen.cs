@@ -9,7 +9,6 @@ namespace Kumiko_lang.Codegen
 {
     public partial class CodeGenVisitor : ExprVisitor
     {
-        #region Expr Override
         protected internal override BaseAST VisitAST(BinaryExprAST node)
         {
             this.Visit(node.Lhs);
@@ -93,6 +92,5 @@ namespace Kumiko_lang.Codegen
 
             return node;
         }
-        #endregion
     }
 }

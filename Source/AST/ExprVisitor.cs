@@ -22,7 +22,7 @@ namespace Kumiko_lang.AST
 
         protected internal virtual BaseAST VisitAST(ProtoStmtAST node, bool combineUse = false) => node;
 
-        protected internal virtual BaseAST VisitAST(FuncStmtAST node, bool isMain = false) => node;
+        protected internal virtual BaseAST VisitAST(FuncStmtAST node) => node;
 
         protected internal virtual BaseAST VisitAST(CallExprAST node) => node;
 

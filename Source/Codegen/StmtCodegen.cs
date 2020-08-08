@@ -121,7 +121,7 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override BaseAST VisitAST(FuncStmtAST node, bool isMain = false)
+        protected internal override BaseAST VisitAST(FuncStmtAST node)
         {
             this.ReplaceTbl();
             this.VisitAST(node.Proto, combineUse: true);
@@ -143,15 +143,13 @@ namespace Kumiko_lang.Codegen
             }
 
             // Finish off the function.
-            LLVM.BuildRet(this.builder, 
-                isMain
-                    ? LLVM.ConstInt(LLVM.Int64Type(), 0, true) 
-                    : this.LatestValue()
-            );
+            LLVM.BuildRet(this.builder, this.LatestValue());
             
 
             // Validate the generated code, checking for consistency.
             LLVM.VerifyFunction(function, LLVMVerifierFailureAction.LLVMPrintMessageAction);
+
+            if (function.GetValueName() == "main") this.MainFn = function;
 
             this.ResultStack.Push(function);
 

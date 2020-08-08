@@ -34,9 +34,6 @@ namespace Kumiko_lang.Codegen
         {
             this.module = module;
             this.builder = builder;
-
-            // func main is reserved
-            this.fnSet.Add("main");
         }
 
         public LLVMValueRef MainFn { get; private set; }
@@ -60,23 +57,6 @@ namespace Kumiko_lang.Codegen
             {
                 throw new DupDeclException();
             }
-        }
-
-        public void InsertMain(IEnumerable<BaseAST> exprs)
-        {
-            // init main function
-            this.VisitAST(
-                new FuncStmtAST(
-                    new ProtoStmtAST(
-                        "main",
-                        new List<TypedArg>(),
-                        TypeKind.Int
-                    ),
-                    new BlockExprAST(exprs)
-                ),
-                isMain: true
-            );
-            this.MainFn = this.ResultStack.Pop();
         }
 
         void BuildCond(

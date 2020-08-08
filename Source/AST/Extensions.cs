@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 namespace Kumiko_lang.AST
 {
@@ -16,7 +17,15 @@ namespace Kumiko_lang.AST
             ASTType.Function => -1,
             _ => 0
         };
-
-        public static bool isBoolOp(this ASTType ty) => (int)ty >= (int)ASTType.LessThan && (int)ty <= (int)ASTType.Equal;
+        public static bool IsBoolOp(this ASTType ty) => (int)ty >= (int)ASTType.LessThan && (int)ty <= (int)ASTType.Equal;
+        public static BaseAST MakeMain(this IEnumerable<BaseAST> stmts) =>
+            new FuncStmtAST(
+                new ProtoStmtAST(
+                    "main",
+                    new List<TypedArg>(),
+                    TypeKind.Int
+                ),
+                stmts.Append(new IntExprAST(0)).ToList().ToBlock()
+            );
     }
 }

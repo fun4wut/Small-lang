@@ -1,4 +1,7 @@
-let a = if 2 < 3 { 4; } else { 5; };
+mut a = 3 + 4;
+a = 4.5 + a;
+let d = a * 4.2;
+let c = d < a;
 print_int(a);
 print_float(d);
 print_bool(c);

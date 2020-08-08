@@ -12,6 +12,7 @@ namespace Kumiko_lang.Codegen
     {
         LLVMModuleRef module = LLVM.ModuleCreateWithName("my cool jit");
         LLVMBuilderRef builder = LLVM.CreateBuilder();
+        TypeChecker checker = new TypeChecker();
         CodeGenVisitor visitor;
         LLVMExecutionEngineRef engine;
         public Compiler()
@@ -35,12 +36,10 @@ namespace Kumiko_lang.Codegen
             // reorder the AST
             exprs.Sort((e1, e2) => e1.NodeType.ASTValue() - e2.NodeType.ASTValue());
             var funs = exprs.TakeWhile(e => e.NodeType.ASTValue() < 0);
-            var main = exprs.SkipWhile(e => e.NodeType.ASTValue() < 0);
-            foreach (var expr in funs)
-            {
-                visitor.Visit(expr);
-            }
-            visitor.InsertMain(main);
+            var main = exprs.SkipWhile(e => e.NodeType.ASTValue() < 0).MakeMain();
+            var program = funs.Append(main).ToList();
+            program.ForEach(expr => checker.Check(expr));
+            program.ForEach(expr => visitor.Visit(expr));
         }
 
         public void Run()

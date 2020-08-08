@@ -3,9 +3,6 @@ using Kumiko_lang;
 using Kumiko_lang.AST;
 using System.Collections.Generic;
 using System;
-using Pidgin;
-using static Pidgin.Parser;
-using static Pidgin.Parser<char>;
 namespace Test
 {
     public class ParserTests

@@ -17,6 +17,6 @@ namespace Kumiko_lang.AST
         public override ASTType NodeType { get; protected set; } = ASTType.Variable;
 
         protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
-        protected internal override void CheckWith(TypeCheker cheker) { }
+        protected internal override void CheckWith(TypeChecker checker) => checker.CheckAST(this);
     }
 }
