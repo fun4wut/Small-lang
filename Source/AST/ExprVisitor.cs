@@ -10,6 +10,8 @@ namespace Kumiko_lang.AST
 
         public virtual BaseAST? Visit(BaseAST? node) => node?.Accept(this);
 
+        public void Visit(List<BaseAST> nodes) => nodes.ForEach(node => this.Visit(node));
+
         protected internal virtual BaseAST VisitAST(BinaryExprAST node) => node;
 
         protected internal virtual BaseAST VisitAST(DeclStmtAST node) => node;

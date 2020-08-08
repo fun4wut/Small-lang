@@ -29,7 +29,6 @@ namespace Kumiko_lang.Codegen
         #region Stmt Override
         protected internal override BaseAST VisitAST(DeclStmtAST node)
         {
-            this.CheckNoDup(node.Name);
             this.Visit(node.Value);
             var top = this.LatestValue();
             // let immutable
@@ -51,8 +50,6 @@ namespace Kumiko_lang.Codegen
 
         protected internal override BaseAST VisitAST(ProtoStmtAST node, bool combineUse = false)
         {
-            this.CheckNoDup(node.Name, isFn: true);
-
             if (!combineUse)
             {
                 this.ReplaceTbl();
@@ -107,7 +104,6 @@ namespace Kumiko_lang.Codegen
                 LLVMValueRef param = LLVM.GetParam(function, (uint)i);
                 LLVM.SetValueName(param, argName);
 
-                this.CheckNoDup(argName);
                 this.symTbl[argName] = param;
             }
 

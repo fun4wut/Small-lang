@@ -40,20 +40,6 @@ namespace Test
         }
 
         [Test]
-        public void Var_Var_Same_Name()
-        {
-            var s = "let a = -5; let a = 10;";
-            Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
-        }
-
-        [Test]
-        public void UndefinedVar()
-        {
-            var s = "a+1;";
-            Assert.Throws<UndefinedVarException>(() => LangParser.ParseSingle(s).Compile(visitor));
-        }
-
-        [Test]
         public void Proto()
         {
             var s = "func ab(a: Int, b: Float) -> Float";
@@ -80,38 +66,6 @@ entry:
   %subtmp = sub i64 %b, %a
   ret i64 %subtmp
 }", visitor.PrintTop());
-        }
-
-        [Test]
-        public void Var_Func_Same_Name()
-        {
-            var s = "func ab() -> Int\n let ab = 1;";
-            Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
-            s = "let ab = 1;func ab() -> Int";
-            Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
-        }
-
-        [Test]
-        public void Func_Func_Same_Name()
-        {
-            var s = "func ab() -> Int\n func ab() -> Float;";
-            Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
-            s = "func ab() -> Int\n func ab() -> Int {4;}\n";
-            Assert.DoesNotThrow(() => LangParser.ParseAll(s).Compile(visitor));
-        }
-
-        [Test]
-        public void Arg_Var_Same_Name()
-        {
-            var s = "func ab(a: Int) -> Int\n let a = 233;";
-            Assert.DoesNotThrow(() => LangParser.ParseAll(s).Compile(visitor));
-        }
-
-        [Test]
-        public void Arg_Func_Same_Name()
-        {
-            var s = "func a(a: Int) -> Int";
-            Assert.Throws<DupDeclException>(() => LangParser.ParseAll(s).Compile(visitor));
         }
     }
 }

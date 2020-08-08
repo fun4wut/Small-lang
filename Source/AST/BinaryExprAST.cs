@@ -2,7 +2,7 @@ using System;
 using Pidgin.Expression;
 using System.Collections.Generic;
 using System.Text;
-
+using Kumiko_lang.TypeCheck;
 namespace Kumiko_lang.AST
 {
     [ToString]

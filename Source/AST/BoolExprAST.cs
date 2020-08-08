@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using Kumiko_lang.TypeCheck;
 namespace Kumiko_lang.AST
 {
     public sealed class BoolExprAST : BaseAST

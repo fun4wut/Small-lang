@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Kumiko_lang.TypeCheck;
 
 namespace Kumiko_lang.AST
 {

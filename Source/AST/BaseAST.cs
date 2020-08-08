@@ -1,7 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using LLVMSharp;
+using Kumiko_lang.TypeCheck;
+
 namespace Kumiko_lang.AST
 {
     public abstract class BaseAST

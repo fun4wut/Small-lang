@@ -5,7 +5,7 @@ using LLVMSharp;
 using Kumiko_lang;
 using Kumiko_lang.AST;
 using System.Linq;
-
+using Kumiko_lang.TypeCheck;
 namespace Kumiko_lang.Codegen
 {
     public class Compiler
@@ -33,13 +33,8 @@ namespace Kumiko_lang.Codegen
         public void Compile(string s)
         {
             var exprs = LangParser.ParseAll(s);
-            // reorder the AST
-            exprs.Sort((e1, e2) => e1.NodeType.ASTValue() - e2.NodeType.ASTValue());
-            var funs = exprs.TakeWhile(e => e.NodeType.ASTValue() < 0);
-            var main = exprs.SkipWhile(e => e.NodeType.ASTValue() < 0).MakeMain();
-            var program = funs.Append(main).ToList();
-            program.ForEach(expr => checker.Check(expr));
-            program.ForEach(expr => visitor.Visit(expr));
+            var program = checker.ReorderAndCheck(exprs);
+            visitor.Visit(program);
         }
 
         public void Run()

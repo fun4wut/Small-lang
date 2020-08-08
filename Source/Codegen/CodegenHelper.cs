@@ -47,18 +47,6 @@ namespace Kumiko_lang.Codegen
 
         public string PrintTop() => this.ResultStack.Pop().PrintValueToString().Trim();
 
-        void CheckNoDup(string name, bool isFn = false)
-        {
-            if (isFn && this.symTbl.ContainsKey(name))
-            {
-                throw new DupDeclException();
-            }
-            if (!isFn && (this.symTbl.ContainsKey(name) || this.fnSet.Contains(name)))
-            {
-                throw new DupDeclException();
-            }
-        }
-
         void BuildCond(
             ref LLVMValueRef? phi,
             IEnumerable<Branch> branches, 
