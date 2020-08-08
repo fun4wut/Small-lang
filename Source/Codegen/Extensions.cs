@@ -6,19 +6,6 @@ using Kumiko_lang.AST;
 
 namespace Kumiko_lang.Codegen
 {
-    static class Utils
-    {
-        public static LLVMTypeRef ToLLVM(this TypeKind ty) =>
-            ty switch
-            {
-                TypeKind.Int => LLVM.Int64Type(),
-                TypeKind.Float => LLVM.DoubleType(),
-                TypeKind.Bool => LLVM.Int1Type(),
-                TypeKind.Unit => LLVM.VoidType(),
-                _ => throw new NotImplementedException()
-            };
-    }
-
     public static class ASTExtensions
     {
         public static void Compile(this List<BaseAST> exprASTs, CodeGenVisitor visitor) => 
@@ -99,5 +86,14 @@ namespace Kumiko_lang.Codegen
             };
 
         }
+        public static LLVMTypeRef ToLLVM(this TypeKind ty) =>
+            ty switch
+            {
+                TypeKind.Int => LLVM.Int64Type(),
+                TypeKind.Float => LLVM.DoubleType(),
+                TypeKind.Bool => LLVM.Int1Type(),
+                TypeKind.Unit => LLVM.VoidType(),
+                _ => throw new NotImplementedException()
+            };
     }
 }

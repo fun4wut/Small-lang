@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using LLVMSharp;
 using Kumiko_lang.AST;
+using System.Linq;
 
 namespace Kumiko_lang.Codegen
 {
     public partial class CodeGenVisitor : ExprVisitor
     {
+        #region Members
         private static readonly LLVMBool LLVMBoolFalse = new LLVMBool(0);
 
         private static readonly LLVMValueRef NullValue = new LLVMValueRef(IntPtr.Zero);
@@ -22,72 +24,9 @@ namespace Kumiko_lang.Codegen
 
         private Dictionary<string, LLVMValueRef>? tmpTbl = null;
 
-        private void RestoreTbl()
-        {
-            this.symTbl = this.tmpTbl ?? this.symTbl;
-            this.tmpTbl = null;
-        }
+        #endregion
 
-        private void ReplaceTbl()
-        {
-            this.tmpTbl = this.symTbl;
-            this.symTbl = new Dictionary<string, LLVMValueRef>();
-        }
-
-        private LLVMValueRef LatestValue()
-        {
-            var top = this.ResultStack.Pop();
-            return top.IsPtr() 
-                ? LLVM.BuildLoad(this.builder, top, "ptrtmp")
-                : top;
-        }
-
-        public CodeGenVisitor(LLVMModuleRef module, LLVMBuilderRef builder)
-        {
-            this.module = module;
-            this.builder = builder;
-
-            // func main is reserved
-            this.fnSet.Add("main");
-        }
-
-        public LLVMValueRef MainFn { get; private set; }
-
-        public Stack<LLVMValueRef> ResultStack { get; } = new Stack<LLVMValueRef>();
-
-        public void ClearResultStack()
-        {
-            this.ResultStack.Clear();
-        }
-
-        public string PrintTop() => this.ResultStack.Pop().PrintValueToString().Trim();
-
-        void CheckNoDup(string name, bool isFn = false)
-        {
-            if (isFn && this.symTbl.ContainsKey(name))
-            {
-                throw new DupDeclException();
-            }
-            if (!isFn && (this.symTbl.ContainsKey(name) || this.fnSet.Contains(name)))
-            {
-                throw new DupDeclException();
-            }
-        }
-
-
-
-        protected internal override BaseAST VisitAST(BinaryExprAST node)
-        {
-            this.Visit(node.Lhs);
-            this.Visit(node.Rhs);
-
-            LLVMValueRef r = this.LatestValue(), l = this.LatestValue();
-
-            var n = this.builder.DoBinaryOps(node.NodeType, l, r);
-            this.ResultStack.Push(n);
-            return node;
-        }
-
+        #region Stmt Override
         protected internal override BaseAST VisitAST(DeclStmtAST node)
         {
             this.CheckNoDup(node.Name);
@@ -109,30 +48,6 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override BaseAST VisitAST(FloatExprAST node)
-        {
-            this.ResultStack.Push(LLVM.ConstReal(LLVM.DoubleType(), node.Value));
-            return node;
-        }
-
-        protected internal override BaseAST VisitAST(IntExprAST node)
-        {
-            this.ResultStack.Push(LLVM.ConstInt(LLVM.Int64Type(), (ulong)node.Value, true));
-            return node;
-        }
-
-        protected internal override BaseAST VisitAST(VariableExprAST node)
-        {
-            if (this.symTbl.TryGetValue(node.Name, out LLVMValueRef value))
-            {
-                this.ResultStack.Push(value);
-            }
-            else
-            {
-                throw new UndefinedVarException();
-            }
-            return node;
-        }
 
         protected internal override BaseAST VisitAST(ProtoStmtAST node, bool combineUse = false)
         {
@@ -245,34 +160,7 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        protected internal override BaseAST VisitAST(CallExprAST node)
-        {
-            var calleeF = LLVM.GetNamedFunction(this.module, node.Callee);
-            if (calleeF.Pointer == IntPtr.Zero)
-            {
-                throw new Exception("Unknown function referenced");
-            }
-
-            if (LLVM.CountParams(calleeF) != node.Arguments.Count)
-            {
-                throw new Exception("Incorrect # arguments passed");
-            }
-
-            var argsCnt = (uint)node.Arguments.Count;
-            var argsV = new LLVMValueRef[argsCnt];
-            for (int i = 0; i < argsCnt; ++i)
-            {
-                this.Visit(node.Arguments[i]);
-                argsV[i] = this.LatestValue();
-            }
-
-            var fnRet = calleeF.TypeOf().GetReturnType().GetReturnType().TypeKind
-                == LLVMTypeKind.LLVMVoidTypeKind ? string.Empty : "calltmp";
-
-            this.ResultStack.Push(LLVM.BuildCall(this.builder, calleeF, argsV, fnRet));
-
-            return node;
-        }
+        
 
         protected internal override BaseAST VisitAST(AssignStmtAST node)
         {
@@ -296,22 +184,7 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
-        public void InsertMain(IEnumerable<BaseAST> exprs)
-        {
-            // init main function
-            this.VisitAST(
-                new FuncStmtAST(
-                    new ProtoStmtAST(
-                        "main",
-                        new List<TypedArg>(),
-                        TypeKind.Int
-                    ),
-                    exprs
-                ),
-                isMain: true
-            );
-            this.MainFn = this.ResultStack.Pop();
-        }
+        #endregion
 
     }
 

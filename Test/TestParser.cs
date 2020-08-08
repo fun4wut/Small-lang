@@ -191,7 +191,7 @@ a;;;
             var s = "if 2<3 {};";
             var expected = new List<BaseAST>
             {
-                new IfExprAST(
+                new IfStmtAST(
                     new List<Branch>
                     {
                         new Branch(

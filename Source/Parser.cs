@@ -110,15 +110,23 @@ namespace Kumiko_lang
             Body(Rec(() => NormalStmt).Before(Delimiter).Many());
 
         static Parser<char, BaseAST>
-            PIf = 
+            PIfStmt = 
                 from @if in Branch(If)
                 from elif in Branch(Elif).Many()
                 from @else in Branch(Else).Optional()
-                select new IfExprAST(
+                select new IfStmtAST(
                     @else.Match(
                         just: elm => elif.Prepend(@if).Append(elm),
                         nothing: () => elif.Prepend(@if)
                     )
+                ) as BaseAST,
+
+            PIfExpr =
+                from @if in Branch(If)
+                from elif in Branch(Elif).Many()
+                from @else in Branch(Else)
+                select new IfExprAST(
+                    elif.Prepend(@if).Append(@else)
                 ) as BaseAST,
 
             PIdent = Ident
@@ -139,14 +147,14 @@ namespace Kumiko_lang
             PAssign = 
                 from ident in Ident
                 from _0 in Assign
-                from val in PNormalExpr
+                from val in PExpr
                 select new AssignStmtAST(ident, val) as BaseAST,
 
             PDecl =
                 from mutability in Let.Or(Mut)
                 from ident in Ident
                 from _1 in Assign
-                from val in PNormalExpr
+                from val in PExpr
                 select new DeclStmtAST(mutability, ident, val) as BaseAST,
 
             Proto =
@@ -194,11 +202,16 @@ namespace Kumiko_lang
                 Proto
             ),
 
+            PExpr = OneOf(
+               Try(PIfExpr),
+               PNormalExpr
+            ),
+
             NormalStmt = OneOf(
                 PDecl,
-                PIf,
+                PIfStmt,
                 Try(PAssign),
-                PNormalExpr
+                PExpr
             ),
         
             Stmt = TopFieldOnlyStmt.Or(NormalStmt);

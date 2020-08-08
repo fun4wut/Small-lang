@@ -11,6 +11,7 @@
 *.lib
 /.vscode
 /tmp
+Source/Properties/launchSettings.json
 
 # User-specific files
 *.rsuser
