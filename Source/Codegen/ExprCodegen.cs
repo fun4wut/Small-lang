@@ -35,14 +35,8 @@ namespace Kumiko_lang.Codegen
 
         protected internal override BaseAST VisitAST(VariableExprAST node)
         {
-            if (this.symTbl.TryGetValue(node.Name, out LLVMValueRef value))
-            {
-                this.ResultStack.Push(value);
-            }
-            else
-            {
-                throw new UndefinedVarException();
-            }
+            var value = this.symTbl[node.Name];
+            this.ResultStack.Push(value);
             return node;
         }
 
@@ -51,15 +45,25 @@ namespace Kumiko_lang.Codegen
             // get the current fn
             var fn = LLVM.GetInsertBlock(this.builder).GetBasicBlockParent();
             var thenBB = LLVM.AppendBasicBlock(fn, "then");
-            var mergeBB = LLVM.AppendBasicBlock(fn, "ifcont");
 
-            // emit merge code
-            LLVM.PositionBuilderAtEnd(this.builder, mergeBB);
-            // lazily build phi node
-            LLVMValueRef? phi = null;
+            // if expr
+            if (node.IsExpr)
+            {
+                var mergeBB = LLVM.AppendBasicBlock(fn, "ifcont");
+                // emit merge code
+                LLVM.PositionBuilderAtEnd(this.builder, mergeBB);
+                var phi = LLVM.BuildPhi(this.builder, node.RetType.ToLLVM(), "phi");
+                this.ResultStack.Push(phi);
 
-            // recursly gen the if-else
-            this.BuildCond(ref phi, node.Branches, ref thenBB, mergeBB);
+                // recursly gen the if-else
+                this.BuildCond(phi, node.Branches, ref thenBB, mergeBB);
+            }
+            else // if stmt
+            {
+
+            }
+
+
 
             return node;
         }
@@ -67,15 +71,6 @@ namespace Kumiko_lang.Codegen
         protected internal override BaseAST VisitAST(CallExprAST node)
         {
             var calleeF = LLVM.GetNamedFunction(this.module, node.Callee);
-            if (calleeF.Pointer == IntPtr.Zero)
-            {
-                throw new Exception("Unknown function referenced");
-            }
-
-            if (LLVM.CountParams(calleeF) != node.Arguments.Count)
-            {
-                throw new Exception("Incorrect # arguments passed");
-            }
 
             var argsCnt = (uint)node.Arguments.Count;
             var argsV = new LLVMValueRef[argsCnt];
@@ -85,8 +80,7 @@ namespace Kumiko_lang.Codegen
                 argsV[i] = this.LatestValue();
             }
 
-            var fnRet = calleeF.TypeOf().GetReturnType().GetReturnType().TypeKind
-                == LLVMTypeKind.LLVMVoidTypeKind ? string.Empty : "calltmp";
+            var fnRet = checker.fnTbl[node.Callee].Item3 == TypeKind.Unit ? string.Empty : "calltmp";
 
             this.ResultStack.Push(LLVM.BuildCall(this.builder, calleeF, argsV, fnRet));
 

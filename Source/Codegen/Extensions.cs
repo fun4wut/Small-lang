@@ -16,11 +16,11 @@ namespace Kumiko_lang.Codegen
 
         public static bool isFloat(this LLVMValueRef val) => val.TypeOf().TypeKind == LLVMTypeKind.LLVMDoubleTypeKind;
 
-        private static void AutoConvertType(this LLVMBuilderRef builder, ref LLVMValueRef a, ref LLVMValueRef b)
+        private static void AutoConvertType(this LLVMBuilderRef builder, ref LLVMValueRef a, ref LLVMValueRef b, ASTType op)
         {
-            if (a.isBool() || b.isBool())
+            if (op != ASTType.Equal && (a.isBool() || b.isBool()))
             {
-                throw new Exception("bool can't perform bin op");
+                throw new Exception("bool can't perform bin op, except == ");
             }
             if (a.TypeOf().TypeKind == b.TypeOf().TypeKind)
             {
@@ -37,12 +37,12 @@ namespace Kumiko_lang.Codegen
         }
 
         public static LLVMValueRef
-            DoBinaryOps(this LLVMBuilderRef builder, ASTType ty, LLVMValueRef l, LLVMValueRef r)
+            DoBinaryOps(this LLVMBuilderRef builder, ASTType op, LLVMValueRef l, LLVMValueRef r)
         {
-            builder.AutoConvertType(ref l, ref r);
+            builder.AutoConvertType(ref l, ref r, op);
             return l.TypeOf().TypeKind switch
             {
-                LLVMTypeKind.LLVMIntegerTypeKind => ty switch
+                LLVMTypeKind.LLVMIntegerTypeKind => op switch // bool is also integer in llvm
                 {
                     ASTType.Add => LLVM.BuildAdd(builder, l, r, "addtmp"),
                     ASTType.Subtract => LLVM.BuildSub(builder, l, r, "subtmp"),
@@ -55,7 +55,7 @@ namespace Kumiko_lang.Codegen
                     ASTType.GreaterEqual => LLVM.BuildICmp(builder, LLVMIntPredicate.LLVMIntSGE, l, r, "getmp"),
                     _ => throw new NotImplementedException()
                 },
-                LLVMTypeKind.LLVMDoubleTypeKind => ty switch
+                LLVMTypeKind.LLVMDoubleTypeKind => op switch
                 {
                     ASTType.Add => LLVM.BuildFAdd(builder, l, r, "addtmp"),
                     ASTType.Subtract => LLVM.BuildFSub(builder, l, r, "subtmp"),

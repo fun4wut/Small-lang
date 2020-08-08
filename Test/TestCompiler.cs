@@ -6,21 +6,19 @@ using Kumiko_lang.Codegen;
 using Kumiko_lang.AST;
 using LLVMSharp;
 using Kumiko_lang;
-
+using Kumiko_lang.TypeCheck;
 namespace Test
 {
     class TestCompiler
     {
-            LLVMModuleRef module;
-            LLVMBuilderRef builder;
-            CodeGenVisitor visitor;
+        CodeGenVisitor visitor;
 
         [SetUp]
         public void Setup()
         {
-            module = LLVM.ModuleCreateWithName("Test JIT");
-            builder = LLVM.CreateBuilder();
-            visitor = new CodeGenVisitor(module, builder);
+            var module = LLVM.ModuleCreateWithName("Test JIT");
+            var builder = LLVM.CreateBuilder();
+            visitor = new CodeGenVisitor(module, builder, new TypeChecker());
         }
 
         [Test]

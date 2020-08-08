@@ -4,23 +4,13 @@ using System.Text;
 using LLVMSharp;
 using Kumiko_lang.AST;
 using System.Linq;
+using Kumiko_lang.TypeCheck;
 
 namespace Kumiko_lang.Codegen
 {
     public partial class CodeGenVisitor : ExprVisitor
     {
         #region Helper method
-        private void RestoreTbl()
-        {
-            this.symTbl = this.tmpTbl ?? this.symTbl;
-            this.tmpTbl = null;
-        }
-
-        private void ReplaceTbl()
-        {
-            this.tmpTbl = this.symTbl;
-            this.symTbl = new Dictionary<string, LLVMValueRef>();
-        }
 
         private LLVMValueRef LatestValue()
         {
@@ -30,25 +20,17 @@ namespace Kumiko_lang.Codegen
                 : top;
         }
 
-        public CodeGenVisitor(LLVMModuleRef module, LLVMBuilderRef builder)
+        public CodeGenVisitor(LLVMModuleRef module, LLVMBuilderRef builder, TypeChecker checker)
         {
             this.module = module;
             this.builder = builder;
-        }
-
-        public LLVMValueRef MainFn { get; private set; }
-
-        public Stack<LLVMValueRef> ResultStack { get; } = new Stack<LLVMValueRef>();
-
-        public void ClearResultStack()
-        {
-            this.ResultStack.Clear();
+            this.checker = checker;
         }
 
         public string PrintTop() => this.ResultStack.Pop().PrintValueToString().Trim();
 
         void BuildCond(
-            ref LLVMValueRef? phi,
+            LLVMValueRef phi,
             IEnumerable<Branch> branches, 
             ref LLVMBasicBlockRef thenBB, 
             LLVMBasicBlockRef mergeBB
@@ -63,12 +45,6 @@ namespace Kumiko_lang.Codegen
             this.Visit(@if.Cond);
             // if cond
             var top = this.LatestValue();
-            // set value for phi
-            if (phi == null)
-            {
-                phi = LLVM.BuildPhi(this.builder, top.TypeOf(), "phi");
-                this.ResultStack.Push((LLVMValueRef)phi!);
-            }
             if (!top.isBool())
             {
                 throw new Exception("only bool can used in cond");
@@ -83,20 +59,20 @@ namespace Kumiko_lang.Codegen
 
             // move the builder to then block
             LLVM.PositionBuilderAtEnd(this.builder, thenBB);
-            
+
             // codegen
-            @if.Body.Stmts.ForEach(stmt => this.Visit(stmt));
+            this.Visit(@if.Body.Stmts);
             LLVM.BuildBr(this.builder, mergeBB);
             // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
             thenBB = LLVM.GetInsertBlock(this.builder);
 
-            phi?.AddIncoming(
+            phi.AddIncoming(
                 new LLVMValueRef[] { this.LatestValue() },
                 new LLVMBasicBlockRef[] { thenBB },
                 1
             );
 
-            this.BuildCond(ref phi, branches.Skip(1), ref elseBB, mergeBB);
+            this.BuildCond(phi, branches.Skip(1), ref elseBB, mergeBB);
 
         }
 

@@ -71,5 +71,6 @@ namespace Test
             var s = "a+1;";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
         }
+
     }
 }

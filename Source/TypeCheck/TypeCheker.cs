@@ -9,9 +9,9 @@ namespace Kumiko_lang.TypeCheck
     {
         public TypeChecker() { }
 
-        Dictionary<string, (ASTType, TypeKind)> typeTbl = new Dictionary<string, (ASTType, TypeKind)>();
+        public Dictionary<string, (ASTType, TypeKind)> typeTbl = new Dictionary<string, (ASTType, TypeKind)>();
 
-        Dictionary<string, (ASTType, List<TypedArg>, TypeKind)> fnTbl = 
+        public Dictionary<string, (ASTType, List<TypedArg>, TypeKind)> fnTbl = 
             new Dictionary<string, (ASTType, List<TypedArg>, TypeKind)>();
 
         public List<BaseAST> ReorderAndCheck(List<BaseAST> exprs)
@@ -79,8 +79,11 @@ namespace Kumiko_lang.TypeCheck
         public void CheckAST(CallExprAST node)
         {
             this.Check(node.Arguments);
-            if (!fnTbl.TryGetValue(node.Callee, out var fnRet)) throw new TypeCheckException();
-            node.RetType = fnRet.Item3;
+            if (!fnTbl.TryGetValue(node.Callee, out var type)) throw new TypeCheckException();
+            node.RetType = type.Item3;
+            if (!type.Item2.Select(arg => arg.Type)
+                        .SequenceEqual(node.Arguments.Select(arg => arg.RetType))
+                ) throw new TypeCheckException();
         }
 
         public void CheckAST(DeclStmtAST node)

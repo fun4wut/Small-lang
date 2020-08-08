@@ -17,7 +17,7 @@ namespace Kumiko_lang.Codegen
         LLVMExecutionEngineRef engine;
         public Compiler()
         {
-            this.visitor = new CodeGenVisitor(this.module, this.builder);
+            this.visitor = new CodeGenVisitor(this.module, this.builder, this.checker);
             LLVM.LinkInMCJIT();
             LLVM.InitializeX86TargetMC();
             LLVM.InitializeX86Target();
