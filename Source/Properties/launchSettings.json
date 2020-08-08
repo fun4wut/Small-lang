@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "Kumiko-lang": {
-      "commandName": "Project",
-      "commandLineArgs": "./Source/TextFile1.txt ./test.ll",
-      "workingDirectory": "D:\\VSWorkspace\\Kumiko-lang"
-    }
-  }
-}
