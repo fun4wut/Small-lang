@@ -8,9 +8,14 @@ namespace Kumiko_lang.AST
     {
         public abstract ASTType NodeType { get; protected set; }
 
-        protected internal abstract BaseAST? Accept(ExprVisitor visitor);
-    }
+        public virtual TypeKind RetType { get; set; } = TypeKind.Unit;
 
+        public bool IsExpr => RetType != TypeKind.Unit;
+
+        protected internal abstract BaseAST? Accept(ExprVisitor visitor);
+
+        protected internal abstract void CheckWith(TypeCheker cheker);
+    }
 
 
     [ToString]

@@ -72,7 +72,7 @@ namespace Kumiko_lang.Codegen
                         new List<TypedArg>(),
                         TypeKind.Int
                     ),
-                    exprs
+                    new BlockExprAST(exprs)
                 ),
                 isMain: true
             );
@@ -117,7 +117,7 @@ namespace Kumiko_lang.Codegen
             LLVM.PositionBuilderAtEnd(this.builder, thenBB);
             
             // codegen
-            @if.Actions.ForEach(stmt => this.Visit(stmt));
+            @if.Body.Stmts.ForEach(stmt => this.Visit(stmt));
             LLVM.BuildBr(this.builder, mergeBB);
             // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
             thenBB = LLVM.GetInsertBlock(this.builder);

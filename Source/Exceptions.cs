@@ -7,4 +7,6 @@ namespace Kumiko_lang
     public class DupDeclException : Exception { }
     public class UndefinedVarException : Exception { }
 
+    public class TypeCheckException : Exception { }
+
 }

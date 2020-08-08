@@ -20,7 +20,7 @@ namespace Kumiko_lang
         static Parser<char, T> Parenthesised<T>(Parser<char, T> parser) => parser.Between(LBracket, RBracket);
         static Parser<char, T> Body<T>(Parser<char, T> parser) => parser.Between(LBrace, RBrace);
         static Parser<char, Branch> Branch(Parser<char, string> parser) =>
-            parser.Then(Rec(() => PNormalExpr)).Then(PBody, (cond, actions) => new Branch(cond, actions));
+            parser.Then(Rec(() => PExpr)).Then(PBody, (cond, actions) => new Branch(cond, actions));
 
         static Parser<char, Func<BaseAST, BaseAST>> Call(Parser<char, BaseAST> subExpr)
             => Parenthesised(subExpr.Separated(Comma))
@@ -106,27 +106,21 @@ namespace Kumiko_lang
             from ty in Type
             select new TypedArg(ident, ty);
 
-        static Parser<char, IEnumerable<BaseAST>> PBody =
-            Body(Rec(() => NormalStmt).Before(Delimiter).Many());
+        static Parser<char, BlockExprAST> PBody =
+            Body(Rec(() => NormalStmt).Many())
+                .Select(elms => new BlockExprAST(elms));
 
         static Parser<char, BaseAST>
-            PIfStmt = 
+            PIfExpr = 
                 from @if in Branch(If)
                 from elif in Branch(Elif).Many()
-                from @else in Branch(Else).Optional()
-                select new IfStmtAST(
-                    @else.Match(
-                        just: elm => elif.Prepend(@if).Append(elm),
-                        nothing: () => elif.Prepend(@if)
-                    )
-                ) as BaseAST,
-
-            PIfExpr =
-                from @if in Branch(If)
-                from elif in Branch(Elif).Many()
-                from @else in Branch(Else)
+                from @else in Tok("else").Then(PBody, (_, actions) => new ElseBranch(actions)).Optional()
                 select new IfExprAST(
-                    elif.Prepend(@if).Append(@else)
+                    elif.Prepend(@if),
+                    @else.Match(
+                        just: elm => elm,
+                        nothing: () => null
+                    )
                 ) as BaseAST,
 
             PIdent = Ident
@@ -208,16 +202,15 @@ namespace Kumiko_lang
             ),
 
             NormalStmt = OneOf(
-                PDecl,
-                PIfStmt,
-                Try(PAssign),
-                PExpr
+                PDecl.Before(Delimiter),
+                PIfExpr,
+                Try(PAssign).Before(Delimiter),
+                PExpr.Before(Delimiter)
             ),
         
             Stmt = TopFieldOnlyStmt.Or(NormalStmt);
 
-        static Parser<char, IEnumerable<BaseAST>> Program =
-            TopFieldOnlyStmt.Or(NormalStmt.Before(Delimiter)).Many();
+        static Parser<char, IEnumerable<BaseAST>> Program = Stmt.Many();
 
         #endregion
 

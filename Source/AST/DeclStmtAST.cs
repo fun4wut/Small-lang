@@ -15,10 +15,12 @@ namespace Kumiko_lang.AST
             Value = value;
         }
 
+
         public string Name { get; }
         public BaseAST Value { get; }
         public override ASTType NodeType { get; protected set; }
 
         protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override void CheckWith(TypeCheker cheker) { }
     }
 }

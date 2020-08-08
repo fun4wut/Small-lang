@@ -6,7 +6,7 @@ namespace Kumiko_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators = true)]
-    public sealed class VariableExprAST : BaseAST, IExpr
+    public sealed class VariableExprAST : BaseAST
     {
         public VariableExprAST(string name)
         {
@@ -17,5 +17,6 @@ namespace Kumiko_lang.AST
         public override ASTType NodeType { get; protected set; } = ASTType.Variable;
 
         protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override void CheckWith(TypeCheker cheker) { }
     }
 }

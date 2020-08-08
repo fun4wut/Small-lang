@@ -93,7 +93,7 @@ a;;;
         [Test]
         public void FuncDef()
         {
-            var s = "func xyz(a: Int, b: Float) -> Int { 1; };";
+            var s = "func xyz(a: Int, b: Float) -> Int { 1; }";
             var proto = new ProtoStmtAST(
                 "xyz",
                 new List<TypedArg>
@@ -110,7 +110,7 @@ a;;;
                     new List<BaseAST>
                     {
                         new IntExprAST(1)
-                    }
+                    }.ToBlock()
                 )
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
@@ -186,12 +186,12 @@ a;;;
         }
 
         [Test]
-        public void If()
+        public void IfStmt()
         {
-            var s = "if 2<3 {};";
+            var s = "if 2<3 { 2.3; a; } elif 3 > 4 { 5; } else { 7; }";
             var expected = new List<BaseAST>
             {
-                new IfStmtAST(
+                new IfExprAST(
                     new List<Branch>
                     {
                         new Branch(
@@ -200,9 +200,60 @@ a;;;
                                 new IntExprAST(2),
                                 new IntExprAST(3)
                             ),
-                            new List<BaseAST>()
+                            new List<BaseAST>
+                            {
+                                new FloatExprAST(2.3),
+                                new VariableExprAST("a")
+                            }.ToBlock()
+                        ),
+                        new Branch(
+                            new BinaryExprAST(
+                                ASTType.GreaterThan,
+                                new IntExprAST(3),
+                                new IntExprAST(4)
+                            ),
+                            new List<BaseAST>
+                            {
+                                new IntExprAST(5)
+                            }.ToBlock()
                         )
-                    }
+                    },
+                    new ElseBranch(
+                        new List<BaseAST>
+                        {
+                            new IntExprAST(7)
+                        }.ToBlock()
+                    )
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
+
+        [Test]
+        public void IfExpr()
+        {
+            var s = "b = if 2<3 { 2; };";
+            var expected = new List<BaseAST>
+            {
+                new AssignStmtAST(
+                    "b",
+                    new IfExprAST(
+                        new List<Branch>
+                        {
+                            new Branch(
+                                new BinaryExprAST(
+                                    ASTType.LessThan,
+                                    new IntExprAST(2),
+                                    new IntExprAST(3)
+                                ),
+                                new List<BaseAST>
+                                {
+                                    new FloatExprAST(2.3),
+                                    new VariableExprAST("a")
+                                }.ToBlock()
+                            )
+                        }, null
+                    )
                 )
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));

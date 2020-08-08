@@ -9,16 +9,17 @@ namespace Kumiko_lang.AST
     [Equals(DoNotAddEqualityOperators = true)]
     public sealed class FuncStmtAST : BaseAST
     {
-        public FuncStmtAST(ProtoStmtAST proto, IEnumerable<BaseAST> body)
+        public FuncStmtAST(ProtoStmtAST proto, BlockExprAST body)
         {
             Proto = proto;
-            Body = body.ToList();
+            Body = body;
         }
 
         public ProtoStmtAST Proto { get; private set; }
-        public List<BaseAST> Body { get; private set; }
+        public BlockExprAST Body { get; private set; }
         public override ASTType NodeType { get; protected set; } = ASTType.Function;
 
         protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override void CheckWith(TypeCheker cheker) { }
     }
 }

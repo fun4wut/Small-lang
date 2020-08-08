@@ -21,13 +21,14 @@ namespace Kumiko_lang.AST
         Mut,
         Assign,
         If,
+        Block,
     }
 
     public enum TypeKind
     {
+        Unit,
+        Bool,
         Int, // i64
         Float, // double
-        Bool,
-        Unit
     }
 }

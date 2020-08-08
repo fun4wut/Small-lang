@@ -6,21 +6,6 @@ using Kumiko_lang.AST;
 
 namespace Kumiko_lang.Codegen
 {
-    public static class ASTExtensions
-    {
-        public static void Compile(this List<BaseAST> exprASTs, CodeGenVisitor visitor) => 
-            exprASTs.ForEach(e => visitor.Visit(e));
-
-        public static void Compile(this BaseAST exprAST, ExprVisitor visitor) => visitor.Visit(exprAST);
-
-        public static int ASTValue(this ASTType ty) => ty switch
-        {
-            ASTType.Prototype => -2,
-            ASTType.Function => -1,
-            _ => 0
-        };
-    }
-
     static class LLVMExt
     {
         public static bool IsPtr(this LLVMValueRef val) => val.TypeOf().TypeKind == LLVMTypeKind.LLVMPointerTypeKind;

@@ -79,7 +79,7 @@ namespace Kumiko_lang.Codegen
                 }
 
                 // If F return different type, reject.
-                if (function.TypeOf().GetReturnType().GetReturnType().TypeKind != node.RetType.ToLLVM().TypeKind)
+                if (function.TypeOf().GetReturnType().GetReturnType().TypeKind != node.FnRet.ToLLVM().TypeKind)
                 {
                     throw new DupDeclException();
                 }
@@ -92,7 +92,7 @@ namespace Kumiko_lang.Codegen
                 }
 
                 function = LLVM.AddFunction(
-                    this.module, node.Name, LLVM.FunctionType(node.RetType.ToLLVM(), args, false)
+                    this.module, node.Name, LLVM.FunctionType(node.FnRet.ToLLVM(), args, false)
                 );
 
                 LLVM.SetLinkage(function, LLVMLinkage.LLVMExternalLinkage);
@@ -134,7 +134,7 @@ namespace Kumiko_lang.Codegen
             try
             {
                 // node.Body.Compile(this);
-                node.Body.ForEach(exp => this.Visit(exp));
+                node.Body.Stmts.ForEach(exp => this.Visit(exp));
             }
             catch (Exception)
             {

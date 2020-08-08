@@ -26,7 +26,7 @@ namespace Test
         [Test]
         public void Arithmetic()
         {
-            var s = "1+2";
+            var s = "1+2;";
             LangParser.ParseSingle(s).Compile(visitor);
             Assert.AreEqual("i64 3", visitor.PrintTop());
         }
@@ -49,7 +49,7 @@ namespace Test
         [Test]
         public void UndefinedVar()
         {
-            var s = "a+1";
+            var s = "a+1;";
             Assert.Throws<UndefinedVarException>(() => LangParser.ParseSingle(s).Compile(visitor));
         }
 

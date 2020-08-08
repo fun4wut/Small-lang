@@ -13,15 +13,16 @@ namespace Kumiko_lang.AST
         {
             Name = name;
             Arguments = arguments.ToList();
-            RetType = ty;
+            FnRet = ty;
         }
 
         public string Name { get; private set; }
         public List<TypedArg> Arguments { get; private set; }
-        public TypeKind RetType { get; private set; }
+        public TypeKind FnRet { get; private set; }
 
         public override ASTType NodeType { get; protected set; } = ASTType.Prototype;
 
         protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override void CheckWith(TypeCheker cheker) { }
     }
 }
