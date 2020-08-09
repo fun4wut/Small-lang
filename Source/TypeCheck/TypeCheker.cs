@@ -47,11 +47,7 @@ namespace Kumiko_lang.TypeCheck
             if (node.NodeType.IsBoolOp())
             {
                 node.RetType = TypeKind.Bool;
-                if (node.NodeType == ASTType.Equal)
-                {
-                    if (node.Lhs.RetType != node.Rhs.RetType) throw new TypeCheckException();
-                }
-                else
+                if (node.NodeType != ASTType.Equal)
                 {
                     if (node.Lhs.RetType == TypeKind.Bool || node.Rhs.RetType == TypeKind.Bool)
                     {
@@ -108,7 +104,9 @@ namespace Kumiko_lang.TypeCheck
         {
             this.Check(node.Proto);
             this.Check(node.Body);
-            fnTbl[node.Proto.Name] = (node.NodeType, node.Proto.Arguments, node.Proto.FnRet);
+            // body's return and declared return should be the same
+            if (node.Body.RetType != node.Proto.FnRet) throw new TypeCheckException();
+            fnTbl[node.Proto.Name] = (ASTType.Function, node.Proto.Arguments, node.Proto.FnRet);
         }
 
         public void CheckAST(IfExprAST node)
@@ -117,14 +115,19 @@ namespace Kumiko_lang.TypeCheck
             var bodies = node.Branches.Select(br => br.Body as BaseAST).ToList();
             var @else = node.ElseBranch;
             this.Check(conds);
+            foreach (var cond in conds)
+            {
+                // cond must be bool type
+                if (cond.RetType != TypeKind.Bool) throw new TypeCheckException();
+            }
             this.Check(bodies);
             if (@else?.Body is BaseAST elseBody)
             {
                 this.Check(elseBody);
                 foreach (var item in bodies)
                 {
-                    // if not all the branched return the same type. this node will be node
-                    if (item.RetType != elseBody.RetType) throw new TypeCheckException();
+                    // if not all the branched return the same type. this node will be stmt
+                    if (item.RetType != elseBody.RetType) return;
                 }
                 node.RetType = elseBody.RetType;
             }

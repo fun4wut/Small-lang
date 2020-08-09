@@ -20,13 +20,6 @@ namespace Test
         }
 
         [Test]
-        public void BinOp_Lhs_Rhs_Not_Match()
-        {
-            var s = @"4 == 3.5 < 3;";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
-        }
-
-        [Test]
         public void Var_Func_Same_Name()
         {
             var s = "func ab() -> Int\n let ab = 1;";
@@ -69,6 +62,53 @@ namespace Test
         public void UndefinedVar()
         {
             var s = "a+1;";
+            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+        }
+
+        [Test]
+        public void Bool_Op()
+        {
+            var s = "4.0 == 2 + 3;";
+            Assert.DoesNotThrow(() => CheckIt(s));
+            s = "4 < 2 == 4;";
+            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+        }
+
+        [Test]
+        public void If_Else_Expr()
+        {
+            var s = @"mut a = if 2 == 3 {4; } else {5; };
+                a = if 2 == 3 {4; } elif 3 < 4 {1; } else {5; };";
+            Assert.DoesNotThrow(() => CheckIt(s));
+        }
+
+        [Test]
+        public void If_Cond_Not_Bool()
+        {
+            var s = @"mut a = if 2 + 3 {4; } else {5; };";
+            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+        }
+
+        [Test]
+        public void If_Ret_Not_Same()
+        {
+            var s = @"mut a = if 2 + 3 {4; } else {true; };";
+            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+        }
+
+        [Test]
+        public void If_Stmt()
+        {
+            var s = @"let a = if 2 > 3 {4; };";
+            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+            s = "if 3 <= 4 {5;5;} elif 4 >= 3 {1;};";
+            Assert.DoesNotThrow(() => CheckIt(s));
+        }
+
+        [Test]
+        public void Func_Body_Ret_Not_Same()
+        {
+            var s = "func ab() -> Int {2;4; 5.5; }";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
         }
 

@@ -45,16 +45,15 @@ namespace Kumiko_lang.Codegen
             // get the current fn
             var fn = LLVM.GetInsertBlock(this.builder).GetBasicBlockParent();
             var thenBB = LLVM.AppendBasicBlock(fn, "then");
+            var mergeBB = LLVM.AppendBasicBlock(fn, "ifcont");
+            // emit merge code
+            LLVM.PositionBuilderAtEnd(this.builder, mergeBB);
+            var phi = LLVM.BuildPhi(this.builder, node.RetType.ToLLVM(), "phi");
+            this.ResultStack.Push(phi);
 
             // if expr
             if (node.IsExpr)
             {
-                var mergeBB = LLVM.AppendBasicBlock(fn, "ifcont");
-                // emit merge code
-                LLVM.PositionBuilderAtEnd(this.builder, mergeBB);
-                var phi = LLVM.BuildPhi(this.builder, node.RetType.ToLLVM(), "phi");
-                this.ResultStack.Push(phi);
-
                 // recursly gen the if-else
                 this.BuildCond(phi, node.Branches, ref thenBB, mergeBB);
             }
