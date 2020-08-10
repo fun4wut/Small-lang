@@ -27,17 +27,34 @@ namespace Kumiko_lang.Codegen
             this.checker = checker;
         }
 
+        private LLVMBasicBlockRef GetCurrentBB() => LLVM.GetInsertBlock(this.builder);
+
         public string PrintTop() => this.ResultStack.Pop().PrintValueToString().Trim();
 
         void BuildCond(
-            LLVMValueRef phi,
-            IEnumerable<Branch> branches, 
+            LLVMValueRef? phi,
+            IEnumerable<Branch> branches,
+            ElseBranch? elseBranch,
             ref LLVMBasicBlockRef thenBB, 
             LLVMBasicBlockRef mergeBB
         )
         {
+            // build the else branch
             if (!branches.Any())
             {
+                // move the builder to then block
+                LLVM.PositionBuilderAtEnd(this.builder, thenBB);
+                if (elseBranch is ElseBranch @else)
+                {
+                    this.Visit(@else.Body.Stmts);
+                }
+                LLVM.BuildBr(this.builder, mergeBB);
+                thenBB = LLVM.GetInsertBlock(this.builder);
+                phi?.AddIncoming(
+                    new LLVMValueRef[] { this.LatestValue() },
+                    new LLVMBasicBlockRef[] { thenBB },
+                    1
+                );
                 return;
             }
 
@@ -45,17 +62,13 @@ namespace Kumiko_lang.Codegen
             this.Visit(@if.Cond);
             // if cond
             var top = this.LatestValue();
-            if (!top.isBool())
-            {
-                throw new Exception("only bool can used in cond");
-            }
             top.SetValueName("ifcond");
 
-            // insert elseBB after thenBB
-            var elseBB = LLVM.InsertBasicBlock(thenBB, "else");
+            // insert elifBB before mergeBB
+            var elifBB = LLVM.InsertBasicBlock(mergeBB, "elif");
 
             // build cond br
-            LLVM.BuildCondBr(this.builder, top, thenBB, elseBB);
+            LLVM.BuildCondBr(this.builder, top, thenBB, elifBB);
 
             // move the builder to then block
             LLVM.PositionBuilderAtEnd(this.builder, thenBB);
@@ -64,15 +77,15 @@ namespace Kumiko_lang.Codegen
             this.Visit(@if.Body.Stmts);
             LLVM.BuildBr(this.builder, mergeBB);
             // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
-            thenBB = LLVM.GetInsertBlock(this.builder);
+            thenBB = this.GetCurrentBB();
 
-            phi.AddIncoming(
+            phi?.AddIncoming(
                 new LLVMValueRef[] { this.LatestValue() },
                 new LLVMBasicBlockRef[] { thenBB },
                 1
             );
 
-            this.BuildCond(phi, branches.Skip(1), ref elseBB, mergeBB);
+            this.BuildCond(phi, branches.Skip(1), elseBranch, ref elifBB, mergeBB);
 
         }
 

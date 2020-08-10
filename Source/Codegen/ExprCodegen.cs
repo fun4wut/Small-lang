@@ -42,27 +42,30 @@ namespace Kumiko_lang.Codegen
 
         protected internal override BaseAST VisitAST(IfExprAST node)
         {
+            var initialBB = this.GetCurrentBB();
             // get the current fn
-            var fn = LLVM.GetInsertBlock(this.builder).GetBasicBlockParent();
+            var fn = initialBB.GetBasicBlockParent();
             var thenBB = LLVM.AppendBasicBlock(fn, "then");
             var mergeBB = LLVM.AppendBasicBlock(fn, "ifcont");
             // emit merge code
             LLVM.PositionBuilderAtEnd(this.builder, mergeBB);
-            var phi = LLVM.BuildPhi(this.builder, node.RetType.ToLLVM(), "phi");
-            this.ResultStack.Push(phi);
+
+            LLVMValueRef? phi = null;
 
             // if expr
             if (node.IsExpr)
             {
-                // recursly gen the if-else
-                this.BuildCond(phi, node.Branches, ref thenBB, mergeBB);
-            }
-            else // if stmt
-            {
-
+                phi = LLVM.BuildPhi(this.builder, node.RetType.ToLLVM(), "phi");
+                this.ResultStack.Push((LLVMValueRef)phi);
             }
 
-
+            // move the builder to the initial postion
+            LLVM.PositionBuilderAtEnd(this.builder, initialBB);
+            // recursly gen the if-else
+            this.BuildCond(phi, node.Branches, node.ElseBranch, ref thenBB, mergeBB);
+            
+            // move builder to end
+            LLVM.PositionBuilderAtEnd(this.builder, mergeBB);
 
             return node;
         }

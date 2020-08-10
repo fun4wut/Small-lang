@@ -28,7 +28,8 @@ A toy compiler which targets to LLVM
 - [x] Function
 - [x] Extern function
 - [x] Mutable variable
-- [ ] Comment for source code
 - [ ] Control Statment
+    - [x] If
+    - [ ] For
 - [ ] JIT
 - [ ] ???
