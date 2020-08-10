@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using LLVMSharp;
-using Kumiko_lang;
-using Kumiko_lang.AST;
-using System.Linq;
 using Kumiko_lang.TypeCheck;
+
 namespace Kumiko_lang.Codegen
 {
     public class Compiler

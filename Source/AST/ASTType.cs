@@ -23,6 +23,7 @@ namespace Kumiko_lang.AST
         Assign,
         If,
         Block,
+        Nop,
     }
 
     public enum TypeKind

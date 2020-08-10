@@ -124,8 +124,16 @@ namespace Kumiko_lang
             select new TypedArg(ident, ty);
 
         static Parser<char, BlockExprAST> PBody =
-            Body(Rec(() => NormalStmt).Many())
-                .Select(elms => new BlockExprAST(elms));
+            Body(
+                Rec(() => NormalStmt).Many()
+                .Then(Rec(() => PExpr).Optional(), (elms, ret) => 
+                    new BlockExprAST(
+                        ret.Match(
+                            just: val => elms.Append(val),
+                            nothing: () => elms.Append(new NopStmt())
+                    ))
+                )
+            );
 
         static Parser<char, BaseAST>
             PIfExpr = 
@@ -227,10 +235,10 @@ namespace Kumiko_lang
             ),
 
             NormalStmt = OneOf(
-                PDecl.Before(Delimiter),
                 PIfExpr,
+                PDecl.Before(Delimiter),
                 Try(PAssign).Before(Delimiter),
-                PExpr.Before(Delimiter)
+                Try(PExpr.Before(Delimiter))
             ),
         
             Stmt = TopFieldOnlyStmt.Or(NormalStmt);
