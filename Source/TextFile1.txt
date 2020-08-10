@@ -8,8 +8,13 @@ if bar(4) < 10 {
         print_int(233);
     }
 }
+print_int(fib(10));
 print_int(c);
 print_float(d);
+func fib(x: Int) -> Int {
+    if x <= 1 {1;} else { fib(x-2) + fib(x-1); }
+}
+print_int(fib(10));
 func print_int(x:Int) -> Unit
 func print_bool(x:Bool) -> Unit
 func print_float(x:Float) -> Unit
