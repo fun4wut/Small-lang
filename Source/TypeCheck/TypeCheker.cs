@@ -64,7 +64,7 @@ namespace Kumiko_lang.TypeCheck
         public void CheckAST(BlockExprAST node)
         {
             this.Check(node.Stmts);
-            node.RetType = node.Stmts.Last().RetType;
+            node.RetType = node.Stmts.Any() ? node.Stmts.Last().RetType : TypeKind.Unit;
         }
 
         public void CheckAST(BoolExprAST node)

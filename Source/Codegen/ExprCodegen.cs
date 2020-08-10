@@ -27,6 +27,12 @@ namespace Kumiko_lang.Codegen
             return node;
         }
 
+        protected internal override BaseAST VisitAST(BoolExprAST node)
+        {
+            this.ResultStack.Push(LLVM.ConstInt(LLVM.Int1Type(), node.Value ? 1u : 0u, true));
+            return node;
+        }
+
         protected internal override BaseAST VisitAST(IntExprAST node)
         {
             this.ResultStack.Push(LLVM.ConstInt(LLVM.Int64Type(), (ulong)node.Value, true));

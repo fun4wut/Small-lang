@@ -91,17 +91,9 @@ namespace Kumiko_lang.Codegen
             
             // Create a new basic block to start insertion into.
             LLVM.PositionBuilderAtEnd(this.builder, LLVM.AppendBasicBlock(function, "entry"));
+
+            this.Visit(node.Body.Stmts);
             
-            try
-            {
-                // node.Body.Compile(this);
-                node.Body.Stmts.ForEach(exp => this.Visit(exp));
-            }
-            catch (Exception)
-            {
-                LLVM.DeleteFunction(function);
-                throw;
-            }
 
             // Finish off the function.
             LLVM.BuildRet(this.builder, this.LatestValue());

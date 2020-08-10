@@ -8,6 +8,7 @@ if bar(4) < 10 {
         print_int(233);
     }
 }
+if true {}
 print_int(fib(10));
 print_int(c);
 print_float(d);

@@ -258,5 +258,38 @@ a;;;
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
 
+        [Test]
+        public void Nested_If()
+        {
+            var s = "if true { if false { 4; } }";
+            var expected = new List<BaseAST>
+            {
+                new IfExprAST(
+                    new List<Branch>
+                    {
+                        new Branch(
+                            new BoolExprAST(true),
+                            new List<BaseAST>
+                            {
+                                new IfExprAST(
+                                    new List<Branch>
+                                    {
+                                        new Branch(
+                                            new BoolExprAST(false),
+                                            new List<BaseAST>
+                                            {
+                                                new IntExprAST(4)
+                                            }.ToBlock()
+                                        )
+                                    }, null
+                                )
+                            }.ToBlock()
+                        )
+                    }, null
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
+
     }
 }
