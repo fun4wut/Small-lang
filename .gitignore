@@ -9,8 +9,10 @@
 .rustc_info.json
 *.dll
 *.lib
+*.so
 /.vscode
 /tmp
+*.out
 Source/Properties/launchSettings.json
 
 # User-specific files

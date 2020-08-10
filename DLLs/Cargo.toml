@@ -1,5 +1,5 @@
 [package]
-name = "libkumiko"
+name = "kumiko"
 version = "0.1.0"
 authors = ["Houze Ni <t-hni@microsoft.com>"]
 edition = "2018"
