@@ -13,8 +13,7 @@ print_int(fib(10));
 print_int(c);
 print_float(d);
 func fib(x: Int) -> Int {
-    let a = if x <= 1 {1} else { fib(x-2) + fib(x-1) };
-    a
+    if x <= 1 {1} else { fib(x-2) + fib(x-1) }
 }
 print_int(fib(10));
 func print_int(x:Int) -> Unit

@@ -92,7 +92,7 @@ a;;;
         [Test]
         public void FuncDef()
         {
-            var s = "func xyz(a: Int, b: Float) -> Int { 1; }";
+            var s = "func xyz(a: Int, b: Float) -> Int { 1 }";
             var proto = new ProtoStmtAST(
                 "xyz",
                 new List<TypedArg>
@@ -187,7 +187,7 @@ a;;;
         [Test]
         public void IfStmt()
         {
-            var s = "if 2<3 { 2.3; a; } elif 3 > 4 { 5; } else { 7; }";
+            var s = "if 2<3 { 2.3; a } elif 3 > 4 { 5 } else { 7 }";
             var expected = new List<BaseAST>
             {
                 new IfExprAST(

@@ -130,7 +130,10 @@ namespace Kumiko_lang
                     new BlockExprAST(
                         ret.Match(
                             just: val => elms.Append(val),
-                            nothing: () => elms.Append(new NopStmt())
+                            // if expr is the special case
+                            nothing: () => elms.Any() && elms.Last().NodeType != ASTType.If
+                                ? elms.Append(new NopStmt())
+                                : elms
                     ))
                 )
             );

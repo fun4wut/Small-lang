@@ -33,7 +33,7 @@ namespace Test
         {
             var s = "func ab() -> Int\n func ab() -> Float;";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
-            s = "func ab() -> Int\n func ab() -> Int {4;}\n";
+            s = "func ab() -> Int\n func ab() -> Int {4}\n";
             Assert.DoesNotThrow(() => CheckIt(s));
         }
 
@@ -77,8 +77,8 @@ namespace Test
         [Test]
         public void If_Else_Expr()
         {
-            var s = @"mut a = if 2 == 3 {4; } else {5; };
-                a = if 2 == 3 {4; } elif 3 < 4 {1; } else {5; };";
+            var s = @"mut a = if 2 == 3 {4 } else {5 };
+                a = if 2 == 3 {4 } elif 3 < 4 {1 } else {5 };";
             Assert.DoesNotThrow(() => CheckIt(s));
         }
 
