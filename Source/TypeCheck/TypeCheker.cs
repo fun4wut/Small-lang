@@ -43,20 +43,21 @@ namespace Kumiko_lang.TypeCheck
         {
             this.Check(node.Lhs);
             this.Check(node.Rhs);
+            // only expr can involve in binary operation
             if (!node.Lhs.IsExpr || !node.Rhs.IsExpr) throw new TypeCheckException();
+
+            // bool can only involve in equal operation
+            if (node.NodeType != ASTType.Equal &&
+                (node.Lhs.RetType == TypeKind.Bool || node.Rhs.RetType == TypeKind.Bool)
+            ) throw new TypeCheckException();
+
             if (node.NodeType.IsBoolOp())
             {
                 node.RetType = TypeKind.Bool;
-                if (node.NodeType != ASTType.Equal)
-                {
-                    if (node.Lhs.RetType == TypeKind.Bool || node.Rhs.RetType == TypeKind.Bool)
-                    {
-                        throw new TypeCheckException();
-                    }
-                }
             }
             else
             {
+                // type widen (int -> float)
                 node.RetType = (TypeKind)Math.Max((int)node.Lhs.RetType, (int)node.Rhs.RetType);
             }
         }
@@ -106,6 +107,7 @@ namespace Kumiko_lang.TypeCheck
             this.Check(node.Body);
             // body's return and declared return should be the same
             if (node.Body.RetType != node.Proto.FnRet) throw new TypeCheckException();
+            // update the fn table
             fnTbl[node.Proto.Name] = (ASTType.Function, node.Proto.Arguments, node.Proto.FnRet);
         }
 
@@ -135,6 +137,7 @@ namespace Kumiko_lang.TypeCheck
 
         public void CheckAST(ProtoStmtAST node)
         {
+            // if exists a func proto in fb table. the signiture should be the same
             if (fnTbl.TryGetValue(node.Name, out var type))
             {
                 // redefined function
@@ -152,7 +155,7 @@ namespace Kumiko_lang.TypeCheck
             {
                 fnTbl.Add(node.Name, (ASTType.Prototype, node.Arguments, node.FnRet));
             }
-
+            // clear the symbol table since entering a new scope
             typeTbl.Clear();
             foreach (var arg in node.Arguments)
             {
@@ -163,6 +166,7 @@ namespace Kumiko_lang.TypeCheck
 
         public void CheckAST(VariableExprAST node)
         {
+            // check exists
             if (!typeTbl.TryGetValue(node.Name, out var type)) throw new TypeCheckException();
             node.RetType = type.Item2;
         }
