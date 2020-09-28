@@ -1,4 +1,4 @@
-namespace Kumiko_lang.AST
+namespace Small_lang.AST
 {
     public enum ASTType
     {

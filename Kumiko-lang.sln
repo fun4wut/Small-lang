@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kumiko-lang", "Source\Kumiko-lang.csproj", "{7FC33587-1100-4EC1-BA76-7FD6D4B3BFD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Small-lang", "Source\Small-lang.csproj", "{7FC33587-1100-4EC1-BA76-7FD6D4B3BFD1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{6A79B0DB-5881-4734-903B-55299310E28E}"
 EndProject

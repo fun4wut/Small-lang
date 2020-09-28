@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Source\Kumiko-lang.csproj" />
+    <ProjectReference Include="..\Source\Small-lang.csproj" />
   </ItemGroup>
 
 </Project>

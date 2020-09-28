@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using Kumiko_lang;
-using Kumiko_lang.AST;
+using Small_lang;
+using Small_lang.AST;
 using System.Collections.Generic;
 using System;
 using Pidgin;

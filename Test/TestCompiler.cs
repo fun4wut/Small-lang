@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using Kumiko_lang.Codegen;
-using Kumiko_lang.AST;
+using Small_lang.Codegen;
+using Small_lang.AST;
 using LLVMSharp;
-using Kumiko_lang;
-using Kumiko_lang.TypeCheck;
+using Small_lang;
+using Small_lang.TypeCheck;
 namespace Test
 {
     class TestCompiler

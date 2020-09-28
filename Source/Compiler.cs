@@ -1,8 +1,8 @@
 using System;
 using LLVMSharp;
-using Kumiko_lang.TypeCheck;
+using Small_lang.TypeCheck;
 
-namespace Kumiko_lang.Codegen
+namespace Small_lang.Codegen
 {
     public class Compiler
     {

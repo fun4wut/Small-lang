@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using LLVMSharp;
-using Kumiko_lang.AST;
+using Small_lang.AST;
 
-namespace Kumiko_lang.Codegen
+namespace Small_lang.Codegen
 {
     static class LLVMExt
     {

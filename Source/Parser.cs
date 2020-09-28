@@ -3,13 +3,13 @@ using System;
 using Pidgin.Expression;
 using static Pidgin.Parser;
 using static Pidgin.Parser<char>;
-using Kumiko_lang.AST;
+using Small_lang.AST;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ExpOperator = Pidgin.Expression.Operator;
 
-namespace Kumiko_lang
+namespace Small_lang
 {
     public sealed partial class LangParser
     {

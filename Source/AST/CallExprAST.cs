@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Kumiko_lang.TypeCheck;
+using Small_lang.TypeCheck;
 
-namespace Kumiko_lang.AST
+namespace Small_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators = true)]

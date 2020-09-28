@@ -1,9 +1,9 @@
-using Kumiko_lang.TypeCheck;
+using Small_lang.TypeCheck;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Kumiko_lang.AST
+namespace Small_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators = true)]

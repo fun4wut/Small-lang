@@ -1,6 +1,6 @@
-using Kumiko_lang.TypeCheck;
+using Small_lang.TypeCheck;
 
-namespace Kumiko_lang.AST
+namespace Small_lang.AST
 {
     public abstract class BaseAST
     {

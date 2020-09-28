@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using Kumiko_lang.AST;
-using Kumiko_lang;
-using Kumiko_lang.TypeCheck;
+using Small_lang.AST;
+using Small_lang;
+using Small_lang.TypeCheck;
 namespace Test
 {
     class TestChecker

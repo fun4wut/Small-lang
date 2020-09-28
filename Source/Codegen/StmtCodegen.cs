@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using LLVMSharp;
-using Kumiko_lang.AST;
+using Small_lang.AST;
 using System.Linq;
-using Kumiko_lang.TypeCheck;
+using Small_lang.TypeCheck;
 
-namespace Kumiko_lang.Codegen
+namespace Small_lang.Codegen
 {
     public partial class CodeGenVisitor : ExprVisitor
     {

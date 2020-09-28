@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
     <NoWarn>NU1701</NoWarn>
-    <RootNamespace>Kumiko_lang</RootNamespace>
+    <RootNamespace>Small_lang</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

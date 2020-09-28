@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Kumiko_lang.AST;
+using Small_lang.AST;
 
-namespace Kumiko_lang.TypeCheck
+namespace Small_lang.TypeCheck
 {
     public class TypeChecker
     {

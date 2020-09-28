@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using Kumiko_lang.AST;
-using Kumiko_lang.Codegen;
+using Small_lang.AST;
+using Small_lang.Codegen;
 
-namespace Kumiko_lang
+namespace Small_lang
 {
     class Program
     {
