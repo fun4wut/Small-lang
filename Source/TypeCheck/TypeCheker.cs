@@ -60,8 +60,8 @@ namespace Small_lang.TypeCheck
             // only expr can involve in binary operation
             if (!node.Lhs.IsExpr || !node.Rhs.IsExpr) throw new TypeCheckException();
 
-            // bool can only involve in equal operation
-            if (node.NodeType != ASTType.Equal &&
+            // bool can only involve in equal/not equal operation
+            if (node.NodeType != ASTType.Equal && node.NodeType != ASTType.NotEqual &&
                 (node.Lhs.RetType == TypeKind.Bool || node.Rhs.RetType == TypeKind.Bool)
             ) throw new TypeCheckException();
 

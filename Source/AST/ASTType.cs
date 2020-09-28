@@ -8,11 +8,16 @@ namespace Small_lang.AST
         Subtract,
         Multiply,
         Divide,
+
+        // Bool op start
         LessThan,
         GreaterThan,
         LessEqual,
         GreaterEqual,
+        NotEqual,
         Equal,
+        // Bool op end
+
         Call,
         Variable,
         IntIdent,

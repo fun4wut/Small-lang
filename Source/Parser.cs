@@ -60,6 +60,7 @@ namespace Small_lang
             LessEqual = Tok("<="),
             GreaterEqual = Tok(">="),
             Equal = Tok("=="),
+            NotEqual = Tok("!="),
             If = Tok("if"),
             Elif = Tok("elif"),
             Else = Tok("else"),
@@ -109,6 +110,7 @@ namespace Small_lang
             LE = Binary(LessEqual.ThenReturn(ASTType.LessEqual)),
             GT = Binary(GreaterThan.ThenReturn(ASTType.GreaterThan)),
             GE = Binary(GreaterEqual.ThenReturn(ASTType.GreaterEqual)),
+            NE = Binary(NotEqual.ThenReturn(ASTType.NotEqual)),
             Eq = Binary(Equal.ThenReturn(ASTType.Equal));
         #endregion
 
@@ -223,6 +225,7 @@ namespace Small_lang
                             .And(ExpOperator.InfixN(LE))
                             .And(ExpOperator.InfixN(LT)),
                         ExpOperator.InfixL(Eq)
+                            .And(ExpOperator.InfixL(NE))
                     }
                 )
             ).Labelled("expression"),
