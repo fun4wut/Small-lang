@@ -22,9 +22,9 @@ namespace Test
         [Test]
         public void Var_Func_Same_Name()
         {
-            var s = "func ab() -> Int\n let ab = 1;";
+            var s = "func ab() -> Int\n ab = 1;";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
-            s = "let ab = 1;func ab() -> Int";
+            s = "ab = 1;func ab() -> Int";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
         }
 
@@ -54,8 +54,8 @@ namespace Test
         [Test]
         public void Var_Var_Same_Name()
         {
-            var s = "let a = -5; let a = 10;";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+            var s = "a = -5; a = 10;";
+            Assert.DoesNotThrow(() => CheckIt(s));
         }
 
         [Test]
@@ -85,21 +85,21 @@ namespace Test
         [Test]
         public void If_Cond_Not_Bool()
         {
-            var s = @"mut a = if 2 + 3 {4; } else {5; };";
+            var s = @"a = if 2 + 3 {4; } else {5; };";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
         }
 
         [Test]
         public void If_Ret_Not_Same()
         {
-            var s = @"mut a = if 2 + 3 {4; } else {true; };";
+            var s = @"a = if 2 + 3 {4; } else {true; };";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
         }
 
         [Test]
         public void If_Stmt()
         {
-            var s = @"let a = if 2 > 3 {4; };";
+            var s = @"a = if 2 > 3 {4; };";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
             s = "if 3 <= 4 {5;5;} elif 4 >= 3 {1;};";
             Assert.DoesNotThrow(() => CheckIt(s));

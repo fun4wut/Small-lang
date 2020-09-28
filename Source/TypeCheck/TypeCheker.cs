@@ -31,11 +31,25 @@ namespace Small_lang.TypeCheck
 
         public void CheckAST(AssignStmtAST node)
         {
-            if (!typeTbl.TryGetValue(node.Name, out var type)) throw new TypeCheckException();
+            if (fnTbl.ContainsKey(node.Name)) throw new TypeCheckException();
+
             this.Check(node.Value);
-            if (type.Item1 != ASTType.Mut
-                || type.Item2 == TypeKind.Unit
-                || node.Value.RetType != type.Item2) throw new TypeCheckException();
+
+            // Unit type is not allowed
+            if (!node.Value.IsExpr) throw new TypeCheckException();
+
+            if (typeTbl.TryGetValue(node.Name, out var type))
+            {
+                if (type.Item2 != node.Value.RetType)
+                {
+                    // throw error if type mismatch
+                    throw new TypeCheckException();
+                }
+            } 
+            else
+            {
+                typeTbl.Add(node.Name, (node.NodeType, node.Value.RetType));
+            }
         }
 
 
@@ -81,14 +95,6 @@ namespace Small_lang.TypeCheck
             if (!type.Item2.Select(arg => arg.Type)
                         .SequenceEqual(node.Arguments.Select(arg => arg.RetType))
                 ) throw new TypeCheckException();
-        }
-
-        public void CheckAST(DeclStmtAST node)
-        {
-            this.Check(node.Value);
-            if (fnTbl.ContainsKey(node.Name)) throw new TypeCheckException();
-            if (!typeTbl.TryAdd(node.Name, (node.NodeType, node.Value.RetType))) throw new TypeCheckException();
-            if (!node.Value.IsExpr) throw new TypeCheckException();
         }
 
         public void CheckAST(FloatExprAST node)

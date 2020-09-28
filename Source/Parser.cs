@@ -180,12 +180,6 @@ namespace Small_lang
                 from val in PExpr
                 select new AssignStmtAST(ident, val) as BaseAST,
 
-            PDecl =
-                from mutability in LetTy.Or(MutTy)
-                from ident in Ident
-                from _1 in Assign
-                from val in PExpr
-                select new DeclStmtAST(mutability, ident, val) as BaseAST,
 
             Proto =
                 from _0 in Fn
@@ -239,7 +233,6 @@ namespace Small_lang
 
             NormalStmt = OneOf(
                 PIfExpr,
-                PDecl.Before(Delimiter),
                 Try(PAssign).Before(Delimiter),
                 Try(PExpr.Before(Delimiter))
             ),

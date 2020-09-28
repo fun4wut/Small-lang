@@ -52,25 +52,6 @@ a;;;
         }
 
         [Test]
-        public void ImmutVar()
-        {
-            var s = "let a12 = a*31;";
-            var expected = new List<BaseAST>
-            {
-                new DeclStmtAST(
-                    ASTType.Let,
-                    "a12",
-                    new BinaryExprAST(
-                        ASTType.Multiply,
-                        new VariableExprAST("a"),
-                        new IntExprAST(31)
-                    )
-                )
-            };
-            Assert.AreEqual(expected, LangParser.ParseAll(s));
-        }
-
-        [Test]
         public void Prototype()
         {
             var s = "func xyz(a: Int, b: Float) -> Float;";
@@ -140,20 +121,6 @@ a;;;
             Assert.Throws<Exception>(() => LangParser.ParseAll(s));
         }
 
-        [Test]
-        public void MutVar()
-        {
-            var s = "mut a = 3;";
-            var expected = new List<BaseAST>
-            {
-                new DeclStmtAST(
-                    ASTType.Mut,
-                    "a",
-                    new IntExprAST(3)
-                )
-            };
-            Assert.AreEqual(expected, LangParser.ParseAll(s));
-        }
 
         [Test]
         public void Assign()

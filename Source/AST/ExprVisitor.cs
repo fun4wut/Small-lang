@@ -14,8 +14,6 @@ namespace Small_lang.AST
 
         protected internal virtual BaseAST VisitAST(BinaryExprAST node) => node;
 
-        protected internal virtual BaseAST VisitAST(DeclStmtAST node) => node;
-
         protected internal virtual BaseAST VisitAST(FloatExprAST node) => node;
 
         protected internal virtual BaseAST VisitAST(IntExprAST node) => node;
