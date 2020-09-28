@@ -65,26 +65,23 @@ namespace Small_lang
             Else = Tok("else"),
             True = Tok("true"),
             False = Tok("false"),
-            Let = Tok("let"),
-            Mut = Tok("mut"),
             Int = Tok("Int"),
             Float = Tok("Float"),
             Bool = Tok("Bool"),
-            Unit = Tok("Unit");
+            Unit = Tok("Unit"),
+            Then = Tok("then"),
+            End = Tok("end");
 
         static Parser<char, Unit> NonKeyWords = Not(OneOf(
-                Try(Fn), If, Try(Elif), Else, True, False, Let, Mut, Int, Bool, Float, Unit
+                Try(Fn), If, Try(Elif), Else, True, False, Int, Bool, Float, Unit, Then, End
             ));
 
 
-        static Parser<char, string> Ident = Lookahead(NonKeyWords)
+        static Parser<char, string>
+            Ident = Lookahead(NonKeyWords)
                 .Then(
                     Tok(Letter.Then(LetterOrDigit.Or(Lodash).ManyString(), (h, t) => h + t))
                 );
-
-        static Parser<char, ASTType>
-            LetTy = Let.ThenReturn(ASTType.Let),
-            MutTy = Mut.ThenReturn(ASTType.Mut);
 
         static Parser<char, TypeKind>
             IntTy = Int.ThenReturn(TypeKind.Int),
@@ -139,17 +136,26 @@ namespace Small_lang
             );
 
         static Parser<char, BaseAST>
-            PIfExpr = 
-                from @if in Branch(If)
-                from elif in Branch(Elif).Many()
-                from @else in Tok("else").Then(PBody, (_, actions) => new ElseBranch(actions)).Optional()
+            POnlyIf = 
+                from cond in If.Then(Rec(() => PExpr))
+                from _1 in Then
+                from stmts in NormalStmt.Many()
+                from _2 in End
+                select new IfExprAST(new[] { new Branch(cond, new BlockExprAST(stmts)) }, null) as BaseAST,
+
+            PIfElse =
+                from cond in If.Then(Rec(() => PExpr))
+                from _1 in Then
+                from ifStmts in NormalStmt.Many()
+                from _2 in Else
+                from elseStmts in NormalStmt.Many()
+                from _3 in End
                 select new IfExprAST(
-                    elif.Prepend(@if),
-                    @else.Match(
-                        just: elm => elm,
-                        nothing: () => null
-                    )
+                    new[] { new Branch(cond, new BlockExprAST(ifStmts)) }, 
+                    new ElseBranch(new BlockExprAST(ifStmts))
                 ) as BaseAST,
+
+            PIfExpr = Try(PIfElse).Or(POnlyIf),
 
             PIdent = Ident
                 .Select<BaseAST>(s => new VariableExprAST(s))

@@ -75,34 +75,10 @@ namespace Test
         }
 
         [Test]
-        public void If_Else_Expr()
-        {
-            var s = @"mut a = if 2 == 3 {4 } else {5 };
-                a = if 2 == 3 {4 } elif 3 < 4 {1 } else {5 };";
-            Assert.DoesNotThrow(() => CheckIt(s));
-        }
-
-        [Test]
         public void If_Cond_Not_Bool()
         {
-            var s = @"a = if 2 + 3 {4; } else {5; };";
+            var s = @"if 2 + 3 then 4; else 5; end";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
-        }
-
-        [Test]
-        public void If_Ret_Not_Same()
-        {
-            var s = @"a = if 2 + 3 {4; } else {true; };";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
-        }
-
-        [Test]
-        public void If_Stmt()
-        {
-            var s = @"a = if 2 > 3 {4; };";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
-            s = "if 3 <= 4 {5;5;} elif 4 >= 3 {1;};";
-            Assert.DoesNotThrow(() => CheckIt(s));
         }
 
         [Test]
