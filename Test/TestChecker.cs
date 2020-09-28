@@ -22,9 +22,9 @@ namespace Test
         [Test]
         public void Var_Func_Same_Name()
         {
-            var s = "func ab() -> Int\n ab = 1;";
+            var s = "func ab() -> Int\n ab := 1;";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
-            s = "ab = 1;func ab() -> Int";
+            s = "ab := 1;func ab() -> Int";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
         }
 
@@ -40,7 +40,7 @@ namespace Test
         [Test]
         public void Arg_Var_Same_Name()
         {
-            var s = "func ab(a: Int) -> Int\n let a = 233;";
+            var s = "func ab(a: Int) -> Int\n a := 233;";
             Assert.DoesNotThrow(() => CheckIt(s));
         }
 
@@ -54,7 +54,7 @@ namespace Test
         [Test]
         public void Var_Var_Same_Name()
         {
-            var s = "a = -5; a = 10;";
+            var s = "a := -5; a := 10;";
             Assert.DoesNotThrow(() => CheckIt(s));
         }
 

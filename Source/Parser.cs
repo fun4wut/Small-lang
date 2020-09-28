@@ -51,10 +51,10 @@ namespace Small_lang
             Times = Tok('*'),
             Divide = Tok('/'),
             LessThan = Tok('<'),
-            GreaterThan = Tok('>'),
-            Assign = Tok('=');
+            GreaterThan = Tok('>');
 
         static Parser<char, string>
+            Assign = Tok(":="),
             Fn = Tok("func"),
             Arrow = Tok("->"),
             LessEqual = Tok("<="),

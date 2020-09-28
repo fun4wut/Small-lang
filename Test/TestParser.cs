@@ -125,7 +125,7 @@ a;;;
         [Test]
         public void Assign()
         {
-            var s = "a = 3;";
+            var s = "a := 3;";
             var expected = new List<BaseAST>
             {
                 new AssignStmtAST(
