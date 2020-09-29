@@ -88,5 +88,12 @@ namespace Test
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
         }
 
+        [Test]
+        public void Read_Type_Mismatch()
+        {
+            var s = "a := 2.5; read a;";
+            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+        }
+
     }
 }

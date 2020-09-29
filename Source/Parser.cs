@@ -246,6 +246,7 @@ namespace Small_lang
 
             NormalStmt = OneOf(
                 PIfStmt,
+                PRead,
                 Try(PAssign).Before(Delimiter),
                 Try(PExpr.Before(Delimiter))
             ),

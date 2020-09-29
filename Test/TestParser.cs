@@ -249,5 +249,13 @@ end";
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
 
+        [Test]
+        public void ReadStmt()
+        {
+            var s = "read a;";
+            var expected = new List<BaseAST> { new ReadStmtAST("a", TypeKind.Int) };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
+
     }
 }
