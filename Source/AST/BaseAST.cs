@@ -12,7 +12,7 @@ namespace Small_lang.AST
 
         protected internal abstract BaseAST? Accept(ExprVisitor visitor);
 
-        protected internal abstract void CheckWith(TypeChecker cheker);
+        protected internal abstract void CheckWith(TypeChecker checker);
     }
 
 

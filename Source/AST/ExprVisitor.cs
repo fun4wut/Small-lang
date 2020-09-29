@@ -36,5 +36,7 @@ namespace Small_lang.AST
 
         protected internal virtual BaseAST VisitAST(ReadStmtAST node) => node;
 
+        protected internal virtual BaseAST VisitAST(WriteStmtAST node) => node;
+
     }
 }

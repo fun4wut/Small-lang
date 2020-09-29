@@ -178,6 +178,8 @@ namespace Small_lang
 
             PRead = Read.Then(Ident).Select<BaseAST>(s => new ReadStmtAST(s, TypeKind.Int)),
 
+            PWrite = Write.Then(PIdent).Select<BaseAST>(v => new WriteStmtAST(v as VariableExprAST)),
+
             PLit = OneOf(
                     Try(PFloat),
                     PInt,
@@ -247,6 +249,7 @@ namespace Small_lang
             NormalStmt = OneOf(
                 PIfStmt,
                 PRead,
+                PWrite,
                 Try(PAssign).Before(Delimiter),
                 Try(PExpr.Before(Delimiter))
             ),

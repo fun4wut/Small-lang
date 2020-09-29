@@ -191,6 +191,11 @@ namespace Small_lang.TypeCheck
             }
         }
 
+        public void CheckAST(WriteStmtAST node)
+        {
+            this.CheckAST(node.Variable);
+        }
+
 
     }
 }

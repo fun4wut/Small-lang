@@ -95,5 +95,12 @@ namespace Test
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
         }
 
+        [Test]
+        public void Write_Undefined_Var()
+        {
+            var s = "write a;";
+            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+        }
+
     }
 }

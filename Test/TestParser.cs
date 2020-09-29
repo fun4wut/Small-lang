@@ -257,5 +257,12 @@ end";
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
 
+        [Test]
+        public void WriteStmt()
+        {
+            var s = "write a;";
+            var expected = new List<BaseAST> { new WriteStmtAST(new VariableExprAST("a")) };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
     }
 }
