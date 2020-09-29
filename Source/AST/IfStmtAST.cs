@@ -7,9 +7,9 @@ namespace Small_lang.AST
 {
     [ToString]
     [Equals(DoNotAddEqualityOperators = true)]
-    public class IfExprAST : BaseAST
+    public class IfStmtAST : BaseAST
     {
-        public IfExprAST(IEnumerable<Branch> branches, ElseBranch? @else)
+        public IfStmtAST(IEnumerable<Branch> branches, ElseBranch? @else)
         {
             Branches = branches;
             ElseBranch = @else;

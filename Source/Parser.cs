@@ -71,10 +71,12 @@ namespace Small_lang
             Bool = Tok("Bool"),
             Unit = Tok("Unit"),
             Then = Tok("then"),
-            End = Tok("end");
+            End = Tok("end"),
+            Read = Tok("read"),
+            Write = Tok("write");
 
         static Parser<char, Unit> NonKeyWords = Not(OneOf(
-                Try(Fn), If, Try(Elif), Else, True, False, Int, Bool, Float, Unit, Then, End
+                Try(Fn), If, Try(Elif), Else, True, False, Int, Bool, Float, Unit, Then, End, Read, Write
             ));
 
 
@@ -138,12 +140,12 @@ namespace Small_lang
             );
 
         static Parser<char, BaseAST>
-            POnlyIf = 
+            POnlyIf =
                 from cond in If.Then(Rec(() => PExpr))
                 from _1 in Then
                 from stmts in NormalStmt.Many()
                 from _2 in End
-                select new IfExprAST(new[] { new Branch(cond, new BlockExprAST(stmts)) }, null) as BaseAST,
+                select new IfStmtAST(new[] { new Branch(cond, new BlockExprAST(stmts)) }, null) as BaseAST,
 
             PIfElse =
                 from cond in If.Then(Rec(() => PExpr))
@@ -152,12 +154,12 @@ namespace Small_lang
                 from _2 in Else
                 from elseStmts in NormalStmt.Many()
                 from _3 in End
-                select new IfExprAST(
-                    new[] { new Branch(cond, new BlockExprAST(ifStmts)) }, 
+                select new IfStmtAST(
+                    new[] { new Branch(cond, new BlockExprAST(ifStmts)) },
                     new ElseBranch(new BlockExprAST(ifStmts))
                 ) as BaseAST,
 
-            PIfExpr = Try(PIfElse).Or(POnlyIf),
+            PIfStmt = Try(PIfElse).Or(POnlyIf),
 
             PIdent = Ident
                 .Select<BaseAST>(s => new VariableExprAST(s))
@@ -169,10 +171,12 @@ namespace Small_lang
                 from num in Num
                 from _0 in Char('.')
                 from rest in Digit.ManyString().Before(SkipWhitespaces)
-                select new FloatExprAST(double.Parse($"{num}.{rest}")) as BaseAST ,
+                select new FloatExprAST(double.Parse($"{num}.{rest}")) as BaseAST,
 
             PTrue = True.ThenReturn(new BoolExprAST(true) as BaseAST),
             PFalse = False.ThenReturn(new BoolExprAST(false) as BaseAST),
+
+            PRead = Read.Then(Ident).Select<BaseAST>(s => new ReadStmtAST(s, TypeKind.Int)),
 
             PLit = OneOf(
                     Try(PFloat),
@@ -236,12 +240,12 @@ namespace Small_lang
             ),
 
             PExpr = OneOf(
-               Try(PIfExpr),
+               Try(PIfStmt),
                PNormalExpr
             ),
 
             NormalStmt = OneOf(
-                PIfExpr,
+                PIfStmt,
                 Try(PAssign).Before(Delimiter),
                 Try(PExpr.Before(Delimiter))
             ),

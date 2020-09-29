@@ -29,6 +29,8 @@ namespace Small_lang.AST
         If,
         Block,
         Nop,
+        Read,
+        Write
     }
 
     public enum TypeKind

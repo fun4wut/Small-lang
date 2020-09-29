@@ -30,9 +30,11 @@ namespace Small_lang.AST
 
         protected internal virtual BaseAST VisitAST(AssignStmtAST node) => node;
 
-        protected internal virtual BaseAST VisitAST(IfExprAST node) => node;
+        protected internal virtual BaseAST VisitAST(IfStmtAST node) => node;
 
         protected internal virtual BaseAST VisitAST(BlockExprAST node) => node;
+
+        protected internal virtual BaseAST VisitAST(ReadStmtAST node) => node;
 
     }
 }

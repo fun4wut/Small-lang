@@ -117,7 +117,7 @@ namespace Small_lang.TypeCheck
             fnTbl[node.Proto.Name] = (ASTType.Function, node.Proto.Arguments, node.Proto.FnRet);
         }
 
-        public void CheckAST(IfExprAST node)
+        public void CheckAST(IfStmtAST node)
         {
             var conds = node.Branches.Select(br => br.Cond).ToList();
             var bodies = node.Branches.Select(br => br.Body as BaseAST).ToList();
@@ -129,15 +129,10 @@ namespace Small_lang.TypeCheck
                 if (cond.RetType != TypeKind.Bool) throw new TypeCheckException();
             }
             this.Check(bodies);
+            // if exists else branch
             if (@else?.Body is BaseAST elseBody)
             {
                 this.Check(elseBody);
-                foreach (var item in bodies)
-                {
-                    // if not all the branched return the same type. this node will be stmt
-                    if (item.RetType != elseBody.RetType) return;
-                }
-                node.RetType = elseBody.RetType;
             }
         }
 
@@ -175,6 +170,25 @@ namespace Small_lang.TypeCheck
             // check exists
             if (!typeTbl.TryGetValue(node.Name, out var type)) throw new TypeCheckException();
             node.RetType = type.Item2;
+        }
+
+        public void CheckAST(ReadStmtAST node)
+        {
+            // similiar with CheckAssignment AST
+            if (fnTbl.ContainsKey(node.Name)) throw new TypeCheckException();
+
+            if (typeTbl.TryGetValue(node.Name, out var type))
+            {
+                if (type.Item2 != node.RetType)
+                {
+                    // throw error if type mismatch
+                    throw new TypeCheckException();
+                }
+            }
+            else
+            {
+                typeTbl.Add(node.Name, (node.NodeType, node.RetType));
+            }
         }
 
 

@@ -157,7 +157,7 @@ a;;;
             var s = "if 2<3 then 2.3; else 7; end";
             var expected = new List<BaseAST>
             {
-                new IfExprAST(
+                new IfStmtAST(
                     new List<Branch>
                     {
                         new Branch(
@@ -190,7 +190,7 @@ a;;;
             var s = "if 2<3 then 2; end;";
             var expected = new List<BaseAST>
             {
-                new IfExprAST(
+                new IfStmtAST(
                     new List<Branch>
                     {
                         new Branch(
@@ -222,14 +222,14 @@ if true then
 end";
             var expected = new List<BaseAST>
             {
-                new IfExprAST(
+                new IfStmtAST(
                     new List<Branch>
                     {
                         new Branch(
                             new BoolExprAST(true),
                             new List<BaseAST>
                             {
-                                new IfExprAST(
+                                new IfStmtAST(
                                     new List<Branch>
                                     {
                                         new Branch(
