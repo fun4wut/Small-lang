@@ -73,10 +73,13 @@ namespace Small_lang
             Then = Tok("then"),
             End = Tok("end"),
             Read = Tok("read"),
-            Write = Tok("write");
+            Write = Tok("write"),
+            Repeat = Tok("repeat"),
+            Until = Tok("until");
 
         static Parser<char, Unit> NonKeyWords = Not(OneOf(
-                Try(Fn), If, Try(Elif), Else, True, False, Int, Bool, Float, Unit, Then, End, Read, Write
+                Try(Fn), If, Try(Elif), Else, True, False, Int, Bool, Float, Unit, 
+                Then, End, Read, Write, Repeat, Until
             ));
 
 
@@ -126,7 +129,7 @@ namespace Small_lang
 
         static Parser<char, BlockExprAST> PBody =
             Body(
-                Rec(() => NormalStmt).Many()
+                Rec(() => PNormalStmt).Many()
                 .Then(Rec(() => PExpr).Optional(), (elms, ret) => 
                     new BlockExprAST(
                         ret.Match(
@@ -143,16 +146,16 @@ namespace Small_lang
             POnlyIf =
                 from cond in If.Then(Rec(() => PExpr))
                 from _1 in Then
-                from stmts in NormalStmt.Many()
+                from stmts in PNormalStmt.Many()
                 from _2 in End
                 select new IfStmtAST(new[] { new Branch(cond, new BlockExprAST(stmts)) }, null) as BaseAST,
 
             PIfElse =
                 from cond in If.Then(Rec(() => PExpr))
                 from _1 in Then
-                from ifStmts in NormalStmt.Many()
+                from ifStmts in PNormalStmt.Many()
                 from _2 in Else
-                from elseStmts in NormalStmt.Many()
+                from elseStmts in PNormalStmt.Many()
                 from _3 in End
                 select new IfStmtAST(
                     new[] { new Branch(cond, new BlockExprAST(ifStmts)) },
@@ -179,6 +182,13 @@ namespace Small_lang
             PRead = Read.Then(Ident).Select<BaseAST>(s => new ReadStmtAST(s, TypeKind.Int)),
 
             PWrite = Write.Then(PIdent).Select<BaseAST>(v => new WriteStmtAST(v as VariableExprAST)),
+
+            PRepeat = 
+                from _1 in Repeat
+                from stmts in PNormalStmt.AtLeastOnce()
+                from _2 in Until
+                from cond in PNormalExpr
+                select new RepeatStmt(new Branch(cond, new BlockExprAST(stmts))) as BaseAST,
 
             PLit = OneOf(
                     Try(PFloat),
@@ -242,19 +252,20 @@ namespace Small_lang
             ),
 
             PExpr = OneOf(
-               Try(PIfStmt),
+               // Try(PIfStmt), if expr is decrypted
                PNormalExpr
             ),
 
-            NormalStmt = OneOf(
+            PNormalStmt = OneOf(
                 PIfStmt,
-                PRead,
+                Try(PRead),
+                PRepeat,
                 PWrite,
                 Try(PAssign).Before(Delimiter),
                 Try(PExpr.Before(Delimiter))
             ),
         
-            Stmt = TopFieldOnlyStmt.Or(NormalStmt);
+            Stmt = TopFieldOnlyStmt.Or(PNormalStmt);
 
         static Parser<char, IEnumerable<BaseAST>> Program = Stmt.Many();
 

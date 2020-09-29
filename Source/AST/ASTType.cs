@@ -30,7 +30,8 @@ namespace Small_lang.AST
         Block,
         Nop,
         Read,
-        Write
+        Write,
+        Repeat
     }
 
     public enum TypeKind

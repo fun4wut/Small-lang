@@ -193,9 +193,18 @@ namespace Small_lang.TypeCheck
 
         public void CheckAST(WriteStmtAST node)
         {
-            this.CheckAST(node.Variable);
+            this.Check(node.Variable);
         }
 
+        public void CheckAST(RepeatStmt node)
+        {
+            var cond = node.InfLoop.Cond;
+            var body = node.InfLoop.Body;
+
+            this.Check(cond);
+            if (cond.RetType != TypeKind.Bool) throw new TypeCheckException();
+            this.Check(body);
+        }
 
     }
 }

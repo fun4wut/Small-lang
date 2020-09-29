@@ -102,5 +102,15 @@ namespace Test
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
         }
 
+        [Test]
+        public void Repeat_Not_Bool()
+        {
+            var s = @"
+repeat
+    4;
+until 1";
+            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+        }
+
     }
 }

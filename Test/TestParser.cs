@@ -264,5 +264,28 @@ end";
             var expected = new List<BaseAST> { new WriteStmtAST(new VariableExprAST("a")) };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
+
+        [Test]
+        public void RepeatStmt()
+        {
+            var s = @"
+repeat 
+    a := 3;
+    4;
+until true";
+            var expected = new List<BaseAST>
+            {
+                new RepeatStmt(new Branch(
+                    new BoolExprAST(true),
+                    new BlockExprAST(new List<BaseAST>
+                    {
+                        new AssignStmtAST("a", new IntExprAST(3)),
+                        new IntExprAST(4)
+                    }
+                    ))
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
     }
 }
