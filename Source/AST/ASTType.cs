@@ -8,6 +8,7 @@ namespace Small_lang.AST
         Subtract,
         Multiply,
         Divide,
+        Modulo,
 
         // Bool op start
         LessThan,

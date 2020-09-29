@@ -7,6 +7,7 @@ using Small_lang.AST;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using ExpOperator = Pidgin.Expression.Operator;
 
 namespace Small_lang
@@ -50,6 +51,7 @@ namespace Small_lang
             Minus = Tok('-'),
             Times = Tok('*'),
             Divide = Tok('/'),
+            Percent = Tok('%'),
             LessThan = Tok('<'),
             GreaterThan = Tok('>');
 
@@ -111,6 +113,7 @@ namespace Small_lang
             Sub = Binary(Minus.ThenReturn(ASTType.Subtract)),
             Mul = Binary(Times.ThenReturn(ASTType.Multiply)),
             Div = Binary(Divide.ThenReturn(ASTType.Divide)),
+            Mod = Binary(Percent.ThenReturn(ASTType.Modulo)),
             LT = Binary(LessThan.ThenReturn(ASTType.LessThan)),
             LE = Binary(LessEqual.ThenReturn(ASTType.LessEqual)),
             GT = Binary(GreaterThan.ThenReturn(ASTType.GreaterThan)),
@@ -233,7 +236,8 @@ namespace Small_lang
                     {
                         ExpOperator.Postfix(Call(expr)),
                         ExpOperator.InfixL(Mul)
-                            .And(ExpOperator.InfixL(Div)),
+                            .And(ExpOperator.InfixL(Div))
+                            .And(ExpOperator.InfixL(Mod)),
                         ExpOperator.InfixL(Add)
                             .And(ExpOperator.InfixL(Sub)),
                         ExpOperator.InfixN(GE)
@@ -272,7 +276,9 @@ namespace Small_lang
         #endregion
 
         #region Entry
-        public static List<BaseAST> ParseAll(string input) => Program.ParseOrThrow(input.Trim()).ToList();
+        public static List<BaseAST> ParseAll(string input) => Program.ParseOrThrow(
+            Regex.Replace(input.Trim(), @"//.*?\r?\n", "")
+        ).ToList();
 
         public static BaseAST ParseSingle(string input) => Stmt.ParseOrThrow(input.Trim());
         #endregion

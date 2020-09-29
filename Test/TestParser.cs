@@ -270,7 +270,8 @@ end";
         {
             var s = @"
 repeat 
-    a := 3;
+    a := 3; // 233
+    // 456
     4;
 until true";
             var expected = new List<BaseAST>
