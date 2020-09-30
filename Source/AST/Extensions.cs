@@ -6,10 +6,10 @@ namespace Small_lang.AST
 {
     public static class ASTExtensions
     {
-        public static void Compile(this List<BaseAST> exprASTs, ExprVisitor visitor) =>
+        public static void Compile(this List<BaseAST> exprASTs, ASTVisitor visitor) =>
             exprASTs.ForEach(e => visitor.Visit(e));
 
-        public static void Compile(this BaseAST exprAST, ExprVisitor visitor) => visitor.Visit(exprAST);
+        public static void Compile(this BaseAST exprAST, ASTVisitor visitor) => visitor.Visit(exprAST);
 
         public static int ASTValue(this ASTType ty) => ty switch
         {

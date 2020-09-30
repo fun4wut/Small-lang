@@ -17,6 +17,6 @@ namespace Small_lang.AST
         public Branch InfLoop { get; }
         public override ASTType NodeType { get; protected set; } = ASTType.Repeat;
 
-        protected internal override void Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override void Accept(ASTVisitor visitor) => visitor.VisitAST(this);
     }
 }

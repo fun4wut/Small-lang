@@ -9,6 +9,6 @@ namespace Small_lang.AST
     {
         public override ASTType NodeType { get; protected set; } = ASTType.Nop;
 
-        protected internal override void Accept(ExprVisitor visitor) {}
+        protected internal override void Accept(ASTVisitor visitor) {}
     }
 }

@@ -9,15 +9,16 @@ namespace Small_lang.AST
     [Equals(DoNotAddEqualityOperators = true)]
     public class ReadStmtAST : BaseAST
     {
-        public ReadStmtAST(string name, TypeKind retType)
+        public ReadStmtAST(string name, TypeKind varType)
         {
             this.Name = name;
-            this.RetType = retType;
+            this.VarType = varType;
         }
 
         public string Name { get; }
+        public TypeKind VarType { get; }
         public override ASTType NodeType { get; protected set; } = ASTType.Read;
 
-        protected internal override void Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override void Accept(ASTVisitor visitor) => visitor.VisitAST(this);
     }
 }

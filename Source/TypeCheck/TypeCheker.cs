@@ -5,7 +5,7 @@ using Small_lang.AST;
 
 namespace Small_lang.TypeCheck
 {
-    public class TypeChecker : ExprVisitor
+    public class TypeChecker : ASTVisitor
     {
         public TypeChecker() { }
 
@@ -134,7 +134,7 @@ namespace Small_lang.TypeCheck
 
         protected internal override void VisitAST(ProtoStmtAST node)
         {
-            // if exists a func proto in fb table. the signiture should be the same
+            // if exists a func proto in fb table. the signature should be the same
             if (fnTbl.TryGetValue(node.Name, out var type))
             {
                 // redefined function
@@ -183,7 +183,7 @@ namespace Small_lang.TypeCheck
             }
             else
             {
-                typeTbl.Add(node.Name, (node.NodeType, node.RetType));
+                typeTbl.Add(node.Name, (node.NodeType, node.VarType));
             }
         }
 

@@ -20,6 +20,6 @@ namespace Small_lang.AST
         public BaseAST Lhs { get; private set; }
         public BaseAST Rhs { get; private set; }
 
-        protected internal override void Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override void Accept(ASTVisitor visitor) => visitor.VisitAST(this);
     }
 }

@@ -19,7 +19,7 @@ namespace Small_lang.AST
         public BaseAST Value { get; }
         public override ASTType NodeType { get; protected set; } = ASTType.Assign;
 
-        protected internal override void Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override void Accept(ASTVisitor visitor) => visitor.VisitAST(this);
 
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using Small_lang.AST;
-using Small_lang.Codegen;
+using Small_lang;
 
 namespace Small_lang
 {
