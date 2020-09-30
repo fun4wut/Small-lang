@@ -15,9 +15,8 @@ namespace Small_lang.AST
         }
 
         public int Value { get; private set; }
-        public override ASTType NodeType { get; protected set; } = ASTType.IntIdent;
+        public override ASTType NodeType { get; protected set; } = ASTType.IntLit;
 
-        protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
-        protected internal override void CheckWith(TypeChecker checker) => checker.CheckAST(this);
+        protected internal override void Accept(ExprVisitor visitor) => visitor.VisitAST(this);
     }
 }

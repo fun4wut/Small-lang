@@ -5,7 +5,7 @@ using Small_lang.AST;
 
 namespace Small_lang.TypeCheck
 {
-    public class TypeChecker
+    public class TypeChecker : ExprVisitor
     {
         public TypeChecker() { }
 
@@ -21,19 +21,15 @@ namespace Small_lang.TypeCheck
             var funs = exprs.TakeWhile(e => e.NodeType.ASTValue() < 0);
             var main = exprs.SkipWhile(e => e.NodeType.ASTValue() < 0).MakeMain();
             var program = funs.Append(main).ToList();
-            this.Check(program);
+            this.Visit(program);
             return program;
         }
 
-        public void Check(BaseAST node) => node.CheckWith(this);
-
-        public void Check(List<BaseAST> nodes) => nodes.ForEach(node => this.Check(node));
-
-        public void CheckAST(AssignStmtAST node)
+        protected internal override void VisitAST(AssignStmtAST node)
         {
             if (fnTbl.ContainsKey(node.Name)) throw new TypeCheckException();
 
-            this.Check(node.Value);
+            this.Visit(node.Value);
 
             // Unit type is not allowed
             if (!node.Value.IsExpr) throw new TypeCheckException();
@@ -53,10 +49,10 @@ namespace Small_lang.TypeCheck
         }
 
 
-        public void CheckAST(BinaryExprAST node)
+        protected internal override void VisitAST(BinaryExprAST node)
         {
-            this.Check(node.Lhs);
-            this.Check(node.Rhs);
+            this.Visit(node.Lhs);
+            this.Visit(node.Rhs);
             // only expr can involve in binary operation
             if (!node.Lhs.IsExpr || !node.Rhs.IsExpr) throw new TypeCheckException();
 
@@ -76,20 +72,20 @@ namespace Small_lang.TypeCheck
             }
         }
 
-        public void CheckAST(BlockExprAST node)
+        protected internal override void VisitAST(BlockExprAST node)
         {
-            this.Check(node.Stmts);
+            this.Visit(node.Stmts);
             node.RetType = node.Stmts.Any() ? node.Stmts.Last().RetType : TypeKind.Unit;
         }
 
-        public void CheckAST(BoolExprAST node)
+        protected internal override void VisitAST(BoolExprAST node)
         {
             node.RetType = TypeKind.Bool;
         }
 
-        public void CheckAST(CallExprAST node)
+        protected internal override void VisitAST(CallExprAST node)
         {
-            this.Check(node.Arguments);
+            this.Visit(node.Arguments);
             if (!fnTbl.TryGetValue(node.Callee, out var type)) throw new TypeCheckException();
             node.RetType = type.Item3;
             if (!type.Item2.Select(arg => arg.Type)
@@ -97,46 +93,46 @@ namespace Small_lang.TypeCheck
                 ) throw new TypeCheckException();
         }
 
-        public void CheckAST(FloatExprAST node)
+        protected internal override void VisitAST(FloatExprAST node)
         {
             node.RetType = TypeKind.Float;
         }
 
-        public void CheckAST(IntExprAST node)
+        protected internal override void VisitAST(IntExprAST node)
         {
             node.RetType = TypeKind.Int;
         }
 
-        public void CheckAST(FuncStmtAST node)
+        protected internal override void VisitAST(FuncStmtAST node)
         {
-            this.Check(node.Proto);
-            this.Check(node.Body);
+            this.Visit(node.Proto);
+            this.Visit(node.Body);
             // body's return and declared return should be the same
             if (node.Body.RetType != node.Proto.FnRet) throw new TypeCheckException();
             // update the fn table
             fnTbl[node.Proto.Name] = (ASTType.Function, node.Proto.Arguments, node.Proto.FnRet);
         }
 
-        public void CheckAST(IfStmtAST node)
+        protected internal override void VisitAST(IfStmtAST node)
         {
             var conds = node.Branches.Select(br => br.Cond).ToList();
             var bodies = node.Branches.Select(br => br.Body as BaseAST).ToList();
             var @else = node.ElseBranch;
-            this.Check(conds);
+            this.Visit(conds);
             foreach (var cond in conds)
             {
                 // cond must be bool type
                 if (cond.RetType != TypeKind.Bool) throw new TypeCheckException();
             }
-            this.Check(bodies);
+            this.Visit(bodies);
             // if exists else branch
             if (@else?.Body is BaseAST elseBody)
             {
-                this.Check(elseBody);
+                this.Visit(elseBody);
             }
         }
 
-        public void CheckAST(ProtoStmtAST node)
+        protected internal override void VisitAST(ProtoStmtAST node)
         {
             // if exists a func proto in fb table. the signiture should be the same
             if (fnTbl.TryGetValue(node.Name, out var type))
@@ -165,14 +161,14 @@ namespace Small_lang.TypeCheck
             }
         }
 
-        public void CheckAST(VariableExprAST node)
+        protected internal override void VisitAST(VariableExprAST node)
         {
             // check exists
             if (!typeTbl.TryGetValue(node.Name, out var type)) throw new TypeCheckException();
             node.RetType = type.Item2;
         }
 
-        public void CheckAST(ReadStmtAST node)
+        protected internal override void VisitAST(ReadStmtAST node)
         {
             // similar with CheckAssignment AST
             if (fnTbl.ContainsKey(node.Name)) throw new TypeCheckException();
@@ -191,19 +187,19 @@ namespace Small_lang.TypeCheck
             }
         }
 
-        public void CheckAST(WriteStmtAST node)
+        protected internal override void VisitAST(WriteStmtAST node)
         {
-            this.Check(node.Variable);
+            this.Visit(node.Variable);
         }
 
-        public void CheckAST(RepeatStmt node)
+        protected internal override void VisitAST(RepeatStmt node)
         {
             var cond = node.InfLoop.Cond;
             var body = node.InfLoop.Body;
 
-            this.Check(cond);
+            this.Visit(cond);
             if (cond.RetType != TypeKind.Bool) throw new TypeCheckException();
-            this.Check(body);
+            this.Visit(body);
         }
 
     }

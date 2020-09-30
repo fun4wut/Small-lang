@@ -8,37 +8,37 @@ namespace Small_lang.AST
     {
         protected ExprVisitor() { }
 
-        public virtual BaseAST? Visit(BaseAST? node) => node?.Accept(this);
+        public virtual void Visit(BaseAST? node) => node?.Accept(this);
 
-        public void Visit(List<BaseAST> nodes) => nodes.ForEach(node => this.Visit(node));
+        public void Visit(List<BaseAST> nodes) => nodes.ForEach(this.Visit);
 
-        protected internal virtual BaseAST VisitAST(BinaryExprAST node) => node;
+        protected internal abstract void VisitAST(BinaryExprAST node);
 
-        protected internal virtual BaseAST VisitAST(FloatExprAST node) => node;
+        protected internal abstract void VisitAST(FloatExprAST node);
 
-        protected internal virtual BaseAST VisitAST(IntExprAST node) => node;
+        protected internal abstract void VisitAST(IntExprAST node);
 
-        protected internal virtual BaseAST VisitAST(BoolExprAST node) => node;
+        protected internal abstract void VisitAST(BoolExprAST node);
 
-        protected internal virtual BaseAST VisitAST(VariableExprAST node) => node;
+        protected internal abstract void VisitAST(VariableExprAST node);
 
-        protected internal virtual BaseAST VisitAST(ProtoStmtAST node) => node;
+        protected internal abstract void VisitAST(ProtoStmtAST node);
 
-        protected internal virtual BaseAST VisitAST(FuncStmtAST node) => node;
+        protected internal abstract void VisitAST(FuncStmtAST node);
 
-        protected internal virtual BaseAST VisitAST(CallExprAST node) => node;
+        protected internal abstract void VisitAST(CallExprAST node);
 
-        protected internal virtual BaseAST VisitAST(AssignStmtAST node) => node;
+        protected internal abstract void VisitAST(AssignStmtAST node);
 
-        protected internal virtual BaseAST VisitAST(IfStmtAST node) => node;
+        protected internal abstract void VisitAST(IfStmtAST node);
 
-        protected internal virtual BaseAST VisitAST(BlockExprAST node) => node;
+        protected internal abstract void VisitAST(BlockExprAST node);
 
-        protected internal virtual BaseAST VisitAST(ReadStmtAST node) => node;
+        protected internal abstract void VisitAST(ReadStmtAST node);
 
-        protected internal virtual BaseAST VisitAST(WriteStmtAST node) => node;
+        protected internal abstract void VisitAST(WriteStmtAST node);
 
-        protected internal virtual BaseAST VisitAST(RepeatStmt node) => node;
+        protected internal abstract void VisitAST(RepeatStmt node);
 
     }
 }

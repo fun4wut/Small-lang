@@ -17,9 +17,8 @@ namespace Small_lang.AST
         public List<BaseAST> Stmts { get; }
         public override ASTType NodeType { get; protected set; } = ASTType.Block;
 
-        protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override void Accept(ExprVisitor visitor) => visitor.VisitAST(this);
 
-        protected internal override void CheckWith(TypeChecker checker) => checker.CheckAST(this);
     }
 
     public static class ListExt

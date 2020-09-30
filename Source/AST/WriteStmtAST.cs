@@ -14,11 +14,10 @@ namespace Small_lang.AST
             Variable = variable;
         }
 
-        public VariableExprAST Variable { get; set; }
+        public VariableExprAST Variable { get; }
         public override ASTType NodeType { get; protected set; } = ASTType.Write;
 
-        protected internal override BaseAST? Accept(ExprVisitor visitor) => visitor.VisitAST(this);
+        protected internal override void Accept(ExprVisitor visitor) => visitor.VisitAST(this);
 
-        protected internal override void CheckWith(TypeChecker checker) => checker.CheckAST(this);
     }
 }

@@ -10,9 +10,7 @@ namespace Small_lang.AST
 
         public bool IsExpr => RetType != TypeKind.Unit;
 
-        protected internal abstract BaseAST? Accept(ExprVisitor visitor);
-
-        protected internal abstract void CheckWith(TypeChecker checker);
+        protected internal abstract void Accept(ExprVisitor visitor);
     }
 
 

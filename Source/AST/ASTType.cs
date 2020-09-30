@@ -21,9 +21,9 @@ namespace Small_lang.AST
 
         Call,
         Variable,
-        IntIdent,
-        FloatIdent,
-        BoolIdent,
+        IntLit,
+        FloatLit,
+        BoolLit,
         Let,
         Mut,
         Assign,
