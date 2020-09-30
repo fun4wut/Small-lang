@@ -16,9 +16,9 @@ namespace Small_lang.AST
             this.Arguments = args.ToList();
         }
 
-        public string Callee { get; private set; }
+        public string Callee { get; }
 
-        public List<BaseAST> Arguments { get; private set; }
+        public List<BaseAST> Arguments { get; }
 
         public override ASTType NodeType { get; protected set; } = ASTType.Call;
 

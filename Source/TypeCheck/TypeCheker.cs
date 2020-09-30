@@ -9,9 +9,9 @@ namespace Small_lang.TypeCheck
     {
         public TypeChecker() { }
 
-        public Dictionary<string, (ASTType, TypeKind)> typeTbl = new Dictionary<string, (ASTType, TypeKind)>();
+        private Dictionary<string, (ASTType, TypeKind)> typeTbl = new Dictionary<string, (ASTType, TypeKind)>();
 
-        public Dictionary<string, (ASTType, List<TypedArg>, TypeKind)> fnTbl = 
+        private Dictionary<string, (ASTType, List<TypedArg>, TypeKind)> fnTbl = 
             new Dictionary<string, (ASTType, List<TypedArg>, TypeKind)>();
 
         public List<BaseAST> ReorderAndCheck(List<BaseAST> exprs)
@@ -174,7 +174,7 @@ namespace Small_lang.TypeCheck
 
         public void CheckAST(ReadStmtAST node)
         {
-            // similiar with CheckAssignment AST
+            // similar with CheckAssignment AST
             if (fnTbl.ContainsKey(node.Name)) throw new TypeCheckException();
 
             if (typeTbl.TryGetValue(node.Name, out var type))
