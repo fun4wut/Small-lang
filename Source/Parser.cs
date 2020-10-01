@@ -184,7 +184,7 @@ namespace Small_lang
 
             PRead = Read.Then(Ident).Select<BaseAST>(s => new ReadStmtAST(s, TypeKind.Int)),
 
-            PWrite = Write.Then(PIdent).Select<BaseAST>(v => new WriteStmtAST(v as VariableExprAST)),
+            PWrite = Write.Then(Rec(() => PExpr)).Select<BaseAST>(v => new WriteStmtAST(v)),
 
             PRepeat = 
                 from _1 in Repeat

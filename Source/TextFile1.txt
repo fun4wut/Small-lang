@@ -10,5 +10,9 @@ add i
 dpl i
 str i 0 2
 lod i 0 1
+conv i i
+lod i 0 2
+conv i i
+add i
 out i
 hlt

@@ -9,12 +9,12 @@ namespace Small_lang.AST
     [Equals(DoNotAddEqualityOperators = true)]
     public class WriteStmtAST : BaseAST
     {
-        public WriteStmtAST(VariableExprAST variable)
+        public WriteStmtAST(BaseAST value)
         {
-            Variable = variable;
+            Value = value;
         }
 
-        public VariableExprAST Variable { get; }
+        public BaseAST Value { get; }
         public override ASTType NodeType { get; protected set; } = ASTType.Write;
 
         protected internal override void Accept(ASTVisitor visitor) => visitor.VisitAST(this);

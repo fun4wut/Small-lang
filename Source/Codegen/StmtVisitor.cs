@@ -15,8 +15,8 @@ namespace Small_lang.Codegen
 
         protected internal override void VisitAST(WriteStmtAST node)
         {
-            this.Visit(node.Variable);
-            GenCode.Add(Ins.Out(node.Variable.RetType));
+            this.Visit(node.Value);
+            GenCode.Add(Ins.Out(node.Value.RetType));
         }
 
         protected internal override void VisitAST(AssignStmtAST node)

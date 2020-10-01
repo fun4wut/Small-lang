@@ -195,7 +195,7 @@ namespace Small_lang.TypeCheck
 
         protected internal override void VisitAST(WriteStmtAST node)
         {
-            this.Visit(node.Variable);
+            this.Visit(node.Value);
         }
 
         protected internal override void VisitAST(RepeatStmt node)
