@@ -69,6 +69,12 @@ namespace Small_lang.TypeCheck
             {
                 // type widen (int -> float)
                 node.RetType = (TypeKind)Math.Max((int)node.Lhs.RetType, (int)node.Rhs.RetType);
+                // float cannot do % operation
+                if (node.NodeType == ASTType.Modulo && node.RetType == TypeKind.Float)
+                {
+                    throw new TypeCheckException();
+                }
+
             }
         }
 

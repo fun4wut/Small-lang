@@ -1,24 +1,14 @@
-mut ab = 3 + 4;
-ab = ab * 3;
-let d = ab * 4.2;
-let c = if ab < 100 { bar(4) } elif ab > -100 { bar(6) } else { bar(5) };
-if c / 2 * 2 == c { print_int(43); }
-if bar(4) < 10 {
-    if bar(4) <= 6 {
-        print_int(233);
-    }
-}
-if true {}
-print_int(fib(10));
-print_int(c);
-print_float(d);
-func fib(x: Int) -> Int {
-    if x <= 1 {1} else { fib(x-2) + fib(x-1) }
-}
-print_int(fib(10));
-func print_int(x:Int) -> Unit
-func print_bool(x:Bool) -> Unit
-func print_float(x:Float) -> Unit
-func bar(x: Int) -> Int {
-    x + 2
-}
+in i
+ldc i 3
+dpl i
+str i 0 1
+lod i 0 0
+conv i i
+lod i 0 1
+conv i i
+add i
+dpl i
+str i 0 2
+lod i 0 1
+out i
+hlt

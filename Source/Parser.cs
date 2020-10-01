@@ -12,7 +12,7 @@ using ExpOperator = Pidgin.Expression.Operator;
 
 namespace Small_lang
 {
-    public sealed partial class LangParser
+    public static class LangParser
     {
         #region Helper methods
         static Parser<char, T> Tok<T>(Parser<char, T> p) => Try(p).Before(SkipWhitespaces);
@@ -199,7 +199,7 @@ namespace Small_lang
                     PTrue,
                     PFalse
                 )
-                .Labelled("literial"),
+                .Labelled("literal"),
 
             PAssign = 
                 from ident in Ident
@@ -262,9 +262,9 @@ namespace Small_lang
 
             PNormalStmt = OneOf(
                 PIfStmt,
-                Try(PRead),
+                Try(PRead).Before(Delimiter),
                 PRepeat,
-                PWrite,
+                PWrite.Before(Delimiter),
                 Try(PAssign).Before(Delimiter),
                 Try(PExpr.Before(Delimiter))
             ),

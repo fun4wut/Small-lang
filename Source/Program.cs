@@ -7,10 +7,11 @@ namespace Small_lang
 {
     class Program
     {
-        private static string cwd = Directory.GetCurrentDirectory();
         private static void Main(string[] args)
         {
-            //compiler.Run();
+            var compiler = new Compiler();
+            compiler.PreProcess("read a; b := 3; c := a + b; write b;");
+            compiler.Compile(Console.Out);
         }
     }
 }
