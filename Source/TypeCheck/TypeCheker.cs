@@ -208,5 +208,16 @@ namespace Small_lang.TypeCheck
             this.Visit(body);
         }
 
+        protected internal override void VisitAST(UnaryExprAST node)
+        {
+            this.Visit(node.Hs);
+            if (!node.Hs.IsExpr) throw new TypeCheckException();
+            node.RetType = node.NodeType switch
+            {
+                ASTType.Not when node.Hs.RetType != TypeKind.Bool => throw new TypeCheckException(),
+                ASTType.Neg when node.Hs.RetType == TypeKind.Bool => throw new TypeCheckException(),
+                _ => node.Hs.RetType
+            };
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace Small_lang.Codegen
         public static string Sub(TypeKind ty) => $"sub {ty.S()}";
         public static string Mul(TypeKind ty) => $"mul {ty.S()}";
         public static string Mod() => "mod";
+        public static string Not() => "not";
         public static string Div(TypeKind ty) => $"div {ty.S()}";
         public static string Neg(TypeKind ty) => $"neg {ty.S()}";
         public static string Equ(TypeKind ty) => $"equ {ty.S()}";

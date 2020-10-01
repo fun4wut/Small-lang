@@ -31,25 +31,6 @@ namespace Small_lang.Codegen
             GenCode.Add(Ins.Str(ty, 0, addr)); // then move to the specified addr, sp--
         }
 
-        protected internal override void VisitAST(BinaryExprAST node)
-        {
-            var ty = node.RetType;
-            // for convenience, convert both of the LHS and RHS type explicitly 
-            this.Visit(node.Lhs);
-            GenCode.Add(Ins.Conv(node.Lhs.RetType,ty));
-            this.Visit(node.Rhs);
-            GenCode.Add(Ins.Conv(node.Rhs.RetType, ty));
 
-            var code = node.NodeType switch
-            {
-                ASTType.Add => Ins.Add(ty),
-                ASTType.Subtract => Ins.Sub(ty),
-                ASTType.Multiply => Ins.Mul(ty),
-                ASTType.Divide => Ins.Div(ty),
-                ASTType.Modulo => Ins.Mod(),
-                _ => throw new NotImplementedException()
-            };
-            GenCode.Add(code);
-        }
     }
 }

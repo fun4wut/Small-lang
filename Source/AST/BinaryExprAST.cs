@@ -17,8 +17,8 @@ namespace Small_lang.AST
         }
 
         public override ASTType NodeType { get; protected set; }
-        public BaseAST Lhs { get; private set; }
-        public BaseAST Rhs { get; private set; }
+        public BaseAST Lhs { get; }
+        public BaseAST Rhs { get; }
 
         protected internal override void Accept(ASTVisitor visitor) => visitor.VisitAST(this);
     }

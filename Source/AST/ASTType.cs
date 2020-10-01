@@ -9,7 +9,9 @@ namespace Small_lang.AST
         Multiply,
         Divide,
         Modulo,
-
+        Neg,
+        Not,
+        
         // Bool op start
         LessThan,
         GreaterThan,

@@ -33,7 +33,10 @@ namespace Small_lang
                 )
                 .Labelled("function call");
 
-        private static Parser<char, Func<BaseAST, BaseAST, BaseAST>> Binary(Parser<char, ASTType> op)
+        static Parser<char, Func<BaseAST, BaseAST>> Unary(Parser<char, ASTType> op)
+            => op.Select<Func<BaseAST, BaseAST>>(op => hs => new UnaryExprAST(op, hs));
+        
+        static Parser<char, Func<BaseAST, BaseAST, BaseAST>> Binary(Parser<char, ASTType> op)
             => op.Select<Func<BaseAST, BaseAST, BaseAST>>(op => (l, r) => new BinaryExprAST(op, l, r));
         #endregion
 
@@ -53,6 +56,7 @@ namespace Small_lang
             Divide = Tok('/'),
             Percent = Tok('%'),
             LessThan = Tok('<'),
+            Exclamation = Tok('!'),
             GreaterThan = Tok('>');
 
         static Parser<char, string>
@@ -107,7 +111,7 @@ namespace Small_lang
 
         #endregion
 
-        #region Binary operations
+        #region Unary / Binary operations
         static readonly Parser<char, Func<BaseAST, BaseAST, BaseAST>>
             Add = Binary(Plus.ThenReturn(ASTType.Add)),
             Sub = Binary(Minus.ThenReturn(ASTType.Subtract)),
@@ -120,6 +124,11 @@ namespace Small_lang
             GE = Binary(GreaterEqual.ThenReturn(ASTType.GreaterEqual)),
             NE = Binary(NotEqual.ThenReturn(ASTType.NotEqual)),
             Eq = Binary(Equal.ThenReturn(ASTType.Equal));
+
+        private static readonly Parser<char, Func<BaseAST, BaseAST>>
+            Neg = Unary(Minus.ThenReturn(ASTType.Neg)),
+            Not = Unary(Exclamation.ThenReturn(ASTType.Not));
+        
         #endregion
 
         #region Parsers
@@ -240,6 +249,8 @@ namespace Small_lang
                             .And(ExpOperator.InfixL(Mod)),
                         ExpOperator.InfixL(Add)
                             .And(ExpOperator.InfixL(Sub)),
+                        ExpOperator.Unary(UnaryOperatorType.Prefix, Neg)
+                            .And(ExpOperator.Unary(UnaryOperatorType.Prefix, Not)),
                         ExpOperator.InfixN(GE)
                             .And(ExpOperator.InfixN(GT))
                             .And(ExpOperator.InfixN(LE))

@@ -10,7 +10,7 @@ namespace Small_lang
         private static void Main(string[] args)
         {
             var compiler = new Compiler();
-            compiler.PreProcess("read a; b := 3; c := a + b; write b + c;");
+            compiler.PreProcess("read a; b := 3; c := -a + b; write b + c;");
             compiler.Compile(Console.Out);
         }
     }

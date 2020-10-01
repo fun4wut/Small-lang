@@ -39,6 +39,8 @@ namespace Small_lang.AST
         protected internal virtual void VisitAST(WriteStmtAST node) { }
 
         protected internal virtual void VisitAST(RepeatStmt node) { }
+        
+        protected internal virtual void VisitAST(UnaryExprAST node) { }
 
     }
 }
