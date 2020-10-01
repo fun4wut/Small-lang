@@ -18,11 +18,8 @@ namespace Small_lang.TypeCheck
         {
             // reorder the AST
             exprs.Sort((e1, e2) => e1.NodeType.ASTValue() - e2.NodeType.ASTValue());
-            var funs = exprs.TakeWhile(e => e.NodeType.ASTValue() < 0);
-            var main = exprs.SkipWhile(e => e.NodeType.ASTValue() < 0).MakeMain();
-            var program = funs.Append(main).ToList();
-            this.Visit(program);
-            return program;
+            this.Visit(exprs);
+            return exprs;
         }
 
         protected internal override void VisitAST(AssignStmtAST node)
@@ -56,10 +53,12 @@ namespace Small_lang.TypeCheck
             // only expr can involve in binary operation
             if (!node.Lhs.IsExpr || !node.Rhs.IsExpr) throw new TypeCheckException();
 
-            // bool can only involve in equal/not equal operation
-            if (node.NodeType != ASTType.Equal && node.NodeType != ASTType.NotEqual &&
-                (node.Lhs.RetType == TypeKind.Bool || node.Rhs.RetType == TypeKind.Bool)
-            ) throw new TypeCheckException();
+            // bool mix number is not allowed
+            if (node.Lhs.RetType == TypeKind.Bool && node.Rhs.RetType != TypeKind.Bool
+                || node.Lhs.RetType != TypeKind.Bool && node.Rhs.RetType == TypeKind.Bool)
+            {
+                throw new TypeCheckException();
+            }
 
             if (node.NodeType.IsBoolOp())
             {

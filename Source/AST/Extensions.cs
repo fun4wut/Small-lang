@@ -18,14 +18,5 @@ namespace Small_lang.AST
             _ => 0
         };
         public static bool IsBoolOp(this ASTType ty) => (int)ty >= (int)ASTType.LessThan && (int)ty <= (int)ASTType.Equal;
-        public static BaseAST MakeMain(this IEnumerable<BaseAST> stmts) =>
-            new FuncStmtAST(
-                new ProtoStmtAST(
-                    "main",
-                    new List<TypedArg>(),
-                    TypeKind.Int
-                ),
-                stmts.Append(new IntExprAST(0)).ToList().ToBlock()
-            );
     }
 }

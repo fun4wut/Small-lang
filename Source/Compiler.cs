@@ -11,18 +11,17 @@ namespace Small_lang
     {
         private TypeChecker _checker = new TypeChecker();
         private Codegenerator _generator = new Codegenerator();
-        public List<BaseAST> ProgramAST { get; private set; } = new List<BaseAST>();
+        private List<BaseAST> _programAST = new List<BaseAST>();
         public void PreProcess(string s)
         {
             var prog = LangParser.ParseAll(s);
-            _checker.Visit(prog);
-            prog.ForEach(Console.WriteLine);
-            ProgramAST = prog;
+            _programAST = _checker.ReorderAndCheck(prog);
+            _programAST.ForEach(Console.WriteLine);
         }
 
         public void Compile(TextWriter output)
         {
-            _generator.Visit(ProgramAST);
+            _generator.Visit(_programAST);
             _generator.GenCode.Add(Ins.Hlt()); // halt the VM machine
             _generator.GenCode.ForEach(output.WriteLine);
         }
