@@ -21,11 +21,19 @@ begin
 end";
 
         private const string Gcd = @"
-";
+read a;
+read b;
+repeat
+    tmp := b;
+    b := a % b;
+    a := tmp;
+until b == 0
+write a;";
+        
         private static void Main(string[] args)
         {
             var compiler = new Compiler();
-            compiler.PreProcess(Prime);
+            compiler.PreProcess(Gcd);
             compiler.Compile("../../../aa.p");
         }
     }
