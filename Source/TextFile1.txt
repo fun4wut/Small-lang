@@ -1,19 +1,18 @@
-in i
 ldc i 3
-dpl i
-str i 0 1
-lod i 0 0
 conv i i
-lod i 0 1
+ldc i 2
 conv i i
-add i
-neg i
-dpl i
-str i 0 2
-lod i 0 1
-conv i i
-lod i 0 2
-conv i i
-add i
+sub i
+conv i b
+ldc i 1
+conv i b
+equ b
+fjp l0
+ldc i 1
 out i
+ujp l1
+l0:
+ldc i 1
+out i
+l1:
 hlt

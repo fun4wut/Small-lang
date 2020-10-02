@@ -18,8 +18,13 @@ namespace Small_lang.TypeCheck
         {
             // reorder the AST
             exprs.Sort((e1, e2) => e1.NodeType.ASTValue() - e2.NodeType.ASTValue());
-            this.Visit(exprs);
-            return exprs;
+            var funs = exprs.TakeWhile(e => e.NodeType.ASTValue() < 0).ToList();
+            // process func def
+            this.Visit(funs);
+            // process entry
+            var main = exprs.SkipWhile(e => e.NodeType.ASTValue() < 0).ToList();
+            this.Visit(main);
+            return funs.Concat(main).ToList();
         }
 
         protected internal override void VisitAST(AssignStmtAST node)

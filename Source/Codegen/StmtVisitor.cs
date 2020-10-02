@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Small_lang.AST;
 
 namespace Small_lang.Codegen
@@ -31,6 +32,21 @@ namespace Small_lang.Codegen
             GenCode.Add(Ins.Str(ty, 0, addr)); // then move to the specified addr, sp--
         }
 
-
+        protected internal override void VisitAST(IfStmtAST node)
+        {
+            var elseLabel = Ins.CreateLabel();
+            var endLabel = Ins.CreateLabel();
+            Branch ifBranch = node.Branches.First();
+            this.Visit(ifBranch.Cond);
+            GenCode.Add(Ins.Fjp(elseLabel));
+            this.Visit(ifBranch.Body);
+            GenCode.Add(Ins.Ujp(endLabel));
+            GenCode.Add(Ins.Label(elseLabel));
+            if (node.ElseBranch != null)
+            {
+                this.Visit(node.ElseBranch.Body);
+            }
+            GenCode.Add(Ins.Label(endLabel));
+        }
     }
 }

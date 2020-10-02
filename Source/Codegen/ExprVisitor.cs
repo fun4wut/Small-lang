@@ -37,6 +37,8 @@ namespace Small_lang.Codegen
                 ASTType.Multiply => Ins.Mul(ty),
                 ASTType.Divide => Ins.Div(ty),
                 ASTType.Modulo => Ins.Mod(),
+                ASTType.Equal => Ins.Equ(ty),
+                ASTType.NotEqual => Ins.Neq(ty),
                 _ => throw new NotImplementedException()
             };
             GenCode.Add(code);
@@ -48,9 +50,15 @@ namespace Small_lang.Codegen
             var code = node.NodeType switch
             {
                 ASTType.Not => Ins.Not(),
-                ASTType.Neg => Ins.Neg(node.RetType)
+                ASTType.Neg => Ins.Neg(node.RetType),
+                _ => throw new NotImplementedException()
             };
             GenCode.Add(code);
+        }
+
+        protected internal override void VisitAST(BlockExprAST node)
+        {
+            this.Visit(node.Stmts);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace Small_lang.Codegen
 {
     public static class Ins
     {
+        private static int _labelCnt = 0;
         public static string Hlt() => "hlt";
         public static string Pop() => "pop";
         public static string Add(TypeKind ty) => $"add {ty.S()}";
@@ -26,6 +27,11 @@ namespace Small_lang.Codegen
         public static string Dpl(TypeKind ty) => $"dpl {ty.S()}";
         public static string In(TypeKind ty) => $"in {ty.S()}";
         public static string Out(TypeKind ty) => $"out {ty.S()}";
+
+        public static string Fjp(string s) => $"fjp {s}";
+        public static string Ujp(string s) => $"ujp {s}";
+        public static string CreateLabel() => $"l{_labelCnt++}";
+        public static string Label(string s) => $"{s}:";
 
     }
 
