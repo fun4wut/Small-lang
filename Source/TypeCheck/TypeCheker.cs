@@ -21,7 +21,8 @@ namespace Small_lang.TypeCheck
             var funs = exprs.TakeWhile(e => e.NodeType.ASTValue() < 0).ToList();
             // process func def
             this.Visit(funs);
-            // process entry
+            // process entry. clear the table first
+            typeTbl.Clear();
             var main = exprs.SkipWhile(e => e.NodeType.ASTValue() < 0).ToList();
             this.Visit(main);
             return funs.Concat(main).ToList();
@@ -202,8 +203,10 @@ namespace Small_lang.TypeCheck
             this.Visit(node.Value);
         }
 
-        protected internal override void VisitAST(RepeatStmt node)
+        protected internal override void VisitAST(LoopStmt node)
         {
+            this.Visit(node.PreRun);
+            this.Visit(node.PostRun);
             var cond = node.InfLoop.Cond;
             var body = node.InfLoop.Body;
 

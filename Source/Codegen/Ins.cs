@@ -16,6 +16,8 @@ namespace Small_lang.Codegen
         public static string Div(TypeKind ty) => $"div {ty.S()}";
         public static string Neg(TypeKind ty) => $"neg {ty.S()}";
         public static string Equ(TypeKind ty) => $"equ {ty.S()}";
+        public static string Les(TypeKind ty) => $"les {ty.S()}";
+        public static string Grt(TypeKind ty) => $"grt {ty.S()}";
         public static string Geq(TypeKind ty) => $"geq {ty.S()}";
         public static string Leq(TypeKind ty) => $"leq {ty.S()}";
         public static string Neq(TypeKind ty) => $"neq {ty.S()}";

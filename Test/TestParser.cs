@@ -276,13 +276,41 @@ repeat
 until true";
             var expected = new List<BaseAST>
             {
-                new RepeatStmt(new Branch(
+                new LoopStmt(new Branch(
                     new BoolExprAST(true),
                     new BlockExprAST(new List<BaseAST>
                     {
                         new AssignStmtAST("a", new IntExprAST(3)),
                         new IntExprAST(4)
                     }
+                    ))
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
+        
+        [Test]
+        public void ForStmt()
+        {
+            var s = @"
+for a := 2; a < 10; a := a + 1
+begin
+    write a;
+end";
+            var expected = new List<BaseAST>
+            {
+                new LoopStmt(new Branch(
+                    new BinaryExprAST(ASTType.LessThan, new VariableExprAST("a"), new IntExprAST(10)), 
+                    new BlockExprAST(new List<BaseAST>
+                        {
+                            new WriteStmtAST(new VariableExprAST("a"))
+                        }
+                    )),
+                    new AssignStmtAST("a", new IntExprAST(2)),
+                    new AssignStmtAST("a", new BinaryExprAST(
+                        ASTType.Add,
+                        new VariableExprAST("a"),
+                        new IntExprAST(1)
                     ))
                 )
             };

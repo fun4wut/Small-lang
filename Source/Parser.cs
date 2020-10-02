@@ -81,7 +81,9 @@ namespace Small_lang
             Read = Tok("read"),
             Write = Tok("write"),
             Repeat = Tok("repeat"),
-            Until = Tok("until");
+            Until = Tok("until"),
+            For = Tok("for"),
+            Begin = Tok("begin");
 
         static Parser<char, Unit> NonKeyWords = Not(OneOf(
                 Try(Fn), If, Try(Elif), Else, True, False, Int, Bool, Float, Unit, 
@@ -200,7 +202,21 @@ namespace Small_lang
                 from stmts in PNormalStmt.AtLeastOnce()
                 from _2 in Until
                 from cond in PNormalExpr
-                select new RepeatStmt(new Branch(cond, new BlockExprAST(stmts))) as BaseAST,
+                select new LoopStmt(new Branch(cond, new BlockExprAST(stmts))) as BaseAST,
+            
+            PFor = 
+                from _1 in For
+                from exprs in OneOf(
+                    Try(PAssign), PNormalExpr, PRead, PWrite
+                ).SeparatedAtLeastOnce(SemiColon).Select(e => e.ToList())
+                from _2 in Begin
+                from stmts in PNormalStmt.Many()
+                from _3 in End
+                select new LoopStmt(
+                    new Branch(exprs[1], new BlockExprAST(stmts)), 
+                    exprs[0], 
+                    exprs[2]
+                ) as BaseAST,
 
             PLit = OneOf(
                     Try(PFloat),
@@ -275,6 +291,7 @@ namespace Small_lang
                 PIfStmt,
                 Try(PRead).Before(Delimiter),
                 PRepeat,
+                PFor,
                 PWrite.Before(Delimiter),
                 Try(PAssign).Before(Delimiter),
                 Try(PExpr.Before(Delimiter))

@@ -23,8 +23,9 @@ namespace Small_lang.Codegen
         }
         protected internal override void VisitAST(BinaryExprAST node)
         {
-            var ty = node.RetType;
             // for convenience, convert both of the LHS and RHS type explicitly 
+            var ty = (TypeKind) Math.Max((int) node.Lhs.RetType, (int) node.Rhs.RetType);
+            
             this.Visit(node.Lhs);
             GenCode.Add(Ins.Conv(node.Lhs.RetType,ty));
             this.Visit(node.Rhs);
@@ -39,6 +40,10 @@ namespace Small_lang.Codegen
                 ASTType.Modulo => Ins.Mod(),
                 ASTType.Equal => Ins.Equ(ty),
                 ASTType.NotEqual => Ins.Neq(ty),
+                ASTType.LessThan => Ins.Les(ty),
+                ASTType.LessEqual => Ins.Leq(ty),
+                ASTType.GreaterThan => Ins.Grt(ty),
+                ASTType.GreaterEqual => Ins.Geq(ty),
                 _ => throw new NotImplementedException()
             };
             GenCode.Add(code);

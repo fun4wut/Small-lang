@@ -11,10 +11,9 @@ namespace Small_lang
         {
             var compiler = new Compiler();
             compiler.PreProcess(@"
-if 3-2 == 1 then
-    write 1;
-else
-    write 2;
+for a := 1; a < 10; a := a + 1
+begin
+    write a;
 end");
             compiler.Compile(Console.Out);
         }

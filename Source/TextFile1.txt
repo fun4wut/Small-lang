@@ -1,18 +1,25 @@
-ldc i 3
-conv i i
-ldc i 2
-conv i i
-sub i
-conv i b
 ldc i 1
-conv i b
-equ b
-fjp l0
-ldc i 1
+dpl i
+str i 0 0
+l2:
+lod i 0 0
+conv i i
+ldc i 10
+conv i i
+les i
+fjp l1
+lod i 0 0
 out i
-ujp l1
+ldc c '\n'
+out c
 l0:
+lod i 0 0
+conv i i
 ldc i 1
-out i
+conv i i
+add i
+dpl i
+str i 0 0
+ujp l2
 l1:
 hlt

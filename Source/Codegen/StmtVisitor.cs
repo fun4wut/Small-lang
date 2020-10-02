@@ -18,6 +18,9 @@ namespace Small_lang.Codegen
         {
             this.Visit(node.Value);
             GenCode.Add(Ins.Out(node.Value.RetType));
+            // char not supported yet
+            GenCode.Add(@"ldc c '\n'");
+            GenCode.Add("out c");
         }
 
         protected internal override void VisitAST(AssignStmtAST node)
@@ -40,12 +43,34 @@ namespace Small_lang.Codegen
             this.Visit(ifBranch.Cond);
             GenCode.Add(Ins.Fjp(elseLabel));
             this.Visit(ifBranch.Body);
+            
             GenCode.Add(Ins.Ujp(endLabel));
             GenCode.Add(Ins.Label(elseLabel));
-            if (node.ElseBranch != null)
+            
+            this.Visit(node.ElseBranch?.Body);
+            GenCode.Add(Ins.Label(endLabel));
+        }
+
+        protected internal override void VisitAST(LoopStmt node)
+        {
+            this.Visit(node.PreRun); // init
+            var (postlabel, endLabel) = OpenLoop();
+            var beginLabel = Ins.CreateLabel();
+            GenCode.Add(Ins.Label(beginLabel));
+            this.Visit(node.InfLoop.Cond);
+            // repeat's logic is opposite to for
+            if (node.NodeType == ASTType.Repeat)
             {
-                this.Visit(node.ElseBranch.Body);
+                GenCode.Add(Ins.Not());
             }
+            GenCode.Add(Ins.Fjp(endLabel));
+            // body
+            this.Visit(node.InfLoop.Body);
+            // post run
+            GenCode.Add(Ins.Label(postlabel));
+            this.Visit(node.PostRun);
+            // jump to cond
+            GenCode.Add(Ins.Ujp(beginLabel));
             GenCode.Add(Ins.Label(endLabel));
         }
     }
