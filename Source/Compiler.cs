@@ -19,11 +19,12 @@ namespace Small_lang
             _programAST.ForEach(Console.WriteLine);
         }
 
-        public void Compile(TextWriter output)
+        public void Compile(string path)
         {
             _generator.Visit(_programAST);
             _generator.GenCode.Add(Ins.Hlt()); // halt the VM machine
-            _generator.GenCode.ForEach(output.WriteLine);
+            File.WriteAllLines(path, _generator.GenCode);
+            //_generator.GenCode.ForEach(output.WriteLine);
         }
         
     }

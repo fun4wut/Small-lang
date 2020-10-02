@@ -72,6 +72,8 @@ namespace Test
             Assert.DoesNotThrow(() => CheckIt(s));
             s = "4 < 2 == 4;";
             Assert.Throws<TypeCheckException>(() => CheckIt(s));
+            s = "1 < 2 && 12;";
+            Assert.Throws<TypeCheckException>(() => CheckIt(s));
         }
 
         [Test]

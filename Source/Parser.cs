@@ -67,6 +67,8 @@ namespace Small_lang
             GreaterEqual = Tok(">="),
             Equal = Tok("=="),
             NotEqual = Tok("!="),
+            Ampersand = Tok("&&"),
+            VerticalBar = Tok("||"),
             If = Tok("if"),
             Elif = Tok("elif"),
             Else = Tok("else"),
@@ -120,6 +122,8 @@ namespace Small_lang
             Mul = Binary(Times.ThenReturn(ASTType.Multiply)),
             Div = Binary(Divide.ThenReturn(ASTType.Divide)),
             Mod = Binary(Percent.ThenReturn(ASTType.Modulo)),
+            And = Binary(Ampersand.ThenReturn(ASTType.And)),
+            Or = Binary(VerticalBar.ThenReturn(ASTType.Or)),
             LT = Binary(LessThan.ThenReturn(ASTType.LessThan)),
             LE = Binary(LessEqual.ThenReturn(ASTType.LessEqual)),
             GT = Binary(GreaterThan.ThenReturn(ASTType.GreaterThan)),
@@ -272,7 +276,9 @@ namespace Small_lang
                             .And(ExpOperator.InfixN(LE))
                             .And(ExpOperator.InfixN(LT)),
                         ExpOperator.InfixL(Eq)
-                            .And(ExpOperator.InfixL(NE))
+                            .And(ExpOperator.InfixL(NE)),
+                        ExpOperator.InfixL(And),
+                        ExpOperator.InfixL(Or)
                     }
                 )
             ).Labelled("expression"),

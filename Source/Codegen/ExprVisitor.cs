@@ -44,6 +44,8 @@ namespace Small_lang.Codegen
                 ASTType.LessEqual => Ins.Leq(ty),
                 ASTType.GreaterThan => Ins.Grt(ty),
                 ASTType.GreaterEqual => Ins.Geq(ty),
+                ASTType.And => Ins.And(),
+                ASTType.Or => Ins.Or(),
                 _ => throw new NotImplementedException()
             };
             GenCode.Add(code);

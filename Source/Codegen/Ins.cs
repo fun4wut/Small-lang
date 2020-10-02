@@ -21,6 +21,8 @@ namespace Small_lang.Codegen
         public static string Geq(TypeKind ty) => $"geq {ty.S()}";
         public static string Leq(TypeKind ty) => $"leq {ty.S()}";
         public static string Neq(TypeKind ty) => $"neq {ty.S()}";
+        public static string And() => "and";
+        public static string Or() => "not";
         public static string Ldo(TypeKind ty, int q) => $"ldo {ty.S()} {q}";
         public static string Conv(TypeKind before, TypeKind after) => $"conv {before.S()} {after.S()}";
         public static string Ldc(TypeKind ty, double q) => $"ldc {ty.S()} {q}";

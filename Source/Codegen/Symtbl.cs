@@ -21,11 +21,13 @@ namespace Small_lang.Codegen
 
         private bool HasId(string name) => _symTbl.ContainsKey(name);
 
-        public (string, string) OpenLoop()
+        private (string, string) OpenLoop()
         {
             _loops.Push((Ins.CreateLabel(), Ins.CreateLabel()));
             return _loops.Peek();
         }
+
+        private void CloseLoop() => _loops.Pop();
         public string LoopStart => _loops.Peek().Item1;
         public string LoopEnd => _loops.Peek().Item2;
     }

@@ -4,6 +4,8 @@ using System.Text;
 using Small_lang.TypeCheck;
 namespace Small_lang.AST
 {
+    [ToString]
+    [Equals(DoNotAddEqualityOperators = true)]
     public sealed class BoolExprAST : BaseAST
     {
         public BoolExprAST(bool value)

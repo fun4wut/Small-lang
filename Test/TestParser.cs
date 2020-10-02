@@ -150,6 +150,29 @@ a;;;
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
+        
+        [Test]
+        public void AndOr()
+        {
+            var s = "a >= 2 && true || false;";
+            var expected = new List<BaseAST>
+            {
+                new BinaryExprAST(
+                    ASTType.Or,
+                    new BinaryExprAST(
+                        ASTType.And,
+                        new BinaryExprAST(
+                            ASTType.GreaterEqual,
+                            new VariableExprAST("a"),
+                            new IntExprAST(2)
+                        ),
+                        new BoolExprAST(true)
+                    ),
+                    new BoolExprAST(false)
+                )
+            };
+            Assert.AreEqual(expected, LangParser.ParseAll(s));
+        }
 
         [Test]
         public void IfElse()

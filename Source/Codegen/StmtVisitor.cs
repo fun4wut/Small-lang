@@ -54,7 +54,7 @@ namespace Small_lang.Codegen
         protected internal override void VisitAST(LoopStmt node)
         {
             this.Visit(node.PreRun); // init
-            var (postlabel, endLabel) = OpenLoop();
+            var (postLabel, endLabel) = OpenLoop();
             var beginLabel = Ins.CreateLabel();
             GenCode.Add(Ins.Label(beginLabel));
             this.Visit(node.InfLoop.Cond);
@@ -67,11 +67,13 @@ namespace Small_lang.Codegen
             // body
             this.Visit(node.InfLoop.Body);
             // post run
-            GenCode.Add(Ins.Label(postlabel));
+            GenCode.Add(Ins.Label(postLabel));
             this.Visit(node.PostRun);
             // jump to cond
             GenCode.Add(Ins.Ujp(beginLabel));
             GenCode.Add(Ins.Label(endLabel));
+            
+            CloseLoop();
         }
     }
 }

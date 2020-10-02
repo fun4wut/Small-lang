@@ -18,6 +18,8 @@ namespace Small_lang.AST
         LessEqual,
         GreaterEqual,
         NotEqual,
+        And,
+        Or,
         Equal,
         // Bool op end
 

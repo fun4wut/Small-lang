@@ -59,13 +59,21 @@ namespace Small_lang.TypeCheck
             // only expr can involve in binary operation
             if (!node.Lhs.IsExpr || !node.Rhs.IsExpr) throw new TypeCheckException();
 
+            var widenType = (TypeKind)Math.Max((int)node.Lhs.RetType, (int)node.Rhs.RetType);
+            var shrinkType = (TypeKind)Math.Min((int)node.Lhs.RetType, (int)node.Rhs.RetType);
+            
             // bool mix number is not allowed
-            if (node.Lhs.RetType == TypeKind.Bool && node.Rhs.RetType != TypeKind.Bool
-                || node.Lhs.RetType != TypeKind.Bool && node.Rhs.RetType == TypeKind.Bool)
+            if (widenType != TypeKind.Bool && shrinkType == TypeKind.Bool)
             {
                 throw new TypeCheckException();
             }
 
+            // and or need 2 bools
+            if ((node.NodeType == ASTType.And || node.NodeType == ASTType.Or) && shrinkType != TypeKind.Bool)
+            {
+                throw new TypeCheckException();
+            }
+            
             if (node.NodeType.IsBoolOp())
             {
                 node.RetType = TypeKind.Bool;
@@ -73,7 +81,7 @@ namespace Small_lang.TypeCheck
             else
             {
                 // type widen (int -> float)
-                node.RetType = (TypeKind)Math.Max((int)node.Lhs.RetType, (int)node.Rhs.RetType);
+                node.RetType = widenType;
                 // float cannot do % operation
                 if (node.NodeType == ASTType.Modulo && node.RetType == TypeKind.Float)
                 {
@@ -136,11 +144,7 @@ namespace Small_lang.TypeCheck
                 if (cond.RetType != TypeKind.Bool) throw new TypeCheckException();
             }
             this.Visit(bodies);
-            // if exists else branch
-            if (@else?.Body is BaseAST elseBody)
-            {
-                this.Visit(elseBody);
-            }
+            this.Visit(@else?.Body);
         }
 
         protected internal override void VisitAST(ProtoStmtAST node)
