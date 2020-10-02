@@ -206,7 +206,7 @@ namespace Small_lang
                 from stmts in PNormalStmt.AtLeastOnce()
                 from _2 in Until
                 from cond in PNormalExpr
-                select new LoopStmt(new Branch(cond, new BlockExprAST(stmts))) as BaseAST,
+                select new RepeatStmtAST(new Branch(cond, new BlockExprAST(stmts))) as BaseAST,
             
             PFor = 
                 from _1 in For
@@ -216,7 +216,7 @@ namespace Small_lang
                 from _2 in Begin
                 from stmts in PNormalStmt.Many()
                 from _3 in End
-                select new LoopStmt(
+                select new ForStmtAST(
                     new Branch(exprs[1], new BlockExprAST(stmts)), 
                     exprs[0], 
                     exprs[2]

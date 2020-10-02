@@ -299,7 +299,7 @@ repeat
 until true";
             var expected = new List<BaseAST>
             {
-                new LoopStmt(new Branch(
+                new RepeatStmtAST(new Branch(
                     new BoolExprAST(true),
                     new BlockExprAST(new List<BaseAST>
                     {
@@ -322,7 +322,7 @@ begin
 end";
             var expected = new List<BaseAST>
             {
-                new LoopStmt(new Branch(
+                new ForStmtAST(new Branch(
                     new BinaryExprAST(ASTType.LessThan, new VariableExprAST("a"), new IntExprAST(10)), 
                     new BlockExprAST(new List<BaseAST>
                         {

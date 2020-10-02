@@ -51,7 +51,7 @@ namespace Small_lang.Codegen
             GenCode.Add(Ins.Label(endLabel));
         }
 
-        protected internal override void VisitAST(LoopStmt node)
+        protected internal override void VisitAST(ForStmtAST node)
         {
             this.Visit(node.PreRun); // init
             var (postLabel, endLabel) = OpenLoop();
@@ -73,6 +73,24 @@ namespace Small_lang.Codegen
             GenCode.Add(Ins.Ujp(beginLabel));
             GenCode.Add(Ins.Label(endLabel));
             
+            CloseLoop();
+        }
+        
+        protected internal override void VisitAST(RepeatStmtAST node)
+        {
+            var (beginLabel, endLabel) = OpenLoop();
+            GenCode.Add(Ins.Label(beginLabel));
+            
+            this.Visit(node.InfLoop.Body);
+            
+            // repeat's logic is opposite to for
+            this.Visit(node.InfLoop.Cond);
+            GenCode.Add(Ins.Not());
+            
+            GenCode.Add(Ins.Fjp(endLabel));
+            GenCode.Add(Ins.Ujp(beginLabel));
+            GenCode.Add(Ins.Label(endLabel));
+
             CloseLoop();
         }
     }

@@ -207,10 +207,20 @@ namespace Small_lang.TypeCheck
             this.Visit(node.Value);
         }
 
-        protected internal override void VisitAST(LoopStmt node)
+        protected internal override void VisitAST(ForStmtAST node)
         {
             this.Visit(node.PreRun);
             this.Visit(node.PostRun);
+            var cond = node.InfLoop.Cond;
+            var body = node.InfLoop.Body;
+
+            this.Visit(cond);
+            if (cond.RetType != TypeKind.Bool) throw new TypeCheckException();
+            this.Visit(body);
+        }
+        
+        protected internal override void VisitAST(RepeatStmtAST node)
+        {
             var cond = node.InfLoop.Cond;
             var body = node.InfLoop.Body;
 

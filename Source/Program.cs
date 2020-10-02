@@ -10,9 +10,10 @@ namespace Small_lang
         private const string Prime = @"
 for a := 2; a <= 100; a := a + 1
 begin
-    for i := 2; i < a && a % i != 0; i := i+1
-    begin
-    end 
+    i := 1;
+    repeat
+        i := i + 1;
+    until i == a || a % i == 0
     if a == i
     then
         write a;
