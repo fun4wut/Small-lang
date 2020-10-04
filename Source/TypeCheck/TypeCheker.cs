@@ -14,6 +14,12 @@ namespace Small_lang.TypeCheck
         private Dictionary<string, (ASTType, List<TypedArg>, TypeKind)> fnTbl = 
             new Dictionary<string, (ASTType, List<TypedArg>, TypeKind)>();
 
+        public override void Clear()
+        {
+            typeTbl.Clear();
+            fnTbl.Clear();
+        }
+
         public List<BaseAST> ReorderAndCheck(List<BaseAST> exprs)
         {
             // reorder the AST

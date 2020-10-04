@@ -8,6 +8,13 @@ namespace Small_lang.Codegen
     partial class Codegenerator : ASTVisitor
     {
         public List<string> GenCode { get; } = new List<string>();
+        
+        public override void Clear()
+        {
+            GenCode.Clear();
+            _symTbl.Clear();
+        }
+        
         protected internal override void VisitAST(ReadStmtAST node)
         {
             RegisterId(node.Name, node.VarType);

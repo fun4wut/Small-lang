@@ -19,6 +19,12 @@ namespace Small_lang
             _programAST.ForEach(Console.WriteLine);
         }
 
+        public void Clear()
+        {
+            _checker.Clear();
+            _generator.Clear();
+        }
+        
         public void Compile(string path)
         {
             _generator.Visit(_programAST);

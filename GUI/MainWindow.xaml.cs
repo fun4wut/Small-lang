@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,14 +24,25 @@ namespace GUI
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    #nullable enable
     public partial class MainWindow : Window
     {
         private Compiler _compiler = new Compiler();
+        private StreamWriter? _inputWriter;
         public MainWindow()
         {
             InitializeComponent();
         }
 
+        private void Reset()
+        {
+            _compiler.Clear();
+            _inputWriter?.Dispose();
+            _inputWriter = null;
+            Input.Text = "";
+            Exec.Text = "";
+            Input.IsEnabled = false;
+        }
         private void OpenFileDialog(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog();
@@ -51,28 +63,53 @@ namespace GUI
 
         private void Compile2PCode(object sender, RoutedEventArgs e)
         {
+            this.Reset();
             _compiler.PreProcess(Source.Text);
             PCode.Text = _compiler.Compile();
         }
         
-        private void RunAll(object sender, RoutedEventArgs e)
+        private Task<string> InnerRunAll(string path)
         {
-            var tmp = Path.GetTempFileName();
-            File.WriteAllText(tmp, PCode.Text);
-            using (var p = new Process
+            return Task.Run(() =>
             {
-                StartInfo = new ProcessStartInfo("node", $"D:/VSWorkspace/Small-lang/PMachine/PMachine.js {tmp}")
-            })
-            {
+                using var p = new Process
+                {
+                    StartInfo = new ProcessStartInfo("node", $"D:/VSWorkspace/Small-lang/PMachine/PMachine.js {path}")
+                };
                 p.StartInfo.UseShellExecute = false;
                 p.StartInfo.RedirectStandardOutput = true;
                 p.StartInfo.RedirectStandardInput = true;
                 p.Start();
-                p.StandardInput.WriteLine("30\n20");
+                _inputWriter = p.StandardInput;
                 p.WaitForExit();
-                Exec.Text = p.StandardOutput.ReadToEnd();
-                File.Delete(tmp);
+                File.Delete(path);
+                return p.StandardOutput.ReadToEnd();
+            });
+        }
+        
+        private async void RunAll(object sender, RoutedEventArgs e)
+        {
+            var tmp = Path.GetTempFileName();
+            await File.WriteAllTextAsync(tmp, PCode.Text);
+            Input.IsEnabled = true;
+            Exec.Text = await InnerRunAll(tmp);
+        }
+        
+        private void Input_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (Input.Text == string.Empty || Input.Text.Last() == '\n')
+            {
+                return;
             }
+            _inputWriter?.WriteLine(Input.Text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Last());
+            // Console.Out.WriteLine(Input.Text.Split('\n').Last());
+            //_inputWriter?.WriteLine("20\n30");
+        }
+
+        private async void Ttest(object sender, RoutedEventArgs e)
+        {
+            await Task.Delay(2000);
+            Heap.Text = "!!!";
         }
     }
 }

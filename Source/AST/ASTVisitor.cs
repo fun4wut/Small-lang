@@ -7,7 +7,7 @@ namespace Small_lang.AST
     public abstract class ASTVisitor
     {
         protected ASTVisitor() { }
-
+        public abstract void Clear();
         public virtual void Visit(BaseAST? node) => node?.Accept(this);
 
         public void Visit(List<BaseAST> nodes) => nodes.ForEach(this.Visit);
