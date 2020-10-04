@@ -24,7 +24,13 @@ namespace Small_lang
             _generator.Visit(_programAST);
             _generator.GenCode.Add(Ins.Hlt()); // halt the VM machine
             File.WriteAllLines(path, _generator.GenCode);
-            //_generator.GenCode.ForEach(output.WriteLine);
+        }
+        
+        public string Compile()
+        {
+            _generator.Visit(_programAST);
+            _generator.GenCode.Add(Ins.Hlt()); // halt the VM machine
+            return string.Join('\n', _generator.GenCode) + '\n';
         }
         
     }

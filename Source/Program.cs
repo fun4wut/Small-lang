@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using Small_lang.AST;
 using Small_lang;
@@ -35,6 +36,16 @@ write a;";
             var compiler = new Compiler();
             compiler.PreProcess(Gcd);
             compiler.Compile("../../../aa.p");
+            using (var p = new Process
+            {
+                StartInfo = new ProcessStartInfo("node", @"D:\VSWorkspace\Small-lang\PMachine\PMachine.js D:\VSWorkspace\Small-lang\Source\aa.p")
+            })
+            {
+                p.StartInfo.UseShellExecute = false;
+                p.Start();
+                p.WaitForExit();
+            }
+            
         }
     }
 }
