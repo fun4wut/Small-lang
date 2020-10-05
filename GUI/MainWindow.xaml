@@ -67,7 +67,7 @@
             <!-- Row2 begin -->
             <TextBox Grid.Row="2" Grid.Column="0" Margin="10" Name="Source"></TextBox>
             <TextBox Grid.Row="2" Grid.Column="1" Margin="10" Name="PCode"></TextBox>
-            <TextBox Grid.Row="2" Grid.Column="2" Margin="10" Name="Error" IsEnabled="False"></TextBox>
+            <TextBox Grid.Row="2" Grid.Column="2" Margin="10" Name="Error"></TextBox>
             <!-- Row2 end -->
             
             <!-- Row3 begin -->
@@ -83,9 +83,11 @@
             <!-- Row3 end -->
             
             <!-- Row4 begin -->
-            <TextBox Grid.Row="4" Grid.Column="0" Margin="10" Name="Input" TextChanged="Input_OnTextChanged" IsEnabled="False"></TextBox>
-            <TextBox Grid.Row="4" Grid.Column="1" Margin="10" Name="Heap" IsEnabled="False"></TextBox>
-            <TextBox Grid.Row="4" Grid.Column="2" Margin="10" Name="Exec" IsEnabled="False"></TextBox>
+            <TextBox 
+                Grid.Row="4" Grid.Column="0" Margin="10" Name="Input" 
+                TextChanged="Input_OnTextChanged" IsEnabled="False"></TextBox>
+            <TextBox Grid.Row="4" Grid.Column="1" Margin="10" Name="Heap"></TextBox>
+            <TextBox Grid.Row="4" Grid.Column="2" Margin="10" Name="Exec"></TextBox>
             <!-- Row4 end -->
             
         </Grid>

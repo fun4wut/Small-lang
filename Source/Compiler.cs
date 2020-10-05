@@ -16,7 +16,7 @@ namespace Small_lang
         {
             var prog = LangParser.ParseAll(s);
             _programAST = _checker.ReorderAndCheck(prog);
-            _programAST.ForEach(Console.WriteLine);
+            //_programAST.ForEach(Console.WriteLine);
         }
 
         public void Clear()

@@ -13,6 +13,8 @@ namespace Small_lang.Codegen
         {
             GenCode.Clear();
             _symTbl.Clear();
+            _loops.Clear();
+            _allocated = 0;
         }
         
         protected internal override void VisitAST(ReadStmtAST node)

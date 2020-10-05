@@ -37,10 +37,13 @@ namespace GUI
         private void Reset()
         {
             _compiler.Clear();
+            _inputWriter?.Close();
             _inputWriter?.Dispose();
             _inputWriter = null;
             Input.Text = "";
+            PCode.Text = "";
             Exec.Text = "";
+            Error.Text = "";
             Input.IsEnabled = false;
         }
         private void OpenFileDialog(object sender, RoutedEventArgs e)
@@ -64,11 +67,18 @@ namespace GUI
         private void Compile2PCode(object sender, RoutedEventArgs e)
         {
             this.Reset();
-            _compiler.PreProcess(Source.Text);
-            PCode.Text = _compiler.Compile();
+            try
+            {
+                _compiler.PreProcess(Source.Text);
+                PCode.Text = _compiler.Compile();
+            }
+            catch (Exception exception)
+            {
+                Error.Text = exception.Message;
+            }
         }
         
-        private Task<string> InnerRunAll(string path)
+        private Task<(string, string)> InnerRunAll(string path)
         {
             return Task.Run(() =>
             {
@@ -79,11 +89,12 @@ namespace GUI
                 p.StartInfo.UseShellExecute = false;
                 p.StartInfo.RedirectStandardOutput = true;
                 p.StartInfo.RedirectStandardInput = true;
+                p.StartInfo.RedirectStandardError = true;
                 p.Start();
                 _inputWriter = p.StandardInput;
                 p.WaitForExit();
                 File.Delete(path);
-                return p.StandardOutput.ReadToEnd();
+                return (p.StandardOutput.ReadToEnd(), p.StandardError.ReadToEnd());
             });
         }
         
@@ -92,12 +103,12 @@ namespace GUI
             var tmp = Path.GetTempFileName();
             await File.WriteAllTextAsync(tmp, PCode.Text);
             Input.IsEnabled = true;
-            Exec.Text = await InnerRunAll(tmp);
+            (Exec.Text, Error.Text) = await InnerRunAll(tmp);
         }
         
         private void Input_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            if (Input.Text == string.Empty || Input.Text.Last() == '\n')
+            if (Input.Text == string.Empty || Input.Text.Last() != '\n')
             {
                 return;
             }
