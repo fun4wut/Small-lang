@@ -46,7 +46,7 @@
             <Button
                 Grid.Row="0" Grid.Column="2"
                 Background="Bisque" Foreground="Teal" FontWeight="Bold"
-                Margin="10" FontSize="20" Click="Ttest"
+                Margin="10" FontSize="20" Click="RunByStep"
             >
                 Run By Step
             </Button>

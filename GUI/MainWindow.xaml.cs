@@ -3,18 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Threading;
+using Microsoft.VisualStudio.Threading;
 using Microsoft.Win32;
 using Small_lang;
 using Path = System.IO.Path;
@@ -29,9 +25,11 @@ namespace GUI
     {
         private Compiler _compiler = new Compiler();
         private StreamWriter? _inputWriter;
+        private AsyncQueue<string>? _channel;
         public MainWindow()
         {
             InitializeComponent();
+            
         }
 
         private void Reset()
@@ -40,6 +38,7 @@ namespace GUI
             _inputWriter?.Close();
             _inputWriter?.Dispose();
             _inputWriter = null;
+            _channel = null;
             Input.Text = "";
             PCode.Text = "";
             Exec.Text = "";
@@ -78,24 +77,35 @@ namespace GUI
             }
         }
         
-        private Task<(string, string)> InnerRunAll(string path)
+        private async Task RunAsync(
+            string path,
+            DataReceivedEventHandler stdOutCallback,
+            bool showHeap = false
+        )
         {
-            return Task.Run(() =>
+            var p = new Process
             {
-                using var p = new Process
-                {
-                    StartInfo = new ProcessStartInfo("node", $"D:/VSWorkspace/Small-lang/PMachine/PMachine.js {path}")
-                };
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.RedirectStandardOutput = true;
-                p.StartInfo.RedirectStandardInput = true;
-                p.StartInfo.RedirectStandardError = true;
+                StartInfo = new ProcessStartInfo(
+                    "node", 
+                    $"D:/VSWorkspace/Small-lang/PMachine/PMachine.js {path} {(showHeap ? "-h" : "")}")
+            };
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardOutput = true;
+            p.StartInfo.RedirectStandardInput = true;
+            p.StartInfo.RedirectStandardError = true;
+            p.OutputDataReceived += stdOutCallback;
+            p.ErrorDataReceived += (_, e) => Dispatcher.Invoke(() => Error.Text += e.Data);
+            await Task.Run(() =>
+            {
+                //p.ErrorDataReceived += errorCallback;
                 p.Start();
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
                 _inputWriter = p.StandardInput;
                 p.WaitForExit();
                 File.Delete(path);
-                return (p.StandardOutput.ReadToEnd(), p.StandardError.ReadToEnd());
             });
+            p.Dispose();
         }
         
         private async void RunAll(object sender, RoutedEventArgs e)
@@ -103,7 +113,15 @@ namespace GUI
             var tmp = Path.GetTempFileName();
             await File.WriteAllTextAsync(tmp, PCode.Text);
             Input.IsEnabled = true;
-            (Exec.Text, Error.Text) = await InnerRunAll(tmp);
+            var buffer = new StringBuilder();
+            var queue = new AsyncQueue<string>();
+            await RunAsync(
+                tmp,
+                (_, e) =>
+                {
+                    Dispatcher.Invoke(() => Exec.Text += e.Data + "\n", DispatcherPriority.Render);
+                }
+            );
         }
         
         private void Input_OnTextChanged(object sender, TextChangedEventArgs e)
@@ -117,10 +135,39 @@ namespace GUI
             //_inputWriter?.WriteLine("20\n30");
         }
 
-        private async void Ttest(object sender, RoutedEventArgs e)
+        private async void RunByStep(object sender, RoutedEventArgs e)
         {
-            await Task.Delay(2000);
-            Heap.Text = "!!!";
+            if (_channel == null)
+            {
+                var tmp = Path.GetTempFileName();
+                await File.WriteAllTextAsync(tmp, PCode.Text);
+                Input.IsEnabled = true;
+                var buffer = new StringBuilder();
+                _channel = new AsyncQueue<string>();
+                await RunAsync(
+                    tmp,
+                    (_, e) =>
+                    {
+                        // Console.Out.WriteLine(e.Data);
+                        if (e.Data?.StartsWith("**") ?? false)
+                        {
+                            _channel.Enqueue(buffer.ToString());
+                            buffer.Clear();
+                        }
+                        else
+                        {
+                            buffer.AppendLine(e.Data);
+                        }
+                    },
+                    true
+                );
+            }
+
+            if (_channel.TryDequeue(out var line))
+            {
+                Dispatcher.Invoke(() => Exec.Text = line, DispatcherPriority.Render);
+            }
         }
     }
+
 }
