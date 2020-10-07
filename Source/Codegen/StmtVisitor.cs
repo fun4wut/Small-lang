@@ -27,9 +27,6 @@ namespace Small_lang.Codegen
         {
             this.Visit(node.Value);
             GenCode.Add(Ins.Out(node.Value.RetType));
-            // char not supported yet
-            GenCode.Add(@"ldc c '\n'");
-            GenCode.Add("out c");
         }
 
         protected internal override void VisitAST(AssignStmtAST node)

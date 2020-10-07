@@ -9,7 +9,7 @@ namespace Small_lang
     class Program
     {
         private const string Prime = @"
-for a := 2; a <= 100; a := a + 1
+for a := 2; a <= 5; a := a + 1
 begin
     i := 1;
     repeat
@@ -34,17 +34,17 @@ write a;";
         private static void Main(string[] args)
         {
             var compiler = new Compiler();
-            compiler.PreProcess(Gcd);
-            compiler.Compile("../../../aa.p");
-            using (var p = new Process
-            {
-                StartInfo = new ProcessStartInfo("node", @"D:\VSWorkspace\Small-lang\PMachine\PMachine.js D:\VSWorkspace\Small-lang\Source\aa.p")
-            })
-            {
-                p.StartInfo.UseShellExecute = false;
-                p.Start();
-                p.WaitForExit();
-            }
+            compiler.PreProcess(Prime);
+            compiler.Compile(@"D:\VSWorkspace\Small-lang\PMachine\test.p");
+            // using (var p = new Process
+            // {
+            //     StartInfo = new ProcessStartInfo("node", @"D:\VSWorkspace\Small-lang\PMachine\PMachine.js D:\VSWorkspace\Small-lang\Source\aa.p")
+            // })
+            // {
+            //     p.StartInfo.UseShellExecute = false;
+            //     p.Start();
+            //     p.WaitForExit();
+            // }
             
         }
     }
