@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using Microsoft.VisualStudio.Threading;
 using Microsoft.Win32;
 using Small_lang;
 using Path = System.IO.Path;
@@ -25,7 +23,7 @@ namespace GUI
     {
         private Compiler _compiler = new Compiler();
         private StreamWriter? _inputWriter;
-        private AsyncQueue<(string, string)>? _channel;
+        private bool _firstStep = true;
         public MainWindow()
         {
             InitializeComponent();
@@ -38,11 +36,12 @@ namespace GUI
             _inputWriter?.Close();
             _inputWriter?.Dispose();
             _inputWriter = null;
-            _channel = null;
+            _firstStep = true;
             Input.Text = "";
             PCode.Text = "";
             Exec.Text = "";
             Error.Text = "";
+            Stack.Text = "";
             Input.IsEnabled = false;
         }
         private void OpenFileDialog(object sender, RoutedEventArgs e)
@@ -85,9 +84,12 @@ namespace GUI
         {
             var p = new Process
             {
+                // StartInfo = new ProcessStartInfo(
+                //     "node", 
+                //     $"D:/VSWorkspace/Small-lang/PMachine/PMachine.js {path} {(showHeap ? "-s 1" : "")}")
                 StartInfo = new ProcessStartInfo(
-                    "node", 
-                    $"D:/VSWorkspace/Small-lang/PMachine/PMachine.js {path} {(showHeap ? "-h" : "")}")
+                    @"D:\VSWorkspace\Small-lang\PMachine\bin\Debug\netcoreapp3.1\PMachine.exe", 
+                    $" {path} {(showHeap ? "-v" : "")}")
             };
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
@@ -113,8 +115,6 @@ namespace GUI
             var tmp = Path.GetTempFileName();
             await File.WriteAllTextAsync(tmp, PCode.Text);
             Input.IsEnabled = true;
-            var buffer = new StringBuilder();
-            var queue = new AsyncQueue<string>();
             await RunAsync(
                 tmp,
                 (_, e) =>
@@ -137,14 +137,14 @@ namespace GUI
 
         private async void RunByStep(object sender, RoutedEventArgs e)
         {
-            if (_channel == null)
+            if (_firstStep)
             {
                 var tmp = Path.GetTempFileName();
                 await File.WriteAllTextAsync(tmp, PCode.Text);
                 Input.IsEnabled = true;
                 var buffer = new StringBuilder();
                 var stepOutput = "";
-                _channel = new AsyncQueue<(string, string)>();
+                _firstStep = false;
                 await RunAsync(
                     tmp,
                     (_, e) =>
@@ -152,13 +152,22 @@ namespace GUI
                         // Console.Out.WriteLine(e.Data);
                         if (e.Data?.StartsWith("**") ?? false)
                         {
-                            _channel.Enqueue((buffer.ToString(), stepOutput));
+                            var output = stepOutput;
+                            Dispatcher.Invoke(() =>
+                            {
+                                Stack.Text = buffer.ToString();
+                                Exec.Text += output;
+                            }, DispatcherPriority.Render);
                             buffer.Clear();
                             stepOutput = "";
                         }
                         else if (e.Data?.StartsWith("print") ?? false)
                         {
                             stepOutput = e.Data;
+                        }
+                        else if (e.Data?.StartsWith("Press") ?? false)
+                        {
+                            // do nothing
                         }
                         else
                         {
@@ -168,16 +177,7 @@ namespace GUI
                     true
                 );
             }
-
-            if (_channel.TryDequeue(out var block))
-            {
-                
-                Dispatcher.Invoke(() =>
-                {
-                    Stack.Text = block.Item1;
-                    Exec.Text = block.Item2;
-                }, DispatcherPriority.Render);
-            }
+            await (_inputWriter?.WriteLineAsync("c") ?? Task.FromResult(1));
         }
     }
 

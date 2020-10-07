@@ -10,9 +10,4 @@
       <ProjectReference Include="..\Source\Small-lang.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Microsoft.VisualStudio.Threading" Version="16.7.56" />
-      <PackageReference Include="System.Reactive" Version="4.4.1" />
-    </ItemGroup>
-
 </Project>

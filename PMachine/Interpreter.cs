@@ -43,6 +43,12 @@ namespace PMachine
                     }
 
                     Console.WriteLine($"\nSP = {_sp}\tPC = {_pc}\n****");
+                    Console.WriteLine("Press [c] + [Enter] to continue.");
+                    string? s = null;
+                    while (s != "c")
+                    {
+                        s = Console.ReadLine();
+                    }
                 }
                 _pc++;
             }
@@ -115,7 +121,8 @@ namespace PMachine
             do
             {
                 s = Console.ReadLine();
-            } while (s == null);
+            } while (string.IsNullOrEmpty(s));
+            
             _stack[++_sp] =  new PElm(ins.Hs1 switch
             {
                 "i" => int.Parse(s!),
