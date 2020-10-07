@@ -305,7 +305,7 @@ namespace Small_lang
         
             Stmt = TopFieldOnlyStmt.Or(PNormalStmt);
 
-        static Parser<char, IEnumerable<BaseAST>> Program = Stmt.Many();
+        static Parser<char, IEnumerable<BaseAST>> Program = Stmt.AtLeastOnce();
 
         #endregion
 
@@ -314,7 +314,6 @@ namespace Small_lang
             Regex.Replace(input.Trim(), @"//.*?\r?\n", "")
         ).ToList();
 
-        public static BaseAST ParseSingle(string input) => Stmt.ParseOrThrow(input.Trim());
         #endregion
 
     }

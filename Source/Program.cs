@@ -9,7 +9,7 @@ namespace Small_lang
     class Program
     {
         private const string Prime = @"
-for a := 2; a <= 5; a := a + 1
+for a := 2; a <= 20; a := a + 1
 begin
     i := 1;
     repeat

@@ -75,7 +75,7 @@
                 Input
             </TextBlock>
             <TextBlock Grid.Row="3" Grid.Column="1" Margin="10">
-                Heap
+                Stack
             </TextBlock>
             <TextBlock Grid.Row="3" Grid.Column="2" Margin="10">
                 Output
@@ -86,7 +86,7 @@
             <TextBox 
                 Grid.Row="4" Grid.Column="0" Margin="10" Name="Input" 
                 TextChanged="Input_OnTextChanged" IsEnabled="False"></TextBox>
-            <TextBox Grid.Row="4" Grid.Column="1" Margin="10" Name="Heap"></TextBox>
+            <TextBox Grid.Row="4" Grid.Column="1" Margin="10" Name="Stack"></TextBox>
             <TextBox Grid.Row="4" Grid.Column="2" Margin="10" Name="Exec"></TextBox>
             <!-- Row4 end -->
             

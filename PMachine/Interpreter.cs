@@ -33,16 +33,16 @@ namespace PMachine
         {
             while (_pc >= 0)
             {
-                if (verbose) Console.Error.WriteLine($"ins: {_instructions[_pc]}");
+                if (verbose) Console.WriteLine($"--> ins: {_instructions[_pc]}");
                 ExecSingle();
                 if (verbose)
                 {
                     for (var i = 0; i <= _sp; ++i)
                     {
-                        Console.Error.WriteLine($"location: {i}\t[{_stack[i].Value}]\ttype: {_stack[i].Type}");
+                        Console.WriteLine($"location: {i}\t[{_stack[i].Value}]\ttype: {_stack[i].Type}");
                     }
 
-                    Console.Error.WriteLine($"sp = {_sp}\npc = {_pc}\n****");
+                    Console.WriteLine($"\nSP = {_sp}\tPC = {_pc}\n****");
                 }
                 _pc++;
             }
@@ -104,7 +104,7 @@ namespace PMachine
             {
                 "i" => int.Parse(s),
                 "r" => double.Parse(s),
-                "b" => bool.Parse(s),
+                "b" => s == "t",
                 _ => throw new NotSupportedException()
             });
         }
@@ -182,7 +182,7 @@ namespace PMachine
                     DoInput(ins);
                     break;
                 case "out":
-                    Console.WriteLine(_stack[_sp--].Value);
+                    Console.WriteLine($"print: {_stack[_sp--].Value}");
                     break;
                 case "hlt":
                     _pc = -99;

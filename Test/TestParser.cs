@@ -3,6 +3,7 @@ using Small_lang;
 using Small_lang.AST;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using Pidgin;
 
 namespace Test
@@ -339,5 +340,13 @@ end";
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
+
+        [Test]
+        public void AtLeastOneStmt()
+        {
+            var s = @"red a;";
+            Assert.Throws<ParseException>(() => LangParser.ParseAll(s));
+        }
+        
     }
 }

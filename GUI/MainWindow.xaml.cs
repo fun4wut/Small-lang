@@ -25,7 +25,7 @@ namespace GUI
     {
         private Compiler _compiler = new Compiler();
         private StreamWriter? _inputWriter;
-        private AsyncQueue<string>? _channel;
+        private AsyncQueue<(string, string)>? _channel;
         public MainWindow()
         {
             InitializeComponent();
@@ -143,7 +143,8 @@ namespace GUI
                 await File.WriteAllTextAsync(tmp, PCode.Text);
                 Input.IsEnabled = true;
                 var buffer = new StringBuilder();
-                _channel = new AsyncQueue<string>();
+                var stepOutput = "";
+                _channel = new AsyncQueue<(string, string)>();
                 await RunAsync(
                     tmp,
                     (_, e) =>
@@ -151,8 +152,13 @@ namespace GUI
                         // Console.Out.WriteLine(e.Data);
                         if (e.Data?.StartsWith("**") ?? false)
                         {
-                            _channel.Enqueue(buffer.ToString());
+                            _channel.Enqueue((buffer.ToString(), stepOutput));
                             buffer.Clear();
+                            stepOutput = "";
+                        }
+                        else if (e.Data?.StartsWith("print") ?? false)
+                        {
+                            stepOutput = e.Data;
                         }
                         else
                         {
@@ -163,9 +169,14 @@ namespace GUI
                 );
             }
 
-            if (_channel.TryDequeue(out var line))
+            if (_channel.TryDequeue(out var block))
             {
-                Dispatcher.Invoke(() => Exec.Text = line, DispatcherPriority.Render);
+                
+                Dispatcher.Invoke(() =>
+                {
+                    Stack.Text = block.Item1;
+                    Exec.Text = block.Item2;
+                }, DispatcherPriority.Render);
             }
         }
     }
