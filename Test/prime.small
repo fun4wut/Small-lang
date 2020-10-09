@@ -1,0 +1,11 @@
+for a := 2; a <= 20; a := a + 1
+begin
+    i := 1;
+    repeat
+        i := i + 1;
+    until i == a || a % i == 0
+    if a == i
+    then
+        write a;
+    end
+end

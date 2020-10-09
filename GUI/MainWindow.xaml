@@ -5,28 +5,41 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Small Compiler" Height="1500" Width="2000">
+    <Window.CommandBindings>
+        <CommandBinding Command="Open" CanExecute="CommandAlwaysTrue" Executed="OpenFileDialog" />
+        <CommandBinding Command="Save" CanExecute="CommandAlwaysTrue" Executed="SaveFileDialog" />
+        <CommandBinding Command="local:DIYCMD.Exit" CanExecute="CommandAlwaysTrue" Executed="CloseWindow" />
+        <CommandBinding Command="local:DIYCMD.Compile" CanExecute="CommandAlwaysTrue" Executed="Compile2PCode" />
+        <CommandBinding Command="local:DIYCMD.RunAll" CanExecute="CommandAlwaysTrue" Executed="RunAll" />
+        <CommandBinding Command="local:DIYCMD.RunByStep" CanExecute="CommandAlwaysTrue" Executed="RunByStep" />
+    </Window.CommandBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
-                <MenuItem Header="_Open" Click="OpenFileDialog"></MenuItem>
-                <MenuItem Header="_Save" Click="SaveFileDialog"></MenuItem>
-                <Separator></Separator>
-                <MenuItem Header="_Exit"></MenuItem>
+                <MenuItem Header="_Open" Command="Open" />
+                <MenuItem Header="_Save" Command="Save" />
+                <Separator />
+                <MenuItem Header="_Exit" Command="local:DIYCMD.Exit" />
+            </MenuItem>
+            <MenuItem Header="_Exec">
+                <MenuItem Header="Compile" Command="local:DIYCMD.Compile" />
+                <MenuItem Header="Run All" Command="local:DIYCMD.RunAll" />
+                <MenuItem Header="Run By Step" Command="local:DIYCMD.RunByStep" />
             </MenuItem>
         </Menu>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             
             <!-- Row0 begin -->
@@ -53,31 +66,31 @@
             <!-- Row0 end -->
             
             <!-- Row1 begin -->
-            <TextBlock Grid.Row="1" Grid.Column="0" Margin="10,0">
+            <TextBlock Grid.Row="1" Grid.Column="0" Margin="10,0" FontSize="20" TextAlignment="Center">
                 Source Code
             </TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="1" Margin="10,0">
+            <TextBlock Grid.Row="1" Grid.Column="1" Margin="10,0" FontSize="20" TextAlignment="Center">
                 P-Code
             </TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="2" Margin="10,0">
+            <TextBlock Grid.Row="1" Grid.Column="2" Margin="10,0" FontSize="20" TextAlignment="Center">
                 Error
             </TextBlock>
             <!-- Row1 end -->
             
             <!-- Row2 begin -->
-            <TextBox Grid.Row="2" Grid.Column="0" Margin="10" Name="Source"></TextBox>
-            <TextBox Grid.Row="2" Grid.Column="1" Margin="10" Name="PCode"></TextBox>
-            <TextBox Grid.Row="2" Grid.Column="2" Margin="10" Name="Error"></TextBox>
+            <TextBox Grid.Row="2" Grid.Column="0" Margin="10" Name="Source" />
+            <TextBox Grid.Row="2" Grid.Column="1" Margin="10" Name="PCode" />
+            <TextBox Grid.Row="2" Grid.Column="2" Margin="10" Name="Error" />
             <!-- Row2 end -->
             
             <!-- Row3 begin -->
-            <TextBlock Grid.Row="3" Grid.Column="0" Margin="10">
+            <TextBlock Grid.Row="3" Grid.Column="0" Margin="10" FontSize="20" TextAlignment="Center">
                 Input
             </TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="1" Margin="10">
+            <TextBlock Grid.Row="3" Grid.Column="1" Margin="10" FontSize="20" TextAlignment="Center">
                 Stack
             </TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="2" Margin="10">
+            <TextBlock Grid.Row="3" Grid.Column="2" Margin="10" FontSize="20" TextAlignment="Center">
                 Output
             </TextBlock>
             <!-- Row3 end -->
@@ -85,9 +98,9 @@
             <!-- Row4 begin -->
             <TextBox 
                 Grid.Row="4" Grid.Column="0" Margin="10" Name="Input" 
-                TextChanged="Input_OnTextChanged" IsEnabled="False"></TextBox>
-            <TextBox Grid.Row="4" Grid.Column="1" Margin="10" Name="Stack"></TextBox>
-            <TextBox Grid.Row="4" Grid.Column="2" Margin="10" Name="Exec"></TextBox>
+                TextChanged="Input_OnTextChanged" IsEnabled="False" />
+            <TextBox Grid.Row="4" Grid.Column="1" Margin="10" Name="Stack" />
+            <TextBox Grid.Row="4" Grid.Column="2" Margin="10" Name="Exec" />
             <!-- Row4 end -->
             
         </Grid>

@@ -59,7 +59,7 @@ namespace Small_lang
             Exclamation = Tok('!'),
             GreaterThan = Tok('>');
 
-        static Parser<char, string>
+        private static Parser<char, string>
             Assign = Tok(":="),
             Fn = Tok("func"),
             Arrow = Tok("->"),
@@ -85,11 +85,13 @@ namespace Small_lang
             Repeat = Tok("repeat"),
             Until = Tok("until"),
             For = Tok("for"),
+            Break = Tok("break"),
+            Continue = Tok("continue"),
             Begin = Tok("begin");
 
         static Parser<char, Unit> NonKeyWords = Not(OneOf(
-                Try(Fn), If, Try(Elif), Else, True, False, Int, Bool, Float, Unit, 
-                Then, End, Read, Write, Repeat, Until
+                Try(Fn), If, Try(Elif), Else, Try(True), False, Int, Bool, Float, Unit, 
+                Then, End, Read, Write, Repeat, Until, Try(Break), Continue
             ));
 
 
@@ -161,6 +163,9 @@ namespace Small_lang
             );
 
         static Parser<char, BaseAST>
+            PBreak = Break.ThenReturn<BaseAST>(new BreakStmtAST()),
+            PContinue = Continue.ThenReturn<BaseAST>(new ContinueStmtAST()),
+            
             POnlyIf =
                 from cond in If.Then(Rec(() => PExpr))
                 from _1 in Then
@@ -298,6 +303,8 @@ namespace Small_lang
                 Try(PRead).Before(Delimiter),
                 PRepeat,
                 PFor,
+                PBreak.Before(Delimiter),
+                PContinue.Before(Delimiter),
                 PWrite.Before(Delimiter),
                 Try(PAssign).Before(Delimiter),
                 Try(PExpr.Before(Delimiter))

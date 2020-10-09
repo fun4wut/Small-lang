@@ -25,7 +25,7 @@ namespace Small_lang.Codegen
         public static string Or() => "or";
         public static string Ldo(TypeKind ty, int q) => $"ldo {ty.S()} {q}";
         public static string Conv(TypeKind before, TypeKind after) => $"conv {before.S()} {after.S()}";
-        public static string Ldc(TypeKind ty, double q) => $"ldc {ty.S()} {q}";
+        public static string Ldc<T>(TypeKind ty, T q) => $"ldc {ty.S()} {q}";
         public static string Str(TypeKind ty, int p, int addr) => $"str {ty.S()} {p} {addr}";
         public static string Lod(TypeKind ty, int p, int addr) => $"lod {ty.S()} {p} {addr}";
         public static string Dpl(TypeKind ty) => $"dpl {ty.S()}";

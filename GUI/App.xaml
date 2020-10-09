@@ -8,10 +8,7 @@
              <Setter Property="AcceptsReturn" Value="True"></Setter>
              <Setter Property="TextWrapping" Value="Wrap"></Setter>
              <Setter Property="FontSize" Value="18"></Setter>
+             <Setter Property="FontFamily" Value="Consolas"></Setter>
          </Style>
-        <Style TargetType="TextBlock">
-            <Setter Property="FontSize" Value="20"></Setter>
-            <Setter Property="TextAlignment" Value="Center"></Setter>
-        </Style>
     </Application.Resources>
 </Application>

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using Small_lang;
@@ -61,6 +62,8 @@ namespace GUI
                 File.WriteAllText(dialog.FileName, Source.Text);
             }
         }
+        
+        
 
         private void Compile2PCode(object sender, RoutedEventArgs e)
         {
@@ -178,6 +181,16 @@ namespace GUI
                 );
             }
             await (_inputWriter?.WriteLineAsync("c") ?? Task.FromResult(1));
+        }
+
+        private void CloseWindow(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void CommandAlwaysTrue(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
         }
     }
 

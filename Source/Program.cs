@@ -9,16 +9,17 @@ namespace Small_lang
     class Program
     {
         private const string Prime = @"
-for a := 2; a <= 20; a := a + 1
+for a := 2; a <= 100; a := a + 1
 begin
     i := 1;
     repeat
         i := i + 1;
-    until i == a || a % i == 0
-    if a == i
-    then
-        write a;
-    end
+        if a == i
+        then
+            write a;
+            break;
+        end
+    until a % i == 0
 end";
 
         private const string Gcd = @"

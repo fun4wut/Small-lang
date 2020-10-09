@@ -28,7 +28,7 @@ namespace Small_lang.Codegen
         }
 
         private void CloseLoop() => _loops.Pop();
-        public string LoopStart => _loops.Peek().Item1;
-        public string LoopEnd => _loops.Peek().Item2;
+        public string LoopStart => _loops.TryPeek(out var res) ? res.Item1 : throw new TypeCheckException();
+        public string LoopEnd => _loops.TryPeek(out var res) ? res.Item2 : throw new TypeCheckException();
     }
 }

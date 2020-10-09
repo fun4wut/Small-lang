@@ -37,7 +37,9 @@ namespace Small_lang.AST
         Read,
         Write,
         Repeat,
-        For
+        For,
+        Break,
+        Continue
     }
 
     public enum TypeKind

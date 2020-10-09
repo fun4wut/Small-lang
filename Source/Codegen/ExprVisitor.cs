@@ -67,5 +67,10 @@ namespace Small_lang.Codegen
         {
             this.Visit(node.Stmts);
         }
+
+        protected internal override void VisitAST(BoolExprAST node)
+        {
+            GenCode.Add(Ins.Ldc(TypeKind.Bool, node.Value ? "t" : "f"));
+        }
     }
 }

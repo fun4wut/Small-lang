@@ -99,5 +99,15 @@ namespace Small_lang.Codegen
 
             CloseLoop();
         }
+
+        protected internal override void VisitAST(BreakStmtAST node)
+        {
+            GenCode.Add(Ins.Ujp(LoopEnd));
+        }
+
+        protected internal override void VisitAST(ContinueStmtAST node)
+        {
+            GenCode.Add(Ins.Ujp(LoopStart));
+        }
     }
 }
