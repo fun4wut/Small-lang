@@ -31,7 +31,7 @@ namespace Test
         public void UndefinedVar()
         {
             var s = "a+1";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+            Assert.Throws<UndefinedVarException>(() => CheckIt(s));
         }
 
         [Test]
@@ -40,30 +40,30 @@ namespace Test
             var s = "4.0 == 2 + 3";
             Assert.DoesNotThrow(() => CheckIt(s));
             s = "4 < 2 == 4";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+            Assert.Throws<TypeNotAllowedException>(() => CheckIt(s));
             s = "1 < 2 && 12";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+            Assert.Throws<TypeNotAllowedException>(() => CheckIt(s));
         }
 
         [Test]
         public void If_Cond_Not_Bool()
         {
             var s = @"if 2 + 3 then 4 else 5 end";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+            Assert.Throws<TypeNotAllowedException>(() => CheckIt(s));
         }
         
         [Test]
         public void Read_Type_Mismatch()
         {
             var s = "a := 2.5; read a";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+            Assert.Throws<TypeNotAllowedException>(() => CheckIt(s));
         }
 
         [Test]
         public void Write_Undefined_Var()
         {
             var s = "write a";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+            Assert.Throws<UndefinedVarException>(() => CheckIt(s));
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace Test
 repeat
     4
 until 1";
-            Assert.Throws<TypeCheckException>(() => CheckIt(s));
+            Assert.Throws<TypeNotAllowedException>(() => CheckIt(s));
         }
 
     }

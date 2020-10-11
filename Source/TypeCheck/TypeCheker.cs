@@ -9,11 +9,11 @@ namespace Small_lang.TypeCheck
     {
         public TypeChecker() { }
 
-        private Dictionary<string, (ASTType, TypeKind)> typeTbl = new Dictionary<string, (ASTType, TypeKind)>();
+        private readonly Dictionary<string, (ASTType, TypeKind)> _typeTbl = new Dictionary<string, (ASTType, TypeKind)>();
         
         public override void Clear()
         {
-            typeTbl.Clear();
+            _typeTbl.Clear();
         }
         
         protected internal override void VisitAST(AssignStmtAST node)
@@ -22,19 +22,19 @@ namespace Small_lang.TypeCheck
             this.Visit(node.Value);
 
             // Unit type is not allowed
-            if (!node.Value.IsExpr) throw new TypeCheckException();
+            if (!node.Value.IsExpr) throw new TypeNotAllowedException(node.Value.RetType);
 
-            if (typeTbl.TryGetValue(node.Name, out var type))
+            if (_typeTbl.TryGetValue(node.Name, out var type))
             {
                 if (type.Item2 != node.Value.RetType)
                 {
                     // throw error if type mismatch
-                    throw new TypeCheckException();
+                    throw new TypeNotAllowedException(node.Value.RetType, type.Item2);
                 }
             } 
             else
             {
-                typeTbl.Add(node.Name, (node.NodeType, node.Value.RetType));
+                _typeTbl.Add(node.Name, (node.NodeType, node.Value.RetType));
             }
         }
 
@@ -44,7 +44,7 @@ namespace Small_lang.TypeCheck
             this.Visit(node.Lhs);
             this.Visit(node.Rhs);
             // only expr can involve in binary operation
-            if (!node.Lhs.IsExpr || !node.Rhs.IsExpr) throw new TypeCheckException();
+            if (!node.Lhs.IsExpr || !node.Rhs.IsExpr) throw new TypeNotAllowedException(node.Lhs.RetType);
 
             var widenType = (TypeKind)Math.Max((int)node.Lhs.RetType, (int)node.Rhs.RetType);
             var shrinkType = (TypeKind)Math.Min((int)node.Lhs.RetType, (int)node.Rhs.RetType);
@@ -52,13 +52,13 @@ namespace Small_lang.TypeCheck
             // bool mix number is not allowed
             if (widenType != TypeKind.Bool && shrinkType == TypeKind.Bool)
             {
-                throw new TypeCheckException();
+                throw new TypeNotAllowedException(node.Lhs.RetType, TypeKind.Bool);
             }
 
             // and or need 2 bools
             if ((node.NodeType == ASTType.And || node.NodeType == ASTType.Or) && shrinkType != TypeKind.Bool)
             {
-                throw new TypeCheckException();
+                throw new TypeNotAllowedException(node.Lhs.RetType, TypeKind.Bool);
             }
             
             if (node.NodeType.IsBoolOp())
@@ -72,7 +72,7 @@ namespace Small_lang.TypeCheck
                 // float cannot do % operation
                 if (node.NodeType == ASTType.Modulo && node.RetType == TypeKind.Float)
                 {
-                    throw new TypeCheckException();
+                    throw new TypeNotAllowedException(node.Lhs.RetType, TypeKind.Int);
                 }
 
             }
@@ -109,7 +109,10 @@ namespace Small_lang.TypeCheck
             foreach (var cond in conds)
             {
                 // cond must be bool type
-                if (cond.RetType != TypeKind.Bool) throw new TypeCheckException();
+                if (cond.RetType != TypeKind.Bool)
+                {
+                    throw new TypeNotAllowedException(cond.RetType, TypeKind.Bool);
+                }
             }
             this.Visit(bodies);
             this.Visit(@else?.Body);
@@ -118,24 +121,24 @@ namespace Small_lang.TypeCheck
         protected internal override void VisitAST(VariableExprAST node)
         {
             // check exists
-            if (!typeTbl.TryGetValue(node.Name, out var type)) throw new TypeCheckException();
+            if (!_typeTbl.TryGetValue(node.Name, out var type)) throw new UndefinedVarException(node.Name);
             node.RetType = type.Item2;
         }
 
         protected internal override void VisitAST(ReadStmtAST node)
         {
 
-            if (typeTbl.TryGetValue(node.Name, out var type))
+            if (_typeTbl.TryGetValue(node.Name, out var type))
             {
-                if (type.Item2 != node.RetType)
+                if (type.Item2 != node.VarType)
                 {
                     // throw error if type mismatch
-                    throw new TypeCheckException();
+                    throw new TypeNotAllowedException(node.VarType, type.Item2);
                 }
             }
             else
             {
-                typeTbl.Add(node.Name, (node.NodeType, node.VarType));
+                _typeTbl.Add(node.Name, (node.NodeType, node.VarType));
             }
         }
 
@@ -152,7 +155,7 @@ namespace Small_lang.TypeCheck
             var body = node.InfLoop.Body;
 
             this.Visit(cond);
-            if (cond.RetType != TypeKind.Bool) throw new TypeCheckException();
+            if (cond.RetType != TypeKind.Bool) throw new TypeNotAllowedException(cond.RetType, TypeKind.Bool);
             this.Visit(body);
         }
         
@@ -162,7 +165,7 @@ namespace Small_lang.TypeCheck
             var body = node.InfLoop.Body;
 
             this.Visit(cond);
-            if (cond.RetType != TypeKind.Bool) throw new TypeCheckException();
+            if (cond.RetType != TypeKind.Bool) throw new TypeNotAllowedException(cond.RetType, TypeKind.Bool);
             this.Visit(body);
         }
 
@@ -172,8 +175,10 @@ namespace Small_lang.TypeCheck
             if (!node.Hs.IsExpr) throw new TypeCheckException();
             node.RetType = node.NodeType switch
             {
-                ASTType.Not when node.Hs.RetType != TypeKind.Bool => throw new TypeCheckException(),
-                ASTType.Neg when node.Hs.RetType == TypeKind.Bool => throw new TypeCheckException(),
+                ASTType.Not when node.Hs.RetType != TypeKind.Bool 
+                    => throw new TypeNotAllowedException(node.Hs.RetType, TypeKind.Float),
+                ASTType.Neg when node.Hs.RetType == TypeKind.Bool 
+                    => throw new TypeNotAllowedException(node.Hs.RetType, TypeKind.Bool),
                 _ => node.Hs.RetType
             };
         }
