@@ -10,33 +10,14 @@ namespace Small_lang.TypeCheck
         public TypeChecker() { }
 
         private Dictionary<string, (ASTType, TypeKind)> typeTbl = new Dictionary<string, (ASTType, TypeKind)>();
-
-        private Dictionary<string, (ASTType, List<TypedArg>, TypeKind)> fnTbl = 
-            new Dictionary<string, (ASTType, List<TypedArg>, TypeKind)>();
-
+        
         public override void Clear()
         {
             typeTbl.Clear();
-            fnTbl.Clear();
         }
-
-        public List<BaseAST> ReorderAndCheck(List<BaseAST> exprs)
-        {
-            // reorder the AST
-            exprs.Sort((e1, e2) => e1.NodeType.ASTValue() - e2.NodeType.ASTValue());
-            var funs = exprs.TakeWhile(e => e.NodeType.ASTValue() < 0).ToList();
-            // process func def
-            this.Visit(funs);
-            // process entry. clear the table first
-            typeTbl.Clear();
-            var main = exprs.SkipWhile(e => e.NodeType.ASTValue() < 0).ToList();
-            this.Visit(main);
-            return funs.Concat(main).ToList();
-        }
-
+        
         protected internal override void VisitAST(AssignStmtAST node)
         {
-            if (fnTbl.ContainsKey(node.Name)) throw new TypeCheckException();
 
             this.Visit(node.Value);
 
@@ -107,16 +88,7 @@ namespace Small_lang.TypeCheck
         {
             node.RetType = TypeKind.Bool;
         }
-
-        protected internal override void VisitAST(CallExprAST node)
-        {
-            this.Visit(node.Arguments);
-            if (!fnTbl.TryGetValue(node.Callee, out var type)) throw new TypeCheckException();
-            node.RetType = type.Item3;
-            if (!type.Item2.Select(arg => arg.Type)
-                        .SequenceEqual(node.Arguments.Select(arg => arg.RetType))
-                ) throw new TypeCheckException();
-        }
+        
 
         protected internal override void VisitAST(FloatExprAST node)
         {
@@ -126,16 +98,6 @@ namespace Small_lang.TypeCheck
         protected internal override void VisitAST(IntExprAST node)
         {
             node.RetType = TypeKind.Int;
-        }
-
-        protected internal override void VisitAST(FuncStmtAST node)
-        {
-            this.Visit(node.Proto);
-            this.Visit(node.Body);
-            // body's return and declared return should be the same
-            if (node.Body.RetType != node.Proto.FnRet) throw new TypeCheckException();
-            // update the fn table
-            fnTbl[node.Proto.Name] = (ASTType.Function, node.Proto.Arguments, node.Proto.FnRet);
         }
 
         protected internal override void VisitAST(IfStmtAST node)
@@ -153,35 +115,6 @@ namespace Small_lang.TypeCheck
             this.Visit(@else?.Body);
         }
 
-        protected internal override void VisitAST(ProtoStmtAST node)
-        {
-            // if exists a func proto in fb table. the signature should be the same
-            if (fnTbl.TryGetValue(node.Name, out var type))
-            {
-                // redefined function
-                if (type.Item1 == ASTType.Function) throw new TypeCheckException();
-
-                // args type doesn't match
-                if (!type.Item2.Select(arg => arg.Type)
-                        .SequenceEqual(node.Arguments.Select(arg => arg.Type))
-                ) throw new TypeCheckException();
-
-                // ret type doesn't match
-                if (type.Item3 != node.FnRet) throw new TypeCheckException();
-            }
-            else
-            {
-                fnTbl.Add(node.Name, (ASTType.Prototype, node.Arguments, node.FnRet));
-            }
-            // clear the symbol table since entering a new scope
-            typeTbl.Clear();
-            foreach (var arg in node.Arguments)
-            {
-                if (fnTbl.ContainsKey(arg.Name)) throw new TypeCheckException();
-                typeTbl.Add(arg.Name, (ASTType.Let, arg.Type));
-            }
-        }
-
         protected internal override void VisitAST(VariableExprAST node)
         {
             // check exists
@@ -191,8 +124,6 @@ namespace Small_lang.TypeCheck
 
         protected internal override void VisitAST(ReadStmtAST node)
         {
-            // similar with CheckAssignment AST
-            if (fnTbl.ContainsKey(node.Name)) throw new TypeCheckException();
 
             if (typeTbl.TryGetValue(node.Name, out var type))
             {

@@ -20,18 +20,7 @@ namespace Small_lang
         static Parser<char, string> Tok(string value) => Tok(String(value));
         static Parser<char, T> Parenthesised<T>(Parser<char, T> parser) => parser.Between(LBracket, RBracket);
         static Parser<char, T> Body<T>(Parser<char, T> parser) => parser.Between(LBrace, RBrace);
-        static Parser<char, Branch> Branch(Parser<char, string> parser) =>
-            parser.Then(Rec(() => PExpr)).Then(PBody, (cond, actions) => new Branch(cond, actions));
-
-        static Parser<char, Func<BaseAST, BaseAST>> Call(Parser<char, BaseAST> subExpr)
-            => Parenthesised(subExpr.Separated(Comma))
-                .Select<Func<BaseAST, BaseAST>>(args => exp => exp switch
-                    {
-                        VariableExprAST ident => new CallExprAST(ident.Name, args),
-                        _ => throw new Exception("callee must be ident"),
-                    }
-                )
-                .Labelled("function call");
+        
 
         static Parser<char, Func<BaseAST, BaseAST>> Unary(Parser<char, ASTType> op)
             => op.Select<Func<BaseAST, BaseAST>>(op => hs => new UnaryExprAST(op, hs));
@@ -141,47 +130,31 @@ namespace Small_lang
 
         #region Parsers
 
-        static Parser<char, TypedArg> PTypedArg =
-            from ident in Ident
-            from _ in Colon
-            from ty in Type
-            select new TypedArg(ident, ty);
+        private static Parser<char, IEnumerable<BaseAST>>
+            PStmtSeq = Rec(() => PNormalStmt).Separated(Delimiter).Assert(seq => seq.FirstOrDefault() != null);
 
-        static Parser<char, BlockExprAST> PBody =
-            Body(
-                Rec(() => PNormalStmt).Many()
-                .Then(Rec(() => PExpr).Optional(), (elms, ret) => 
-                    new BlockExprAST(
-                        ret.Match(
-                            just: val => elms.Append(val),
-                            // if expr is the special case
-                            nothing: () => elms.Any() && elms.Last().NodeType != ASTType.If
-                                ? elms.Append(new NopStmt())
-                                : elms
-                    ))
-                )
-            );
-
-        static Parser<char, BaseAST>
+        private static Parser<char, BaseAST>
             PBreak = Break.ThenReturn<BaseAST>(new BreakStmtAST()),
             PContinue = Continue.ThenReturn<BaseAST>(new ContinueStmtAST()),
-            
+
+
+
             POnlyIf =
                 from cond in If.Then(Rec(() => PExpr))
                 from _1 in Then
-                from stmts in PNormalStmt.Many()
+                from stmts in PStmtSeq
                 from _2 in End
-                select new IfStmtAST(new[] { new Branch(cond, new BlockExprAST(stmts)) }, null) as BaseAST,
+                select new IfStmtAST(new[] {new Branch(cond, new BlockExprAST(stmts))}, null) as BaseAST,
 
             PIfElse =
                 from cond in If.Then(Rec(() => PExpr))
                 from _1 in Then
-                from ifStmts in PNormalStmt.Many()
+                from ifStmts in PStmtSeq
                 from _2 in Else
-                from elseStmts in PNormalStmt.Many()
+                from elseStmts in PStmtSeq
                 from _3 in End
                 select new IfStmtAST(
-                    new[] { new Branch(cond, new BlockExprAST(ifStmts)) },
+                    new[] {new Branch(cond, new BlockExprAST(ifStmts))},
                     new ElseBranch(new BlockExprAST(ifStmts))
                 ) as BaseAST,
 
@@ -206,24 +179,24 @@ namespace Small_lang
 
             PWrite = Write.Then(Rec(() => PExpr)).Select<BaseAST>(v => new WriteStmtAST(v)),
 
-            PRepeat = 
+            PRepeat =
                 from _1 in Repeat
-                from stmts in PNormalStmt.AtLeastOnce()
+                from stmts in PStmtSeq
                 from _2 in Until
                 from cond in PNormalExpr
                 select new RepeatStmtAST(new Branch(cond, new BlockExprAST(stmts))) as BaseAST,
-            
-            PFor = 
+
+            PFor =
                 from _1 in For
                 from exprs in OneOf(
                     Try(PAssign), PNormalExpr, PRead, PWrite
                 ).SeparatedAtLeastOnce(SemiColon).Select(e => e.ToList())
                 from _2 in Begin
-                from stmts in PNormalStmt.Many()
+                from stmts in PStmtSeq
                 from _3 in End
                 select new ForStmtAST(
-                    new Branch(exprs[1], new BlockExprAST(stmts)), 
-                    exprs[0], 
+                    new Branch(exprs[1], new BlockExprAST(stmts)),
+                    exprs[0],
                     exprs[2]
                 ) as BaseAST,
 
@@ -235,29 +208,12 @@ namespace Small_lang
                 )
                 .Labelled("literal"),
 
-            PAssign = 
+            PAssign =
                 from ident in Ident
                 from _0 in Assign
                 from val in PExpr
                 select new AssignStmtAST(ident, val) as BaseAST,
-
-
-            Proto =
-                from _0 in Fn
-                from ident in Ident
-                from args in Parenthesised(PTypedArg.Separated(Comma))
-                from _1 in Arrow
-                from ty in Type
-                select new ProtoStmtAST(ident, args, ty) as BaseAST,
-
-            PFunc = Proto.Then(
-                PBody,
-                (proto, exprs) =>
-                    {
-                        var _proto = proto as ProtoStmtAST;
-                        return new FuncStmtAST(_proto!, exprs) as BaseAST;
-                    }
-            ),
+            
 
             PNormalExpr = ExpressionParser.Build<char, BaseAST>(
                 expr => (
@@ -268,7 +224,6 @@ namespace Small_lang
                     ),
                     new[]
                     {
-                        ExpOperator.Postfix(Call(expr)),
                         ExpOperator.InfixL(Mul)
                             .And(ExpOperator.InfixL(Div))
                             .And(ExpOperator.InfixL(Mod)),
@@ -288,37 +243,30 @@ namespace Small_lang
                 )
             ).Labelled("expression"),
 
-            TopFieldOnlyStmt = OneOf(
-                Try(PFunc),
-                Proto
-            ),
-
             PExpr = OneOf(
-               // Try(PIfStmt), if expr is decrypted
-               PNormalExpr
+                // Try(PIfStmt), if expr is decrypted
+                PNormalExpr
             ),
 
             PNormalStmt = OneOf(
                 PIfStmt,
-                Try(PRead).Before(Delimiter),
+                Try(PRead),
                 PRepeat,
                 PFor,
-                PBreak.Before(Delimiter),
-                PContinue.Before(Delimiter),
-                PWrite.Before(Delimiter),
-                Try(PAssign).Before(Delimiter),
-                Try(PExpr.Before(Delimiter))
-            ),
+                PBreak,
+                PContinue,
+                PWrite,
+                Try(PAssign),
+                Try(PExpr)
+            );
         
-            Stmt = TopFieldOnlyStmt.Or(PNormalStmt);
-
-        static Parser<char, IEnumerable<BaseAST>> Program = Stmt.AtLeastOnce();
+        static Parser<char, IEnumerable<BaseAST>> Program = PStmtSeq;
 
         #endregion
 
         #region Entry
         public static List<BaseAST> ParseAll(string input) => Program.ParseOrThrow(
-            Regex.Replace(input.Trim(), @"//.*?\r?\n", "")
+            Regex.Replace(input.Trim(), @"\/\*[\s\S]*\*\/|\/\/.*", "")
         ).ToList();
 
         #endregion

@@ -22,12 +22,6 @@ namespace Small_lang.AST
 
         protected internal virtual void VisitAST(VariableExprAST node) { }
 
-        protected internal virtual void VisitAST(ProtoStmtAST node) { }
-
-        protected internal virtual void VisitAST(FuncStmtAST node) { }
-
-        protected internal virtual void VisitAST(CallExprAST node) { }
-
         protected internal virtual void VisitAST(AssignStmtAST node) { }
 
         protected internal virtual void VisitAST(IfStmtAST node) { }

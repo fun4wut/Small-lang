@@ -19,7 +19,7 @@ namespace Test
         [Test]
         public void SingleLine()
         {
-            var s = "a2a*(133+2.3);12;";
+            var s = "a2a*(133+2.3);12";
             var expected = new List<BaseAST>
             {
                 new BinaryExprAST(
@@ -40,10 +40,10 @@ namespace Test
         public void MultiLine()
         {
             var s = @"
-a;;;
+a;
 
 
-12;";
+12";
             var expected = new List<BaseAST>
             {
                 new VariableExprAST("a"),
@@ -51,82 +51,13 @@ a;;;
             };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
-
-        [Test]
-        public void Prototype()
-        {
-            var s = "func xyz(a: Int, b: Float) -> Float;";
-            var expected = new List<BaseAST>
-            {
-                new ProtoStmtAST(
-                    "xyz",
-                    new List<TypedArg>
-                    {
-                        new TypedArg ("a", TypeKind.Int),
-                        new TypedArg ("b", TypeKind.Float)
-                    },
-                    TypeKind.Float
-                )
-            };
-            Assert.AreEqual(expected, LangParser.ParseAll(s));
-        }
-
-        [Test]
-        public void FuncDef()
-        {
-            var s = "func xyz(a: Int, b: Float) -> Int { 1 }";
-            var proto = new ProtoStmtAST(
-                "xyz",
-                new List<TypedArg>
-                {
-                    new TypedArg ("a", TypeKind.Int),
-                    new TypedArg ("b", TypeKind.Float)
-                },
-                TypeKind.Int
-            );
-            var expected = new List<BaseAST>
-            {
-                new FuncStmtAST(
-                    proto,
-                    new List<BaseAST>
-                    {
-                        new IntExprAST(1)
-                    }.ToBlock()
-                )
-            };
-            Assert.AreEqual(expected, LangParser.ParseAll(s));
-        }
-
-        [Test]
-        public void Call()
-        {
-            var s = "ab(2.0, 3);";
-            var expected = new List<BaseAST>
-            {
-                new CallExprAST(
-                    "ab",
-                    new List<BaseAST>
-                    {
-                        new FloatExprAST(2.0),
-                        new IntExprAST(3)
-                    }
-                )
-            };
-            Assert.AreEqual(expected, LangParser.ParseAll(s));
-        }
-
-        [Test]
-        public void Call_Throw()
-        {
-            var s = "1(2, 3);";
-            Assert.Throws<Exception>(() => LangParser.ParseAll(s));
-        }
+        
 
 
         [Test]
         public void Assign()
         {
-            var s = "a := 3;";
+            var s = "a := 3";
             var expected = new List<BaseAST>
             {
                 new AssignStmtAST(
@@ -140,7 +71,7 @@ a;;;
         [Test]
         public void Compare()
         {
-            var s = "a >= 3;";
+            var s = "a >= 3";
             var expected = new List<BaseAST>
             {
                 new BinaryExprAST(
@@ -155,7 +86,7 @@ a;;;
         [Test]
         public void AndOr()
         {
-            var s = "a >= 2 && true || false;";
+            var s = "a >= 2 && true || false";
             var expected = new List<BaseAST>
             {
                 new BinaryExprAST(
@@ -178,7 +109,7 @@ a;;;
         [Test]
         public void IfElse()
         {
-            var s = "if 2<3 then 2.3; else 7; end";
+            var s = "if 2<3 then 2.3 else 7 end";
             var expected = new List<BaseAST>
             {
                 new IfStmtAST(
@@ -211,7 +142,7 @@ a;;;
         [Test]
         public void OnlyIf()
         {
-            var s = "if 2<3 then 2; end;";
+            var s = "if 2<3 then 2 end";
             var expected = new List<BaseAST>
             {
                 new IfStmtAST(
@@ -241,7 +172,7 @@ a;;;
             var s = @"
 if true then 
     if false then 
-        4;
+        4
     end
 end";
             var expected = new List<BaseAST>
@@ -276,7 +207,7 @@ end";
         [Test]
         public void ReadStmt()
         {
-            var s = "read a;";
+            var s = "read a";
             var expected = new List<BaseAST> { new ReadStmtAST("a", TypeKind.Int) };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
@@ -284,7 +215,7 @@ end";
         [Test]
         public void WriteStmt()
         {
-            var s = "write a;";
+            var s = "write a";
             var expected = new List<BaseAST> { new WriteStmtAST(new VariableExprAST("a")) };
             Assert.AreEqual(expected, LangParser.ParseAll(s));
         }
@@ -294,9 +225,12 @@ end";
         {
             var s = @"
 repeat 
+/*
+Comment
+*/
     a := 3; // 233
     // 456
-    4;
+    4
 until true";
             var expected = new List<BaseAST>
             {
@@ -319,7 +253,7 @@ until true";
             var s = @"
 for a := 2; a < 10; a := a + 1
 begin
-    write a;
+    write a
 end";
             var expected = new List<BaseAST>
             {
@@ -344,7 +278,7 @@ end";
         [Test]
         public void AtLeastOneStmt()
         {
-            var s = @"red a;";
+            var s = @"";
             Assert.Throws<ParseException>(() => LangParser.ParseAll(s));
         }
         

@@ -2,8 +2,6 @@ namespace Small_lang.AST
 {
     public enum ASTType
     {
-        Prototype,
-        Function,
         Add,
         Subtract,
         Multiply,
@@ -23,13 +21,10 @@ namespace Small_lang.AST
         Equal,
         // Bool op end
 
-        Call,
         Variable,
         IntLit,
         FloatLit,
         BoolLit,
-        Let,
-        Mut,
         Assign,
         If,
         Block,

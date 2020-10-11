@@ -10,13 +10,7 @@ namespace Small_lang.AST
             exprASTs.ForEach(e => visitor.Visit(e));
 
         public static void Compile(this BaseAST exprAST, ASTVisitor visitor) => visitor.Visit(exprAST);
-
-        public static int ASTValue(this ASTType ty) => ty switch
-        {
-            ASTType.Prototype => -2,
-            ASTType.Function => -1,
-            _ => 0
-        };
+        
         public static bool IsBoolOp(this ASTType ty) => (int)ty >= (int)ASTType.LessThan && (int)ty <= (int)ASTType.Equal;
     }
 }

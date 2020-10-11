@@ -17,7 +17,7 @@ begin
         if a == i
         then
             write a;
-            break;
+            break
         end
     until a % i == 0
 end";

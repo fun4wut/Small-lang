@@ -4,7 +4,7 @@
     [Equals(DoNotAddEqualityOperators = true)]
     public class ContinueStmtAST : BaseAST
     {
-        public override ASTType NodeType { get; protected set; } = ASTType.Break;
+        public override ASTType NodeType { get; protected set; } = ASTType.Continue;
         protected internal override void Accept(ASTVisitor visitor) => visitor.VisitAST(this);
     }
 }

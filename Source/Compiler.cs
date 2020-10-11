@@ -14,9 +14,8 @@ namespace Small_lang
         private List<BaseAST> _programAST = new List<BaseAST>();
         public void PreProcess(string s)
         {
-            var prog = LangParser.ParseAll(s);
-            _programAST = _checker.ReorderAndCheck(prog);
-            //_programAST.ForEach(Console.WriteLine);
+            _programAST = LangParser.ParseAll(s);
+            _checker.Visit(_programAST);            
         }
 
         public void Clear()
