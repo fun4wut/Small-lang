@@ -98,6 +98,7 @@ namespace GUI
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardInput = true;
             p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.CreateNoWindow = true;
             p.OutputDataReceived += stdOutCallback;
             p.ErrorDataReceived += (_, e) => Dispatcher.Invoke(() => Error.Text += e.Data);
             await Task.Run(() =>
