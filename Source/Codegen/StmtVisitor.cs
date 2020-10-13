@@ -11,6 +11,7 @@ namespace Small_lang.Codegen
         
         public override void Clear()
         {
+            Ins.CleanLabel();
             GenCode.Clear();
             _symTbl.Clear();
             _loops.Clear();

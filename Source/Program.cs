@@ -31,12 +31,13 @@ repeat
     a := tmp;
 until b == 0
 write a;";
-        
+
         private static void Main(string[] args)
         {
             var compiler = new Compiler();
             compiler.PreProcess(Prime);
-            compiler.Compile(@"D:\VSWorkspace\Small-lang\PMachine\test.p");
+            compiler.DumpAST();
+            //compiler.Compile(@"D:\VSWorkspace\Small-lang\PMachine\test.p");
             // using (var p = new Process
             // {
             //     StartInfo = new ProcessStartInfo("node", @"D:\VSWorkspace\Small-lang\PMachine\PMachine.js D:\VSWorkspace\Small-lang\Source\aa.p")

@@ -2,13 +2,13 @@
 
 namespace GUI
 {
-    public static class DIYCMD
+    public static class Diycmd
     {
         public static readonly RoutedUICommand Exit = new RoutedUICommand
         (
             "Exit",
             "Exit",
-            typeof(DIYCMD),
+            typeof(Diycmd),
             new InputGestureCollection
             {
                 new KeyGesture(Key.F4, ModifierKeys.Alt)
@@ -19,7 +19,7 @@ namespace GUI
         (
             "Compile",
             "Compile",
-            typeof(DIYCMD),
+            typeof(Diycmd),
             new InputGestureCollection
             {
                 new KeyGesture(Key.B, ModifierKeys.Control)
@@ -30,7 +30,7 @@ namespace GUI
         (
             "Run All",
             "Run All",
-            typeof(DIYCMD),
+            typeof(Diycmd),
             new InputGestureCollection
             {
                 new KeyGesture(Key.F5, ModifierKeys.Control)
@@ -41,7 +41,7 @@ namespace GUI
         (
             "Run By Step",
             "Run By Step",
-            typeof(DIYCMD),
+            typeof(Diycmd),
             new InputGestureCollection
             {
                 new KeyGesture(Key.F5)

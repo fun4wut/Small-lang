@@ -9,10 +9,10 @@
     <Window.CommandBindings>
         <CommandBinding Command="Open" CanExecute="CommandAlwaysTrue" Executed="OpenFileDialog" />
         <CommandBinding Command="Save" CanExecute="CommandAlwaysTrue" Executed="SaveFileDialog" />
-        <CommandBinding Command="local:DIYCMD.Exit" CanExecute="CommandAlwaysTrue" Executed="CloseWindow" />
-        <CommandBinding Command="local:DIYCMD.Compile" CanExecute="CommandAlwaysTrue" Executed="Compile2PCode" />
-        <CommandBinding Command="local:DIYCMD.RunAll" CanExecute="CommandAlwaysTrue" Executed="RunAll" />
-        <CommandBinding Command="local:DIYCMD.RunByStep" CanExecute="CommandAlwaysTrue" Executed="RunByStep" />
+        <CommandBinding Command="local:Diycmd.Exit" CanExecute="CommandAlwaysTrue" Executed="CloseWindow" />
+        <CommandBinding Command="local:Diycmd.Compile" CanExecute="CommandAlwaysTrue" Executed="Compile2PCode" />
+        <CommandBinding Command="local:Diycmd.RunAll" CanExecute="CommandAlwaysTrue" Executed="RunAll" />
+        <CommandBinding Command="local:Diycmd.RunByStep" CanExecute="CommandAlwaysTrue" Executed="RunByStep" />
     </Window.CommandBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -20,12 +20,12 @@
                 <MenuItem Header="_Open" Command="Open" />
                 <MenuItem Header="_Save" Command="Save" />
                 <Separator />
-                <MenuItem Header="_Exit" Command="local:DIYCMD.Exit" />
+                <MenuItem Header="_Exit" Command="local:Diycmd.Exit" />
             </MenuItem>
             <MenuItem Header="_Exec">
-                <MenuItem Header="Compile" Command="local:DIYCMD.Compile" />
-                <MenuItem Header="Run All" Command="local:DIYCMD.RunAll" />
-                <MenuItem Header="Run By Step" Command="local:DIYCMD.RunByStep" />
+                <MenuItem Header="Compile" Command="local:Diycmd.Compile" />
+                <MenuItem Header="Run All" Command="local:Diycmd.RunAll" />
+                <MenuItem Header="Run By Step" Command="local:Diycmd.RunByStep" />
             </MenuItem>
         </Menu>
         <Grid>

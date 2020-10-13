@@ -37,6 +37,11 @@ namespace Small_lang
             _generator.GenCode.Add(Ins.Hlt()); // halt the VM machine
             return string.Join('\n', _generator.GenCode) + '\n';
         }
+
+        public void DumpAST()
+        {
+            _programAST.ForEach(Console.WriteLine);
+        }
         
     }
 }

@@ -37,6 +37,7 @@ namespace Small_lang.Codegen
         public static string CreateLabel() => $"l{_labelCnt++}";
         public static string Label(string s) => $"{s}:";
 
+        public static void CleanLabel() => _labelCnt = 0;
     }
 
     public static class TypeKindExt

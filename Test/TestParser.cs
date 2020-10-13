@@ -172,7 +172,9 @@ a;
             var s = @"
 if true then 
     if false then 
-        4
+        write 4
+    else
+        write 5
     end
 end";
             var expected = new List<BaseAST>
@@ -191,10 +193,16 @@ end";
                                             new BoolExprAST(false),
                                             new List<BaseAST>
                                             {
-                                                new IntExprAST(4)
+                                                new WriteStmtAST(new IntExprAST(4))
                                             }.ToBlock()
                                         )
-                                    }, null
+                                    },
+                                    new ElseBranch(
+                                        new List<BaseAST>
+                                        {
+                                            new WriteStmtAST(new IntExprAST(5))
+                                        }.ToBlock()
+                                    )
                                 )
                             }.ToBlock()
                         )

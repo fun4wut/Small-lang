@@ -1,0 +1,7 @@
+for i:=1; i<=100;i:=i+1
+begin
+  if i%2==0 then
+    continue
+  end;
+  write i
+end

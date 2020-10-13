@@ -155,7 +155,7 @@ namespace Small_lang
                 from _3 in End
                 select new IfStmtAST(
                     new[] {new Branch(cond, new BlockExprAST(ifStmts))},
-                    new ElseBranch(new BlockExprAST(ifStmts))
+                    new ElseBranch(new BlockExprAST(elseStmts))
                 ) as BaseAST,
 
             PIfStmt = Try(PIfElse).Or(POnlyIf),

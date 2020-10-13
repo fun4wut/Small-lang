@@ -1,0 +1,7 @@
+read a;
+res := 1;
+for i:=1;i<=a;i:=i+1
+begin 
+  res:= res*i
+end;
+write res
