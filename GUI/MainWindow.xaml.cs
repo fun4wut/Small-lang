@@ -43,7 +43,7 @@ namespace GUI
             Exec.Text = "";
             Error.Text = "";
             Stack.Text = "";
-            Input.IsEnabled = false;
+            Input.IsReadOnly = true;
         }
         private void OpenFileDialog(object sender, RoutedEventArgs e)
         {
@@ -118,7 +118,7 @@ namespace GUI
         {
             var tmp = Path.GetTempFileName();
             await File.WriteAllTextAsync(tmp, PCode.Text);
-            Input.IsEnabled = true;
+            Input.IsReadOnly = false;
             
             await RunAsync(
                 tmp,
@@ -146,7 +146,7 @@ namespace GUI
             {
                 var tmp = Path.GetTempFileName();
                 await File.WriteAllTextAsync(tmp, PCode.Text);
-                Input.IsEnabled = true;
+                Input.IsReadOnly = false;
                 var buffer = new StringBuilder();
                 var stepOutput = "";
                 _firstStep = false;
