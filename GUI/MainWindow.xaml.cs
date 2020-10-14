@@ -149,6 +149,7 @@ namespace GUI
                 Input.IsReadOnly = false;
                 var buffer = new StringBuilder();
                 var stepOutput = "";
+                var curIns = "";
                 _firstStep = false;
                 await RunAsync(
                     tmp,
@@ -158,14 +159,15 @@ namespace GUI
                         if (e.Data?.StartsWith("**") ?? false)
                         {
                             var output = stepOutput;
+                            var ins = curIns;
                             Dispatcher.Invoke(() =>
                             {
                                 Stack.Text = buffer.ToString();
                                 Exec.Text += output;
-                                // PCode.SelectedText
                             }, DispatcherPriority.Render);
                             buffer.Clear();
                             stepOutput = "";
+                            curIns = "";
                         }
                         else if (e.Data?.StartsWith("print") ?? false)
                         {
@@ -174,6 +176,10 @@ namespace GUI
                         else if (e.Data?.StartsWith("Press") ?? false)
                         {
                             // do nothing
+                        }
+                        else if (e.Data?.StartsWith("-->") ?? false)
+                        {
+                            curIns = e.Data.Substring(4);
                         }
                         else
                         {
