@@ -131,7 +131,8 @@ namespace Small_lang
         #region Parsers
 
         private static Parser<char, IEnumerable<BaseAST>>
-            PStmtSeq = Rec(() => PNormalStmt).Separated(Delimiter).Assert(seq => seq.FirstOrDefault() != null);
+            PStmtSeq = Rec(() => PNormalStmt).Separated(Delimiter)
+                .Assert(seq => seq.FirstOrDefault() != null);
 
         private static Parser<char, BaseAST>
             PBreak = Break.ThenReturn<BaseAST>(new BreakStmtAST()),
@@ -260,7 +261,8 @@ namespace Small_lang
                 Try(PExpr)
             );
         
-        static Parser<char, IEnumerable<BaseAST>> Program = PStmtSeq;
+        static Parser<char, IEnumerable<BaseAST>> Program = PStmtSeq
+            .Before(Not(Any.SkipAtLeastOnce())); // ensure there are no remaining char
 
         #endregion
 

@@ -119,6 +119,7 @@ namespace GUI
             var tmp = Path.GetTempFileName();
             await File.WriteAllTextAsync(tmp, PCode.Text);
             Input.IsEnabled = true;
+            
             await RunAsync(
                 tmp,
                 (_, e) =>
@@ -161,6 +162,7 @@ namespace GUI
                             {
                                 Stack.Text = buffer.ToString();
                                 Exec.Text += output;
+                                // PCode.SelectedText
                             }, DispatcherPriority.Render);
                             buffer.Clear();
                             stepOutput = "";
@@ -192,6 +194,12 @@ namespace GUI
         private void CommandAlwaysTrue(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
+        }
+
+        private void CommandBinding_OnReset(object sender, ExecutedRoutedEventArgs e)
+        {
+            this.Reset();
+            Source.Text = "";
         }
     }
 

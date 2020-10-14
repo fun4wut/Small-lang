@@ -47,5 +47,16 @@ namespace GUI
                 new KeyGesture(Key.F5)
             }
         );
+        
+        public static readonly RoutedUICommand Reset = new RoutedUICommand
+        (
+            "Reset",
+            "Reset",
+            typeof(Diycmd),
+            new InputGestureCollection
+            {
+                new KeyGesture(Key.L, ModifierKeys.Control)
+            }
+        );
     }
 }
