@@ -25,6 +25,7 @@ namespace GUI
         private Compiler _compiler = new Compiler();
         private StreamWriter? _inputWriter;
         private bool _firstStep = true;
+        private Process? _cli = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -36,6 +37,7 @@ namespace GUI
             _compiler.Clear();
             _inputWriter?.Close();
             _inputWriter?.Dispose();
+            _cli?.Dispose();
             _inputWriter = null;
             _firstStep = true;
             Input.Text = "";
@@ -85,7 +87,7 @@ namespace GUI
             bool showHeap = false
         )
         {
-            var p = new Process
+            _cli = new Process
             {
                 // StartInfo = new ProcessStartInfo(
                 //     "node", 
@@ -94,24 +96,24 @@ namespace GUI
                     @"D:\VSWorkspace\Small-lang\PMachine\bin\Debug\netcoreapp3.1\PMachine.exe", 
                     $" {path} {(showHeap ? "-v" : "")}")
             };
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.RedirectStandardInput = true;
-            p.StartInfo.RedirectStandardError = true;
-            p.StartInfo.CreateNoWindow = true;
-            p.OutputDataReceived += stdOutCallback;
-            p.ErrorDataReceived += (_, e) => Dispatcher.Invoke(() => Error.Text += e.Data);
+            _cli.StartInfo.UseShellExecute = false;
+            _cli.StartInfo.RedirectStandardOutput = true;
+            _cli.StartInfo.RedirectStandardInput = true;
+            _cli.StartInfo.RedirectStandardError = true;
+            _cli.StartInfo.CreateNoWindow = true;
+            _cli.OutputDataReceived += stdOutCallback;
+            _cli.ErrorDataReceived += (_, e) => Dispatcher.Invoke(() => Error.Text += e.Data);
             await Task.Run(() =>
             {
                 //p.ErrorDataReceived += errorCallback;
-                p.Start();
-                p.BeginOutputReadLine();
-                p.BeginErrorReadLine();
-                _inputWriter = p.StandardInput;
-                p.WaitForExit();
+                _cli.Start();
+                _cli.BeginOutputReadLine();
+                _cli.BeginErrorReadLine();
+                _inputWriter = _cli.StandardInput;
+                _cli.WaitForExit();
                 File.Delete(path);
             });
-            p.Dispose();
+            _cli.Dispose();
         }
         
         private async void RunAll(object sender, RoutedEventArgs e)
@@ -150,6 +152,7 @@ namespace GUI
                 var buffer = new StringBuilder();
                 var stepOutput = "";
                 var curIns = "";
+                var pc = 0;
                 _firstStep = false;
                 await RunAsync(
                     tmp,
@@ -164,6 +167,11 @@ namespace GUI
                             {
                                 Stack.Text = buffer.ToString();
                                 Exec.Text += output;
+                                PCode.Focus();
+                                //Console.Out.WriteLine(pc);
+                                if (pc == -99) return;
+                                var idx = PCode.GetCharacterIndexFromLineIndex(pc);
+                                PCode.Select(idx, ins.Length);
                             }, DispatcherPriority.Render);
                             buffer.Clear();
                             stepOutput = "";
@@ -171,18 +179,24 @@ namespace GUI
                         }
                         else if (e.Data?.StartsWith("print") ?? false)
                         {
-                            stepOutput = e.Data;
+                            stepOutput = e.Data + "\n";
                         }
                         else if (e.Data?.StartsWith("Press") ?? false)
                         {
                             // do nothing
                         }
-                        else if (e.Data?.StartsWith("-->") ?? false)
-                        {
-                            curIns = e.Data.Substring(4);
-                        }
                         else
                         {
+                            if (e.Data?.StartsWith("-->") ?? false)
+                            {
+                                curIns = e.Data.Substring(9); // catch ins
+                            }
+
+                            if (e.Data?.StartsWith("PC =") ?? false)
+                            {
+                                Console.Out.WriteLine(e.Data.Substring(5));
+                                pc = int.Parse(e.Data.Substring(5)); // catch PC
+                            }
                             buffer.AppendLine(e.Data);
                         }
                     },
@@ -194,6 +208,7 @@ namespace GUI
 
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
+            _cli?.Dispose();
             Application.Current.Shutdown();
         }
 
