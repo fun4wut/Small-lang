@@ -35,18 +35,20 @@ namespace PMachine
             {
                 if (verbose) Console.WriteLine($"--> ins: {_instructions[_pc]}");
                 var pcIncrease = ExecSingle();
-                if (!verbose) continue;
-                for (var i = 0; i <= _sp; ++i)
+                if (verbose)
                 {
-                    Console.WriteLine($"location: {i}\t[{_stack[i].Value}]\ttype: {_stack[i].Type}");
-                }
+                    for (var i = 0; i <= _sp; ++i)
+                    {
+                        Console.WriteLine($"location: {i}\t[{_stack[i].Value}]\ttype: {_stack[i].Type}");
+                    }
 
-                Console.WriteLine($"\nSP = {_sp}\nPC = {_pc}\n****");
-                Console.WriteLine("Press [c] + [Enter] to continue.");
-                string? s = null;
-                while (s != "c")
-                {
-                    s = Console.ReadLine();
+                    Console.WriteLine($"\nSP = {_sp}\nPC = {_pc}\n****");
+                    Console.WriteLine("Press [c] + [Enter] to continue.");
+                    string? s = null;
+                    while (s != "c")
+                    {
+                        s = Console.ReadLine();
+                    }
                 }
 
                 switch (pcIncrease)
