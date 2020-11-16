@@ -13,6 +13,7 @@
         <CommandBinding Command="local:Diycmd.Compile" CanExecute="CommandAlwaysTrue" Executed="Compile2PCode" />
         <CommandBinding Command="local:Diycmd.RunAll" CanExecute="CommandAlwaysTrue" Executed="RunAll" />
         <CommandBinding Command="local:Diycmd.RunByStep" CanExecute="CommandAlwaysTrue" Executed="RunByStep" />
+        <CommandBinding Command="local:Diycmd.Reset" CanExecute="CommandAlwaysTrue" Executed="CommandBinding_OnReset" />
     </Window.CommandBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -20,12 +21,13 @@
                 <MenuItem Header="_Open" Command="Open" />
                 <MenuItem Header="_Save" Command="Save" />
                 <Separator />
-                <MenuItem Header="_Exit" Command="local:Diycmd.Exit" />
+                <MenuItem Command="local:Diycmd.Exit" />
             </MenuItem>
             <MenuItem Header="_Exec">
-                <MenuItem Header="Compile" Command="local:Diycmd.Compile" />
-                <MenuItem Header="Run All" Command="local:Diycmd.RunAll" />
-                <MenuItem Header="Run By Step" Command="local:Diycmd.RunByStep" />
+                <MenuItem Command="local:Diycmd.Compile" />
+                <MenuItem Command="local:Diycmd.RunAll" />
+                <MenuItem Command="local:Diycmd.RunByStep" />
+                <MenuItem Command="local:Diycmd.Reset" />
             </MenuItem>
         </Menu>
         <Grid>
@@ -79,8 +81,8 @@
             
             <!-- Row2 begin -->
             <TextBox Grid.Row="2" Grid.Column="0" Margin="10" Name="Source" />
-            <TextBox Grid.Row="2" Grid.Column="1" Margin="10" Name="PCode" />
-            <TextBox Grid.Row="2" Grid.Column="2" Margin="10" Name="Error" />
+            <TextBox Grid.Row="2" Grid.Column="1" Margin="10" Name="PCode" IsReadOnly="True"/>
+            <TextBox Grid.Row="2" Grid.Column="2" Margin="10" Name="Error" IsReadOnly="True" />
             <!-- Row2 end -->
             
             <!-- Row3 begin -->
@@ -98,9 +100,9 @@
             <!-- Row4 begin -->
             <TextBox 
                 Grid.Row="4" Grid.Column="0" Margin="10" Name="Input" 
-                TextChanged="Input_OnTextChanged" IsEnabled="False" />
-            <TextBox Grid.Row="4" Grid.Column="1" Margin="10" Name="Stack" />
-            <TextBox Grid.Row="4" Grid.Column="2" Margin="10" Name="Exec" />
+                TextChanged="Input_OnTextChanged" IsReadOnly="True" />
+            <TextBox Grid.Row="4" Grid.Column="1" Margin="10" Name="Stack" IsReadOnly="True" />
+            <TextBox Grid.Row="4" Grid.Column="2" Margin="10" Name="Exec" IsReadOnly="True" />
             <!-- Row4 end -->
             
         </Grid>

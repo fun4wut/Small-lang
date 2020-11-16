@@ -18,7 +18,7 @@ namespace PMachine
             var valid = File.ReadLines(path)
                 .Where(s => s != string.Empty).ToList();
             // pre scan
-            for (int i = 0; i < valid.Count; i++)
+            for (var i = 0; i < valid.Count; i++)
             {
                 var ins = valid[i];
                 if (ins.EndsWith(":"))
@@ -34,7 +34,7 @@ namespace PMachine
             while (_pc >= 0)
             {
                 if (verbose) Console.WriteLine($"--> ins: {_instructions[_pc]}");
-                ExecSingle();
+                var pcIncrease = ExecSingle();
                 if (verbose)
                 {
                     for (var i = 0; i <= _sp; ++i)
@@ -42,7 +42,7 @@ namespace PMachine
                         Console.WriteLine($"location: {i}\t[{_stack[i].Value}]\ttype: {_stack[i].Type}");
                     }
 
-                    Console.WriteLine($"\nSP = {_sp}\tPC = {_pc}\n****");
+                    Console.WriteLine($"\nSP = {_sp}\nPC = {_pc}\n****");
                     Console.WriteLine("Press [c] + [Enter] to continue.");
                     string? s = null;
                     while (s != "c")
@@ -50,7 +50,18 @@ namespace PMachine
                         s = Console.ReadLine();
                     }
                 }
-                _pc++;
+
+                switch (pcIncrease)
+                {
+                    case InsStat.Fin:
+                        return;
+                    case InsStat.Inc:
+                        _pc++;
+                        break;
+                    case InsStat.Stay:
+                        break;
+                }
+
             }
         }
         
@@ -133,7 +144,7 @@ namespace PMachine
         }
 
 
-        public void ExecSingle()
+        private InsStat ExecSingle()
         {
             var ins = _instructions[_pc];
             switch (ins.Op)
@@ -170,12 +181,14 @@ namespace PMachine
                 case string s when s.EndsWith(":"): // label, did nothing
                     break;
                 case "ujp":
-                    _pc = _labelDict[ins.Hs1!] - 1;
-                    break;
+                    _pc = _labelDict[ins.Hs1!];
+                    return InsStat.Stay;
                 case "fjp":
                     if (_stack[_sp].Value == false)
                     {
-                        _pc = _labelDict[ins.Hs1!] - 1;
+                        _pc = _labelDict[ins.Hs1!];
+                        _sp--;
+                        return InsStat.Stay;
                     }
                     _sp--;
                     break;
@@ -192,12 +205,12 @@ namespace PMachine
                     Console.WriteLine($"print: {_stack[_sp--].Value}");
                     break;
                 case "hlt":
-                    _pc = -99;
-                    break;
+                    return InsStat.Fin;
                 default:
                     throw new NotImplementedException();
             }
-            
+
+            return InsStat.Inc;
         }
         
     }

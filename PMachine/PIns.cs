@@ -28,4 +28,11 @@ namespace PMachine
         private static string? GetOr(IReadOnlyList<string> arr, int idx) => idx < arr.Count ? arr[idx] : null;
 
     }
+
+    public enum InsStat
+    {
+        Inc,
+        Stay,
+        Fin
+    }
 }
