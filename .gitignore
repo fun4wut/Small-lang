@@ -5,7 +5,7 @@
 .idea/
 *.js
 *.wasm
-
+rtf/
 # Customed
 *.ll
 *.exe
